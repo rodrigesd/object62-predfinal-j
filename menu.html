@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Меню · объект 6/2 — кальянный лаунж на Рогожском валу</title>
+<meta name="description" content="Карта бара объект 6/2: авторские коктейли на своих настойках, авторские кальяны, крепкий бар, вино, китайский чай и фирменные лимонады.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face{
+    font-family:'District';
+    src:url('assets/District-Regular.ttf') format('truetype');
+    font-display:swap;
+  }
+  :root{
+    --ink:#0b0805; --paper:#e9dcc3; --paper-dim:#cdbfa4; --bone:#efe6d2;
+    --copper:#c87d4a; --copper-hot:#e8a06a; --wax:#8c2f23;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:300;
+    -webkit-font-smoothing:antialiased;line-height:1.6}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+  header.nav{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;background:rgba(11,8,5,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(205,191,164,.12)}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--bone)}
+  .logo b{font-family:'District',var(--serif);font-weight:400;font-size:17px;letter-spacing:.30em}
+  .logo span{font-family:'District','JetBrains Mono',monospace;font-size:11px;color:var(--copper);border:1px solid rgba(200,125,74,.5);border-radius:2px;padding:3px 7px 2px}
+  .nav-back{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--paper-dim);
+    text-decoration:none;text-transform:uppercase;transition:color .2s}
+  .nav-back:hover{color:var(--copper-hot)}
+
+  .m-hero{padding:72px 0 34px}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--copper);text-transform:uppercase}
+  .m-hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,6vw,64px);line-height:1.04;margin:14px 0 16px}
+  .m-hero p{max-width:600px;color:var(--paper-dim);font-size:15px;margin:0}
+
+  .mtabs{position:sticky;top:57px;z-index:30;display:flex;gap:8px;flex-wrap:wrap;
+    padding:16px 0 14px;margin-top:22px;background:linear-gradient(180deg,var(--ink) 82%,transparent);
+    border-bottom:1px solid rgba(205,191,164,.12)}
+  .mtab{font-family:'District',var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--paper-dim);background:transparent;border:1px solid rgba(205,191,164,.25);
+    border-radius:2px;padding:11px 16px;cursor:pointer;transition:all .2s}
+  .mtab:hover{border-color:rgba(200,125,74,.6);color:var(--bone)}
+  .mtab.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
+  .mtab:focus-visible{outline:2px solid var(--copper-hot);outline-offset:2px}
+
+  .mpanel{display:none;padding:34px 0 10px;animation:fadein .35s ease}
+  .mpanel.on{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .mpanel-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 8px}
+  .mpanel-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,3.2vw,34px);margin:0}
+  .sheet-no{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:rgba(205,191,164,.45)}
+
+  .m-sub-head{font-family:'District',var(--mono);font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--copper);margin:34px 0 6px;padding-bottom:10px;border-bottom:1px solid rgba(200,125,74,.25);
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .m-sub-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:rgba(205,191,164,.5);text-transform:none}
+
+  /* карточки с фото */
+  .dcards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 22px;padding:20px 0 8px}
+  .dcards-3{grid-template-columns:repeat(3,1fr)}
+  .dcard{margin:0;background:rgba(233,220,195,.028);border:1px solid rgba(205,191,164,.13);
+    border-radius:3px;overflow:hidden;transition:border-color .25s, transform .25s}
+  .dcard:hover{border-color:rgba(200,125,74,.5);transform:translateY(-3px)}
+  .dcard-ph{position:relative;aspect-ratio:4/4.6;overflow:hidden}
+  .dcards-3 .dcard-ph{aspect-ratio:4/4.2}
+  .dcard-ph img{width:100%;height:100%;object-fit:cover;display:block;
+    filter:sepia(.06) contrast(1.02);transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+  .dcard:hover .dcard-ph img{transform:scale(1.045)}
+  .dcard-no{position:absolute;top:10px;left:10px;font-family:'District',var(--mono);font-size:10px;
+    letter-spacing:.18em;color:var(--copper-hot);background:rgba(11,8,5,.72);border:1px solid rgba(200,125,74,.4);
+    border-radius:2px;padding:4px 8px 3px}
+  .dcard figcaption{padding:14px 16px 16px}
+  .dcard-top{display:flex;align-items:baseline;gap:9px}
+  .dcard-top b{font-size:15.5px;color:var(--bone);font-weight:500}
+  .dcard-desc{font-size:12.5px;color:var(--paper-dim);line-height:1.6;margin:8px 0 0}
+  .dcard-profile{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    color:rgba(200,125,74,.75);margin:8px 0 0}
+
+  .m-row{display:flex;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px dashed rgba(205,191,164,.13)}
+  .m-row:last-child{border-bottom:none}
+  .m-name{font-size:15.5px;color:var(--bone);font-weight:400}
+  .m-sub{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+    color:rgba(205,191,164,.55);text-transform:uppercase;margin-top:4px}
+  .m-vol{font-family:var(--mono);font-size:10px;color:var(--copper);letter-spacing:.1em;margin-left:6px}
+  .m-dots{flex:1 1 auto;border-bottom:1px dotted rgba(205,191,164,.28);min-width:22px;transform:translateY(-4px)}
+  .m-price{font-family:var(--mono);font-size:13px;color:var(--copper-hot);white-space:nowrap}
+  .m-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:rgba(205,191,164,.6);
+    max-width:640px;line-height:1.8}
+  .m-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 52px;align-items:start}
+  @media (max-width:980px){ .dcards,.dcards-3{grid-template-columns:1fr 1fr} }
+  @media (max-width:760px){
+    .m-cols{grid-template-columns:1fr}
+    .dcards,.dcards-3{grid-template-columns:1fr 1fr;gap:16px 12px}
+    header.nav{padding:14px 20px}
+    .mtabs{top:51px;gap:6px;padding:12px 0 10px}
+    .mtab{padding:10px 12px;font-size:11.5px}
+    .wrap{padding:0 18px}
+    .m-hero{padding:52px 0 22px}
+    .m-hero h1{font-size:40px}
+    .m-row{padding:11px 0}
+    .m-name{font-size:15px}
+    .dcard figcaption{padding:11px 12px 13px}
+    .dcard-top b{font-size:14px}
+    .dcard-desc{font-size:11.5px}
+    .dcard-ph{aspect-ratio:4/4.3}
+    .m-sub-head{font-size:12px;margin:26px 0 4px}
+  }
+  @media (max-width:480px){
+    .dcards,.dcards-3{grid-template-columns:1fr}
+    .dcard-ph{aspect-ratio:4/3.4}
+    .m-hero h1{font-size:34px}
+  }
+  .m-foot{padding:64px 0 90px;text-align:center}
+  .m-foot .btn{display:inline-flex;align-items:center;gap:10px;background:var(--copper);color:#1a1008;
+    font-family:var(--sans);font-weight:500;font-size:14.5px;text-decoration:none;
+    padding:16px 30px;border-radius:2px;transition:background .2s}
+  .m-foot .btn:hover{background:var(--copper-hot)}
+  .m-foot p{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(205,191,164,.45);margin-top:22px}
+  .disclaimer{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:rgba(205,191,164,.4);
+    border:1px dashed rgba(205,191,164,.2);border-radius:3px;padding:14px 16px;margin:44px 0 0;line-height:1.9}
+
+  /* бегущий блик по акцентным кнопкам (из d2) */
+  .m-foot .btn{position:relative;overflow:hidden}
+  .m-foot .btn::before{
+    content:'';position:absolute;top:0;bottom:0;width:56px;left:-90px;
+    background:linear-gradient(100deg,transparent,rgba(255,240,220,.5),transparent);
+    transform:skewX(-18deg);pointer-events:none;
+    animation:btnsheen 5.4s ease-in-out 2.4s infinite;
+  }
+  @keyframes btnsheen{0%{left:-90px}20%{left:130%}100%{left:130%}}
+  @media (prefers-reduced-motion: reduce){ .m-foot .btn::before{animation:none} }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav">
+  <a class="logo" href="index.html"><b>ОБЪЕКТ</b><span>6/2</span></a>
+  <a class="nav-back" href="index.html">← на главную</a>
+</header>
+<main class="wrap">
+  <div class="m-hero">
+    <div class="kicker">// дело № 6/2 · полная карта</div>
+    <h1>Меню</h1>
+    <p>Настойки и заготовки делаем сами — джин на чёрной смородине, Campari на лесной
+       малине, бренди на вишне. Чай и лимонады варим на своих сиропах.</p>
+  </div>
+
+  <div class="mtabs" role="tablist" aria-label="Разделы меню">
+    <button class="mtab on" role="tab" id="tb-mt-cocktails" aria-controls="mt-cocktails" aria-selected="true" tabindex="0" data-p="mt-cocktails">Коктейли</button>
+    <button class="mtab" role="tab" id="tb-mt-hookah" aria-controls="mt-hookah" aria-selected="false" tabindex="-1" data-p="mt-hookah">Кальяны</button>
+    <button class="mtab" role="tab" id="tb-mt-bar" aria-controls="mt-bar" aria-selected="false" tabindex="-1" data-p="mt-bar">Бар и вино</button>
+    <button class="mtab" role="tab" id="tb-mt-tea" aria-controls="mt-tea" aria-selected="false" tabindex="-1" data-p="mt-tea">Чай и лимонады</button>
+    <button class="mtab" role="tab" id="tb-mt-snacks" aria-controls="mt-snacks" aria-selected="false" tabindex="-1" data-p="mt-snacks">Кофе и закуски</button>
+  </div>
+
+  <section class="mpanel on" id="mt-cocktails" role="tabpanel" aria-labelledby="tb-mt-cocktails">
+    <div class="mpanel-head"><h2>Коктейли</h2><div class="sheet-no">ЛИСТ 01 · 05</div></div>
+<h3 class="m-sub-head">Авторские коктейли<span class="m-sub-note">15 позиций на своих настойках и заготовках</span></h3><div class="dcards">
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-obekt.jpg" alt="Коктейль Объект" loading="lazy">
+          <span class="dcard-no">№ 01</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Объект</b><span class="m-vol">90 мл</span>
+            <span class="m-dots"></span><span class="m-price">850 ₽</span></div>
+          <p class="dcard-desc">Водка | Специи, ликёр слива, габа медовая. Опалённый розмарин, пчелиные соты.</p>
+          <p class="dcard-profile">Плотный, маслянистый, медово-чайный финиш</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-byurokrat.jpg" alt="Коктейль Мёртвый бюрократ" loading="lazy">
+          <span class="dcard-no">№ 02</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Мёртвый бюрократ</b><span class="m-vol">90 мл</span>
+            <span class="m-dots"></span><span class="m-price">790 ₽</span></div>
+          <p class="dcard-desc">Джин | Смородина, Кампари | Малина, Россо | Брусника.</p>
+          <p class="dcard-profile">Горько-сладкий, тёмные ягоды, сухой аперитив</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-protokol.jpg" alt="Коктейль Красный протокол" loading="lazy">
+          <span class="dcard-no">№ 03</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Красный протокол</b><span class="m-vol">90 мл</span>
+            <span class="m-dots"></span><span class="m-price">790 ₽</span></div>
+          <p class="dcard-desc">Ром | Ананас, Россо | Брусника, ДаХунПао | Брусника, белок.</p>
+          <p class="dcard-profile">Sour: пенный, чайно-брусничный</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-barbary.jpg" alt="Коктейль Дело Барбары" loading="lazy">
+          <span class="dcard-no">№ 04</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Дело Барбары</b><span class="m-vol">80 мл</span>
+            <span class="m-dots"></span><span class="m-price">750 ₽</span></div>
+          <p class="dcard-desc">Джин | Смородина, ликёр бузина, жасмин | ананас.</p>
+          <p class="dcard-profile">Легкий, цветочно-ягодный</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-storona.jpg" alt="Коктейль Тёмная сторона" loading="lazy">
+          <span class="dcard-no">№ 05</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Тёмная сторона</b><span class="m-vol">80 мл</span>
+            <span class="m-dots"></span><span class="m-price">790 ₽</span></div>
+          <p class="dcard-desc">Бренди | Вишня, пуэр | смородина, Кампари | Малина.</p>
+          <p class="dcard-profile">Плотный, горький, тёплый</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-ekzemplyar.jpg" alt="Коктейль Последний экземпляр" loading="lazy">
+          <span class="dcard-no">№ 06</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Последний экземпляр</b><span class="m-vol">140 мл</span>
+            <span class="m-dots"></span><span class="m-price">750 ₽</span></div>
+          <p class="dcard-desc">Джин | Смородина, triple sec, ананас, супер-джус, белок.</p>
+          <p class="dcard-profile">Мягкий, пенный, ягодно-цитрусовый</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-shelk.jpg" alt="Коктейль Императорский шёлк" loading="lazy">
+          <span class="dcard-no">№ 07</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Императорский шёлк</b><span class="m-vol">125 мл</span>
+            <span class="m-dots"></span><span class="m-price">750 ₽</span></div>
+          <p class="dcard-desc">Клубника | Личи, ром | ананас, игристое, белок.</p>
+          <p class="dcard-profile">Сладкий, пенный, фруктовый</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-zerno.jpg" alt="Коктейль Зерно истины" loading="lazy">
+          <span class="dcard-no">№ 08</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Зерно истины</b><span class="m-vol">100 мл</span>
+            <span class="m-dots"></span><span class="m-price">690 ₽</span></div>
+          <p class="dcard-desc">Кофейный ликёр, ром | ананас, банановая пена.</p>
+          <p class="dcard-profile">Десертный, кремовый</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-sluchay.jpg" alt="Коктейль Особый случай" loading="lazy">
+          <span class="dcard-no">№ 09</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Особый случай</b><span class="m-vol">110 мл</span>
+            <span class="m-dots"></span><span class="m-price">790 ₽</span></div>
+          <p class="dcard-desc">Текила | Лайм кафир, ликёр яблоко, саган-дайля, габа медовая.</p>
+          <p class="dcard-profile">Свежий, цитрусово-травяной</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-delo.jpg" alt="Коктейль Личное дело" loading="lazy">
+          <span class="dcard-no">№ 10</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Личное дело</b><span class="m-vol">100 мл</span>
+            <span class="m-dots"></span><span class="m-price">750 ₽</span></div>
+          <p class="dcard-desc">Бренди | Вишня, вишнёвая газировка, ДаХунПао | Брусника, мараскино.</p>
+          <p class="dcard-profile">Игристый, вишнёвый, сухой финиш</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-svidetel.jpg" alt="Коктейль Немой свидетель" loading="lazy">
+          <span class="dcard-no">№ 11</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Немой свидетель</b><span class="m-vol">100 мл</span>
+            <span class="m-dots"></span><span class="m-price">690 ₽</span></div>
+          <p class="dcard-desc">Водка | Специи, манго | маракуйя, triple sec, содовая.</p>
+          <p class="dcard-profile">Тропический fizz</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-pokazaniya.jpg" alt="Коктейль Ложные показания" loading="lazy">
+          <span class="dcard-no">№ 12</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Ложные показания</b><span class="m-vol">120 мл</span>
+            <span class="m-dots"></span><span class="m-price">690 ₽</span></div>
+          <p class="dcard-desc">Джин | Смородина, Россо | Брусника, игристое.</p>
+          <p class="dcard-profile">Лёгкий аперитив, сухой винный финиш</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-boston.jpg" alt="Коктейль Бостонское чаепитие" loading="lazy">
+          <span class="dcard-no">№ 13</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Бостонское чаепитие</b><span class="m-vol">115 мл</span>
+            <span class="m-dots"></span><span class="m-price">750 ₽</span></div>
+          <p class="dcard-desc">Джин | Смородина, брусника | специи, саган-дайля, имбирь.</p>
+          <p class="dcard-profile">Кислый, плотный, чайный</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-element.jpg" alt="Коктейль Элемент" loading="lazy">
+          <span class="dcard-no">№ 14</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Элемент</b><span class="m-vol">120 мл</span>
+            <span class="m-dots"></span><span class="m-price">720 ₽</span></div>
+          <p class="dcard-desc">Кампари | Малина, виски | ананас, ананасовая газировка.</p>
+          <p class="dcard-profile">Горько-ягодный, игристый</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/dr-skver.jpg" alt="Коктейль Тайм Сквер" loading="lazy">
+          <span class="dcard-no">№ 15</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Тайм Сквер</b><span class="m-vol">120 мл</span>
+            <span class="m-dots"></span><span class="m-price">720 ₽</span></div>
+          <p class="dcard-desc">Бренди | Вишня, ликёр бузина, ДаХунПао | Брусника, содовая.</p>
+          <p class="dcard-profile">Газированный, вишнёво-цветочный</p>
+        </figcaption>
+      </figure>
+</div><div class="m-cols"><div><h3 class="m-sub-head">Классика</h3><div class="m-row"><div class="m-name">Negroni</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Dry Martini</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Old Fashioned</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Manhattan</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Margarita</div><span class="m-dots"></span><span class="m-price">620 ₽</span></div><div class="m-row"><div class="m-name">Daiquiri</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Mojito</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Whiskey Sour</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Cosmopolitan</div><span class="m-dots"></span><span class="m-price">620 ₽</span></div><div class="m-row"><div class="m-name">Mai Tai</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Bloody Mary</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Tom Collins</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Pina Colada</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Long Island Iced Tea</div><span class="m-dots"></span><span class="m-price">750 ₽</span></div><div class="m-row"><div class="m-name">White Russian</div><span class="m-dots"></span><span class="m-price">620 ₽</span></div><div class="m-row"><div class="m-name">Black Russian</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Pornstar Martini</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div></div><div><h3 class="m-sub-head">Безалкогольные версии</h3><div class="m-row"><div class="m-name">Pornstar Martini 0.0</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">New York Sour 0.0</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Negroni 0.0</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><h3 class="m-sub-head">Миксы</h3><div class="m-row"><div class="m-name">Whiskey / Cola</div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Gin / Tonic</div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Vodka / Red Bull</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Rum / Cola</div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Jägermeister / Red Bull</div><span class="m-dots"></span><span class="m-price">620 ₽</span></div></div></div>
+  </section>
+
+  <section class="mpanel" id="mt-hookah" role="tabpanel" aria-labelledby="tb-mt-hookah">
+    <div class="mpanel-head"><h2>Кальяны</h2><div class="sheet-no">ЛИСТ 02 · 05</div></div>
+<h3 class="m-sub-head">Авторские подачи<span class="m-sub-note">коллекция экспонатов — дым как часть интерьера</span></h3><div class="dcards dcards-3">
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/hk-globus.jpg" alt="Авторский кальян Экспонат №1 · Глобус" loading="lazy">
+          <span class="dcard-no">ЭКСП. 01</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Экспонат №1 · Глобус</b>
+            <span class="m-dots"></span><span class="m-price">2 500 ₽</span></div>
+          <p class="dcard-desc">авторская подача в глобус-баре: карта старого света, дым по меридианам</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/hk-turbina.jpg" alt="Авторский кальян Экспонат №2 · Турбина" loading="lazy">
+          <span class="dcard-no">ЭКСП. 02</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Экспонат №2 · Турбина</b>
+            <span class="m-dots"></span><span class="m-price">2 500 ₽</span></div>
+          <p class="dcard-desc">паровая машина на столе: латунь, клапаны, мягкая тяга</p>
+        </figcaption>
+      </figure>
+      <figure class="dcard">
+        <div class="dcard-ph"><img src="assets/hk-khronometr.jpg" alt="Авторский кальян Экспонат №3 · Хронометр" loading="lazy">
+          <span class="dcard-no">ЭКСП. 03</span></div>
+        <figcaption>
+          <div class="dcard-top"><b>Экспонат №3 · Хронометр</b>
+            <span class="m-dots"></span><span class="m-price">2 500 ₽</span></div>
+          <p class="dcard-desc">часовой механизм с римским циферблатом — время замедляется</p>
+        </figcaption>
+      </figure>
+</div><h3 class="m-sub-head">Классические подачи</h3><div class="m-row"><div class="m-name">Классический 6/2<span class="m-sub">табак средней крепости, чаша ведёт весь вечер</span></div><span class="m-dots"></span><span class="m-price">1 900 ₽</span></div><div class="m-row"><div class="m-name">Крепкий<span class="m-sub">тёмный лист для опытных</span></div><span class="m-dots"></span><span class="m-price">2 100 ₽</span></div><div class="m-row"><div class="m-name">Классика на фрукте<span class="m-sub">грейпфрут или апельсин вместо чаши</span></div><span class="m-dots"></span><span class="m-price">2 400 ₽</span></div><div class="m-row"><div class="m-name">Замена чаши<span class="m-sub">продолжение вечера</span></div><span class="m-dots"></span><span class="m-price">900 ₽</span></div><p class="m-note" style="margin-top:18px">Кальян подаём гостям старше 18 лет. Мастер соберёт крепость под вас и поведёт чашу весь вечер.</p>
+  </section>
+
+  <section class="mpanel" id="mt-bar" role="tabpanel" aria-labelledby="tb-mt-bar">
+    <div class="mpanel-head"><h2>Бар и вино</h2><div class="sheet-no">ЛИСТ 03 · 05</div></div>
+<div class="m-cols"><div><h3 class="m-sub-head">Виски</h3><div class="m-row"><div class="m-name">Macallan 12 y.o<span class="m-sub">Шотландия · односолодовый</span></div><span class="m-dots"></span><span class="m-price">9 871 ₽</span></div><div class="m-row"><div class="m-name">Chivas Regal 18 y.o<span class="m-sub">Шотландия · купаж</span></div><span class="m-dots"></span><span class="m-price">8 541 ₽</span></div><div class="m-row"><div class="m-name">Bellevoye Finition Grain Fin<span class="m-sub">Франция · солод</span></div><span class="m-dots"></span><span class="m-price">9 491 ₽</span></div><div class="m-row"><div class="m-name">Auchentoshan A.O<span class="m-sub">Шотландия · односолодовый</span></div><span class="m-dots"></span><span class="m-price">3 506 ₽</span></div><div class="m-row"><div class="m-name">Chivas Regal 12 y.o<span class="m-sub">Шотландия · купаж</span></div><span class="m-dots"></span><span class="m-price">2 890 ₽</span></div><div class="m-row"><div class="m-name">Jameson<span class="m-sub">Ирландия · купаж</span></div><span class="m-dots"></span><span class="m-price">2 700 ₽</span></div><div class="m-row"><div class="m-name">Jack Daniel's<span class="m-sub">США · купаж</span></div><span class="m-dots"></span><span class="m-price">2 700 ₽</span></div><div class="m-row"><div class="m-name">Ballantine's<span class="m-sub">Шотландия · купаж</span></div><span class="m-dots"></span><span class="m-price">2 290 ₽</span></div><div class="m-row"><div class="m-name">Jim Beam<span class="m-sub">США · бурбон</span></div><span class="m-dots"></span><span class="m-price">1 990 ₽</span></div><div class="m-row"><div class="m-name">Bushmills Original<span class="m-sub">UK · купаж</span></div><span class="m-dots"></span><span class="m-price">1 879 ₽</span></div><h3 class="m-sub-head">Коньяк и кальвадос</h3><div class="m-row"><div class="m-name">Camus VSOP<span class="m-sub">коньяк</span></div><span class="m-dots"></span><span class="m-price">5 890 ₽</span></div><div class="m-row"><div class="m-name">Camus VS<span class="m-sub">коньяк</span></div><span class="m-dots"></span><span class="m-price">4 090 ₽</span></div><div class="m-row"><div class="m-name">Père Magloire VSOP<span class="m-sub">кальвадос · Нормандия</span></div><span class="m-dots"></span><span class="m-price">4 899 ₽</span></div><h3 class="m-sub-head">Водка · Джин · Текила · Ром</h3><div class="m-row"><div class="m-name">Beluga Gold Line<span class="m-sub">водка</span></div><span class="m-dots"></span><span class="m-price">5 064 ₽</span></div><div class="m-row"><div class="m-name">Beluga Noble<span class="m-sub">водка</span></div><span class="m-dots"></span><span class="m-price">1 587 ₽</span></div><div class="m-row"><div class="m-name">Онегин<span class="m-sub">водка</span></div><span class="m-dots"></span><span class="m-price">1 999 ₽</span></div><div class="m-row"><div class="m-name">Онегин Organic<span class="m-sub">водка</span></div><span class="m-dots"></span><span class="m-price">1 240 ₽</span></div><div class="m-row"><div class="m-name">Monkey 47<span class="m-sub">джин · Германия</span></div><span class="m-dots"></span><span class="m-price">5 990 ₽</span></div><div class="m-row"><div class="m-name">Hendrick's<span class="m-sub">джин · Шотландия</span></div><span class="m-dots"></span><span class="m-price">4 450 ₽</span></div><div class="m-row"><div class="m-name">Gin Mare<span class="m-sub">джин · Испания</span></div><span class="m-dots"></span><span class="m-price">2 841 ₽</span></div><div class="m-row"><div class="m-name">Bombay Sapphire<span class="m-sub">джин · UK</span></div><span class="m-dots"></span><span class="m-price">2 199 ₽</span></div><div class="m-row"><div class="m-name">Reserva 1800 Blanco<span class="m-sub">текила · Мексика</span></div><span class="m-dots"></span><span class="m-price">3 150 ₽</span></div><div class="m-row"><div class="m-name">Reserva 1800 Reposado<span class="m-sub">текила · Мексика</span></div><span class="m-dots"></span><span class="m-price">3 150 ₽</span></div><div class="m-row"><div class="m-name">Jose Cuervo Reposado<span class="m-sub">текила · Мексика</span></div><span class="m-dots"></span><span class="m-price">1 992 ₽</span></div><div class="m-row"><div class="m-name">Jose Cuervo Silver<span class="m-sub">текила · Мексика</span></div><span class="m-dots"></span><span class="m-price">1 778 ₽</span></div><div class="m-row"><div class="m-name">Zacapa Solera 23 y.o<span class="m-sub">ром · Гватемала</span></div><span class="m-dots"></span><span class="m-price">6 390 ₽</span></div><div class="m-row"><div class="m-name">Diplomático Reserva<span class="m-sub">ром · Венесуэла</span></div><span class="m-dots"></span><span class="m-price">3 890 ₽</span></div><div class="m-row"><div class="m-name">Matusalem Gran Reserva 15 y.o<span class="m-sub">ром · Доминикана</span></div><span class="m-dots"></span><span class="m-price">4 931 ₽</span></div><div class="m-row"><div class="m-name">Matusalem Platino<span class="m-sub">ром · Доминикана</span></div><span class="m-dots"></span><span class="m-price">2 202 ₽</span></div><h3 class="m-sub-head">Ликёры и портвейн</h3><div class="m-row"><div class="m-name">Amaro Montenegro<span class="m-sub">ликёр</span></div><span class="m-dots"></span><span class="m-price">2 990 ₽</span></div><div class="m-row"><div class="m-name">Baileys<span class="m-sub">ликёр</span></div><span class="m-dots"></span><span class="m-price">2 810 ₽</span></div><div class="m-row"><div class="m-name">Jägermeister<span class="m-sub">ликёр</span></div><span class="m-dots"></span><span class="m-price">2 499 ₽</span></div><div class="m-row"><div class="m-name">Kopke 20 y.o<span class="m-sub">портвейн · Дору</span></div><span class="m-dots"></span><span class="m-price">12990 ₽</span></div><div class="m-row"><div class="m-name">Kopke 10 y.o<span class="m-sub">портвейн · Дору</span></div><span class="m-dots"></span><span class="m-price">6 350 ₽</span></div></div><div><h3 class="m-sub-head">Настойки<span class="m-sub-note">собственного приготовления · 50 мл</span></h3><div class="m-row"><div class="m-name">Пьяная вишня на бренди</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Ежевика на текиле</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Чёрная смородина на джине</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Лимончелло</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Хреновуха</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Медовуха</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Сникерс</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Баунти</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Солёная карамель</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Ананас | Лайм | Мята</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><h3 class="m-sub-head">Шампанское и игристое</h3><div class="m-row"><div class="m-name">Ruinart Blanc de Blancs 2020<span class="m-sub">шампанское · Франция</span></div><span class="m-dots"></span><span class="m-price">21990 ₽</span></div><div class="m-row"><div class="m-name">Lanson Le Black Création Brut<span class="m-sub">шампанское · Франция</span></div><span class="m-dots"></span><span class="m-price">9 352 ₽</span></div><div class="m-row"><div class="m-name">Chanoine Frères Brut<span class="m-sub">шампанское · Франция</span></div><span class="m-dots"></span><span class="m-price">8 541 ₽</span></div><div class="m-row"><div class="m-name">Corpinnat Nadal Reserva Brut<span class="m-sub">игристое брют · Испания</span></div><span class="m-dots"></span><span class="m-price">3 200 ₽</span></div><div class="m-row"><div class="m-name">Crémant de Bourgogne GCB, Veuve Ambal<span class="m-sub">игристое брют · Бургундия</span></div><span class="m-dots"></span><span class="m-price">3 031 ₽</span></div><div class="m-row"><div class="m-name">Prosecco Ruggeri Valdobbiadene<span class="m-sub">игристое сухое · Италия</span></div><span class="m-dots"></span><span class="m-price">2 154 ₽</span></div><div class="m-row"><div class="m-name">Bruni Prosecco Brut<span class="m-sub">игристое брют · Италия</span></div><span class="m-dots"></span><span class="m-price">1 432 ₽</span></div><h3 class="m-sub-head">Вино</h3><div class="m-row"><div class="m-name">Chianti Classico Selezione del Sorbo 2021<span class="m-sub">красное сухое · Италия</span></div><span class="m-dots"></span><span class="m-price">22316 ₽</span></div><div class="m-row"><div class="m-name">Amarone della Valpolicella Valpantena, Bertani<span class="m-sub">красное п/сухое · Италия</span></div><span class="m-dots"></span><span class="m-price">10493 ₽</span></div><div class="m-row"><div class="m-name">Chianti Classico Frescobaldi 2023<span class="m-sub">красное сухое · Италия</span></div><span class="m-dots"></span><span class="m-price">3 506 ₽</span></div><div class="m-row"><div class="m-name">Kindzmarauli, Binekhi 2024<span class="m-sub">красное п/сладкое · Грузия</span></div><span class="m-dots"></span><span class="m-price">2 366 ₽</span></div><div class="m-row"><div class="m-name">Malbec, Luigi Bosca<span class="m-sub">красное сухое · Аргентина</span></div><span class="m-dots"></span><span class="m-price">1 943 ₽</span></div><div class="m-row"><div class="m-name">Hacienda López de Haro<span class="m-sub">красное сухое · Испания</span></div><span class="m-dots"></span><span class="m-price">1 868 ₽</span></div><div class="m-row"><div class="m-name">Chablis Premier Cru Beauregard, Jean-Marc<span class="m-sub">белое сухое · Бургундия</span></div><span class="m-dots"></span><span class="m-price">9 016 ₽</span></div><div class="m-row"><div class="m-name">Ballet Blanc Красная горка, Галицкий<span class="m-sub">белое сухое · Россия</span></div><span class="m-dots"></span><span class="m-price">3 981 ₽</span></div><div class="m-row"><div class="m-name">Pinot Grigio Colterenzio<span class="m-sub">белое сухое · Италия</span></div><span class="m-dots"></span><span class="m-price">3 791 ₽</span></div><div class="m-row"><div class="m-name">Рислинг Красная горка, Галицкий<span class="m-sub">белое сухое · Россия</span></div><span class="m-dots"></span><span class="m-price">3 143 ₽</span></div><div class="m-row"><div class="m-name">Paddle Creek Sauvignon Blanc<span class="m-sub">белое п/сухое · Новая Зеландия</span></div><span class="m-dots"></span><span class="m-price">2 556 ₽</span></div><div class="m-row"><div class="m-name">Chenin Blanc Simonsig<span class="m-sub">белое сухое · ЮАР</span></div><span class="m-dots"></span><span class="m-price">1 891 ₽</span></div><div class="m-row"><div class="m-name">Urban Riesling<span class="m-sub">белое п/сухое · Германия</span></div><span class="m-dots"></span><span class="m-price">1 643 ₽</span></div><div class="m-row"><div class="m-name">Rosé d'Anjou Marcel Martin 2024<span class="m-sub">розовое п/сухое · Франция</span></div><span class="m-dots"></span><span class="m-price">2 366 ₽</span></div><h3 class="m-sub-head">Пиво</h3><div class="m-row"><div class="m-name">Guinness<span class="m-sub">Ирландия · стаут · 0,44 л</span></div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Hoegaarden White<span class="m-sub">пшеничное нефильтрованное · 0,44 л</span></div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Corona Extra<span class="m-sub">Мексика · лагер · 0,355 л</span></div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Peroni Nastro Azzurro<span class="m-sub">Италия · лагер · 0,33 л</span></div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Leffe Blond<span class="m-sub">Бельгия · светлый эль · 0,33 л</span></div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Estrella Inedit<span class="m-sub">Испания · пшеничное · 0,33 л</span></div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Хамовники Венское<span class="m-sub">Россия · венский лагер · 0,45 л</span></div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Stella Artois б/а<span class="m-sub">безалкогольное</span></div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Clausthaler б/а<span class="m-sub">Германия · безалкогольное</span></div><span class="m-dots"></span><span class="m-price">450 ₽</span></div></div></div>
+  </section>
+
+  <section class="mpanel" id="mt-tea" role="tabpanel" aria-labelledby="tb-mt-tea">
+    <div class="mpanel-head"><h2>Чай и лимонады</h2><div class="sheet-no">ЛИСТ 04 · 05</div></div>
+<div class="m-cols"><div><h3 class="m-sub-head">Китайская чайная карта<span class="m-sub-note">чайник · перезаваривается несколько раз</span></h3><div class="m-row"><div class="m-name">Габа Алишань</div><span class="m-dots"></span><span class="m-price">750 ₽</span></div><div class="m-row"><div class="m-name">Габа Медовая</div><span class="m-dots"></span><span class="m-price">750 ₽</span></div><div class="m-row"><div class="m-name">Габа Бесконечность</div><span class="m-dots"></span><span class="m-price">790 ₽</span></div><div class="m-row"><div class="m-name">Да Хун Пао</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Белый дикий</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Цзинь Хао Дянь Хун</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Те Гуанинь Аньси</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Гречиха</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Ассам</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Сенча</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Травяной сбор с айвой и грушей</div><span class="m-dots"></span><span class="m-price">550 ₽</span></div><div class="m-row"><div class="m-name">Шу Пуэр</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Шен Пуэр Лин Цань</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Сиху Лун Цзинь</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div></div><div><h3 class="m-sub-head">Фирменный чай<span class="m-sub-note">800 мл на компанию</span></h3><div class="m-row"><div class="m-name">Шиповник | Клюква | Годжи<span class="m-sub">иван-чай, шиповник, годжи, клюква</span></div><span class="m-dots"></span><span class="m-price">850 ₽</span></div><div class="m-row"><div class="m-name">Малина | Грейпфрут | Базилик<span class="m-sub">фреш грейпфрута, цедра, базилик</span></div><span class="m-dots"></span><span class="m-price">850 ₽</span></div><div class="m-row"><div class="m-name">Облепиха | Травы<span class="m-sub">облепиха, пихтовый сбитень, травяной сбор</span></div><span class="m-dots"></span><span class="m-price">850 ₽</span></div><div class="m-row"><div class="m-name">Брусника | Корица | Гвоздика<span class="m-sub">брусника, вишня, корица, гвоздика</span></div><span class="m-dots"></span><span class="m-price">850 ₽</span></div><div class="m-row"><div class="m-name">Алоэ | Лайм | Жасмин<span class="m-sub">мягкий, освежающий</span></div><span class="m-dots"></span><span class="m-price">790 ₽</span></div><div class="m-row"><div class="m-name">Согревающий<span class="m-sub">лимон, имбирный сироп, мёд, тимьян</span></div><span class="m-dots"></span><span class="m-price">790 ₽</span></div><div class="m-row"><div class="m-name">Марокканский<span class="m-sub">сенча, мята, вербена, корица, анис, гвоздика</span></div><span class="m-dots"></span><span class="m-price">850 ₽</span></div><h3 class="m-sub-head">Фирменные лимонады<span class="m-sub-note">800 мл · варим сами</span></h3><div class="m-row"><div class="m-name">Жасмин | Ананас</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Брусника | Да Хун Пао</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Кафирский лайм | Медовая габа</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Чёрная смородина | Вишнёвый пуэр</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">Манго | Маракуйя | Гранат</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Клубника | Личи | Лесные ягоды</div><span class="m-dots"></span><span class="m-price">690 ₽</span></div><div class="m-row"><div class="m-name">Щавель | Лимон | Орхидея</div><span class="m-dots"></span><span class="m-price">650 ₽</span></div><div class="m-row"><div class="m-name">ГОСТ 6/2<span class="m-sub">домашний</span></div><span class="m-dots"></span><span class="m-price">590 ₽</span></div></div></div>
+  </section>
+
+  <section class="mpanel" id="mt-snacks" role="tabpanel" aria-labelledby="tb-mt-snacks">
+    <div class="mpanel-head"><h2>Кофе и закуски</h2><div class="sheet-no">ЛИСТ 05 · 05</div></div>
+<div class="m-cols"><div><h3 class="m-sub-head">Закуски</h3><div class="m-row"><div class="m-name">Джерки в ассортименте</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Чипсы Pringles</div><span class="m-dots"></span><span class="m-price">290 ₽</span></div><div class="m-row"><div class="m-name">Орешки микс</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Фисташки</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Круассаны<span class="m-sub">индейка / ростбиф / лосось</span></div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Сезонные фрукты и ягоды</div><span class="m-dots"></span><span class="m-price">890 ₽</span></div><div class="m-row"><div class="m-name">Мясная тарелка</div><span class="m-dots"></span><span class="m-price">1 190 ₽</span></div><div class="m-row"><div class="m-name">Сырная тарелка</div><span class="m-dots"></span><span class="m-price">1 090 ₽</span></div><div class="m-row"><div class="m-name">Паштет куриный с ягодным конфитюром</div><span class="m-dots"></span><span class="m-price">590 ₽</span></div><div class="m-row"><div class="m-name">Оливки в чесночном масле</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div></div><div><h3 class="m-sub-head">Кофе</h3><div class="m-row"><div class="m-name">Эспрессо</div><span class="m-dots"></span><span class="m-price">200 ₽</span></div><div class="m-row"><div class="m-name">Американо</div><span class="m-dots"></span><span class="m-price">250 ₽</span></div><div class="m-row"><div class="m-name">Капучино</div><span class="m-dots"></span><span class="m-price">320 ₽</span></div><div class="m-row"><div class="m-name">Флэт-уайт</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Бамбл</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Раф</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Латте</div><span class="m-dots"></span><span class="m-price">340 ₽</span></div><h3 class="m-sub-head">Милкшейки и мороженое</h3><div class="m-row"><div class="m-name">Сникерс</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Баунти</div><span class="m-dots"></span><span class="m-price">490 ₽</span></div><div class="m-row"><div class="m-name">Сироп в ассортименте</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Шоколадное</div><span class="m-dots"></span><span class="m-price">180 ₽</span></div><div class="m-row"><div class="m-name">Пломбирное</div><span class="m-dots"></span><span class="m-price">180 ₽</span></div><div class="m-row"><div class="m-name">Клубничное</div><span class="m-dots"></span><span class="m-price">180 ₽</span></div><div class="m-row"><div class="m-name">Ванильное</div><span class="m-dots"></span><span class="m-price">180 ₽</span></div><h3 class="m-sub-head">Фреши</h3><div class="m-row"><div class="m-name">Апельсин</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Ананас</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Яблоко</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Грейпфрут</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><h3 class="m-sub-head">Безалкогольные напитки</h3><div class="m-row"><div class="m-name">Coca-Cola / Zero (0,33)</div><span class="m-dots"></span><span class="m-price">300 ₽</span></div><div class="m-row"><div class="m-name">Fanta (0,33)</div><span class="m-dots"></span><span class="m-price">300 ₽</span></div><div class="m-row"><div class="m-name">Сок ZUEGG (апельсин, вишня, яблоко, томат, ананас)</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Red Bull Classic / Zero / Черника (0,25)</div><span class="m-dots"></span><span class="m-price">450 ₽</span></div><div class="m-row"><div class="m-name">Rocket Tonic (0,2)</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div><div class="m-row"><div class="m-name">Вода Baikal (0,25 / 0,75)</div><span class="m-dots"></span><span class="m-price">250 ₽</span></div><div class="m-row"><div class="m-name">Вода Tassay (0,75)</div><span class="m-dots"></span><span class="m-price">390 ₽</span></div><div class="m-row"><div class="m-name">Вода Borjomi (0,5)</div><span class="m-dots"></span><span class="m-price">350 ₽</span></div></div></div>
+  </section>
+
+  <p class="disclaimer">Крепкий алкоголь и вино — закупочные цены за бутылку, подлежат замене.
+     Цены коктейлей, кальянов, чая, лимонадов и закусок — ориентиры для согласования.
+     Автор меню — Максим Александрович Х.</p>
+
+  <div class="m-foot">
+    <a class="btn" href="index.html#bron">Забронировать стол →</a>
+    <p>Рогожский вал, 6к2 · Пн–Чт 16:00–02:00 · Пт–Вс 16:00–04:00</p>
+  </div>
+</main>
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.mtab');
+  var panels = document.querySelectorAll('.mpanel');
+  function activate(id, focus){
+    tabs.forEach(function(t){
+      var on = t.dataset.p === id;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    panels.forEach(function(p){ p.classList.toggle('on', p.id === id); });
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ activate(t.dataset.p); });
+    t.addEventListener('keydown', function(e){
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = (i + d + tabs.length) % tabs.length;
+      activate(tabs[n].dataset.p, true);
+    });
+  });
+  /* открыть нужный таб по ?tab= */
+  var q = new URLSearchParams(location.search).get('tab');
+  if (q && document.getElementById('mt-' + q)) activate('mt-' + q);
+})();
+</script>
+</body>
+</html>
