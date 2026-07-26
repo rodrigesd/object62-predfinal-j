@@ -338,7 +338,7 @@
   .b-legend .sw{display:inline-block;width:13px;height:13px;border-radius:2px;vertical-align:-2px;margin-right:7px}
   .sw-free{border:1.6px solid #241a10;background:rgba(200,125,74,.12)}
   .sw-busy{border:1.6px solid rgba(36,26,16,.35);background:repeating-linear-gradient(45deg,transparent 0 3px,rgba(36,26,16,.35) 3px 4px)}
-  .sw-sel{background:var(--wax);border:1.6px solid var(--wax)}
+  .sw-sel{background:var(--copper-hot);border:1.6px solid var(--wax)}
   /* карта-план как лист досье */
   .plan-card{
     position:relative;
@@ -367,9 +367,6 @@
   .plan .spot.busy .shape{fill:url(#hatch);stroke:rgba(36,26,16,.35);cursor:not-allowed}
   .plan .spot.busy text{opacity:.42}
   .plan .spot.busy:hover .shape{fill:url(#hatch)}
-  .plan .spot.sel .shape{fill:var(--wax);stroke:var(--wax)}
-  .plan .spot.sel text{fill:#efe6d2}
-  .plan .spot.sel .cap{fill:rgba(239,230,210,.8)}
   .plan .wall{fill:none;stroke:#241a10;stroke-width:2.5}
   .plan .zone{fill:rgba(36,26,16,.04);stroke:rgba(36,26,16,.4);stroke-width:1.2;stroke-dasharray:5 5}
   .plan .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;fill:#7a5f3f;letter-spacing:.2em}
@@ -382,6 +379,10 @@
   .plan .spot.seat .shape{fill:rgba(200,125,74,.16)}
   .plan .spot.seat text{font-size:11px}
   .plan .spot.seat .ring{stroke:rgba(200,125,74,.55);stroke-dasharray:none;opacity:.45}
+  /* selected идёт после вариантов cab/big/seat, чтобы тип места не перебивал active-state */
+  .plan .spot.sel .shape{fill:var(--copper-hot);stroke:var(--wax);stroke-width:3}
+  .plan .spot.sel text{fill:#241a10}
+  .plan .spot.sel .cap{fill:#4b2c1b}
   .plan .plan-anno text{font-family:'JetBrains Mono',monospace;font-size:10px;fill:#7a5f3f;letter-spacing:.16em}
   .b-legend-sep{opacity:.4}
   @media (max-width:720px){ .b-legend{flex-wrap:wrap;gap:12px} }
