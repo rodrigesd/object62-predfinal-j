@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>объект 6/2 · кальянный лаунж на Рогожском валу</title>
+<link rel="icon" href="data:,">
 <meta name="description" content="Приглушённый свет, авторский бар, дымный кальян. Москва, Рогожский вал, 6к2.">
 <!-- Меню и схема зала — реальные данные (Черновик.xlsx + Планировочное решение 14.11.23). -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +32,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
+  html{scroll-padding-top:100px}  /* фикс-шапка не перекрывает якоря */
   html{overflow-x:hidden}
   body{
     background:var(--ink);
@@ -42,7 +44,7 @@
   body.locked{overflow:hidden}
   img{display:block;max-width:100%;height:auto}
   a{color:inherit}
-  section{scroll-margin-top:84px}
+  section{scroll-margin-top:104px}
 
   /* ---------- плёнка: зерно ---------- */
   .grain{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:.32;mix-blend-mode:overlay;
@@ -306,12 +308,18 @@
 
   /* ---------- бронь ---------- */
   .booking{padding:66px 0 60px;background:var(--ink-2)}
+  /* на планшете внутренние прокрутки (scrollIntoView) не должны уводить карточку под шапку */
+  @media (max-width:1100px){ .booking{scroll-margin-top:96px} }
   .b-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.04fr);gap:40px;align-items:start}
+  .b-grid>*{min-width:0}
   .b-count{
     display:inline-flex;flex-wrap:wrap;gap:8px;margin-top:20px;
     font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:rgba(239,230,210,.6);
   }
   .b-count b{color:var(--copper-hot);font-weight:400}
+  @media (max-width:640px){
+    .b-count{flex-direction:column;gap:4px}   /* мобила: счётчики столбиком, без висячих хвостов */
+  }
   .steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em}
   .step{
     display:flex;align-items:center;gap:8px;
@@ -335,7 +343,8 @@
   .plan-card{
     position:relative;
     background:radial-gradient(140% 100% at 20% 0%, #f2e7cf 0%, #e9dcc3 45%, #d9c9a8 100%);
-    color:#241a10;border-radius:3px;
+    max-width:100%;box-sizing:border-box;overflow:hidden;
+    color:#241a10;border:1px solid rgba(36,26,16,.2);border-radius:3px;
     padding:16px 20px 16px;
     transform:rotate(-.7deg);
     box-shadow:0 40px 90px -20px rgba(0,0,0,.8), 0 6px 18px rgba(0,0,0,.45), inset 0 0 60px rgba(120,90,50,.18);
@@ -345,6 +354,8 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='0.16'/%3E%3C/svg%3E");
   }
   .plan-card .d-head{position:relative;z-index:2}
+  .plan-scroll{position:relative;z-index:2}
+  .plan-mobile-hint{display:none}
   .plan-card svg.plan{width:100%;height:auto;max-height:clamp(320px,52vh,520px);display:block;position:relative;z-index:2}
   .plan .spot .shape{fill:rgba(200,125,74,.12);stroke:#241a10;stroke-width:2;cursor:pointer;transition:fill .25s, stroke .25s}
   .plan .spot .ring{fill:none;stroke:#241a10;stroke-dasharray:3 6;opacity:.3;pointer-events:none}
@@ -723,10 +734,13 @@
     .g-4,.g-5{grid-column:span 1;min-height:280px}
     .g-6{grid-column:span 2;min-height:320px}
     .b-grid,.m-grid,.k-grid,.ct-grid{grid-template-columns:1fr;gap:50px}
-    /* бронь на планшете: сначала схема зала, потом шаги */
+    /* бронь на планшете: мастер остаётся перед схемой */
     .b-grid{gap:26px}
-    .b-grid>.io{order:-1}
+    .b-grid>.io{order:0}              /* сохраняем порядок: заголовок и мастер, затем схема */
     .plan-card svg.plan{max-height:none}
+    .bk-act .btn{width:100%;justify-content:center}
+    .bk-act .bk-pay{width:100%;justify-content:center;text-align:center}
+    .bk-act .bk-edit{margin-left:0}
     .booking{padding:56px 0 50px}
     .m-photo img{height:420px}
     .k-photo img{height:440px}
@@ -741,6 +755,18 @@
     .nav-links{display:none}
     .burger{display:block}
     .nav-cta{padding:11px 16px;font-size:11.5px}
+  }
+  @media (max-width:900px){
+    .plan-scroll{width:100%;max-width:100%;box-sizing:border-box;overflow-x:auto;overflow-y:hidden;margin:0;padding:0 0 8px;
+      border:1px solid rgba(36,26,16,.18);border-radius:2px;
+      scrollbar-width:thin;scrollbar-color:rgba(140,47,35,.65) rgba(36,26,16,.12);
+      -webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
+    .plan-scroll::-webkit-scrollbar{height:6px}
+    .plan-scroll::-webkit-scrollbar-track{background:rgba(36,26,16,.12);border-radius:3px}
+    .plan-scroll::-webkit-scrollbar-thumb{background:rgba(140,47,35,.65);border-radius:3px}
+    .plan-card svg.plan{width:960px;max-width:none;max-height:none}
+    .plan-mobile-hint{display:block;position:relative;z-index:2;margin:8px 0 6px;
+      font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#6d5234}
   }
   @media (max-width:640px){
     .wrap{padding:0 20px}
@@ -765,7 +791,16 @@
     .bk-head{padding:14px 14px}
     .bk-body{padding:0 14px 16px}
     .bk-val{font-size:10px}
-    .plan-card{padding:14px 14px 14px;transform:none}   /* без наклона на мобиле */
+    .plan-card{padding:14px 14px 14px;transform:none;max-width:100%;overflow:hidden}
+    .plan-card svg.plan{width:820px}
+    .plan .spot.seat .ring{r:28px;pointer-events:all;fill:transparent}
+    .bk-srow b{text-align:right;padding-left:6px}        /* не прилипает к правому краю */
+    .bk-val{padding-right:4px}                           /* значения в свёрнутых шагах */
+    .b-cta-row .btn{width:100%}                          /* CTA на всю ширину на мобиле */
+    .bk-agree{min-height:44px;padding:8px 4px}           /* вся подпись — тап-зона */
+    .bk-agree span{font-size:12.5px}
+    .bk-agree input{margin-top:3px;transform:scale(1.35);transform-origin:top left}  /* тап-зона больше */
+    .bk-act .btn{width:100%;justify-content:center}      /* кнопка оплаты full-width */
     .g-item{min-height:auto;aspect-ratio:4/3}
     .g-1,.g-2,.g-3,.g-4,.g-5,.g-6{min-height:auto}
     .sec-head h2{font-size:30px}
@@ -1152,7 +1187,11 @@
             <h2>Тапни свой стол</h2>
           </div>
         </div>
-        <div class="b-count io" title="считается из схемы зала">сейчас свободно <b id="cntTables">10 из 12</b> столов · VIP: <b id="cntCabs">2 из 3</b> · бар: <b id="cntBar">4 из 5</b></div>
+        <div class="b-count io" title="считается из схемы зала">
+          <span>сейчас свободно <b id="cntTables">10 из 12</b> столов</span>
+          <span>VIP: <b id="cntCabs">2 из 3</b></span>
+          <span>бар: <b id="cntBar">4 из 5</b></span>
+        </div>
         <div class="bk io" id="bkWizard">
 
           <div class="bk-step done" data-bk="1">
@@ -1214,7 +1253,7 @@
                 <div class="bk-srow bk-dep"><span>Депозит</span><b id="bkS5"></b></div>
               </div>
               <p class="bk-hint">Депозит закрепляет стол и целиком идёт в счёт заказа.
-                 Отмена за 6 часов — вернём полностью.</p>
+                 Отмена за 6 часов - вернём полностью.</p>
               <label class="bk-agree"><input type="checkbox" id="bkAgree">
                 <span>Согласен с условиями брони и обработкой персональных данных</span></label>
               <div class="bk-err" id="bkE4">Подтвердите согласие с условиями</div>
@@ -1229,7 +1268,7 @@
           </div>
         </div>
         <p class="bk-foot io">Бронь оформляется здесь же · депозит целиком идёт в счёт заказа ·
-          отмена за 6 часов — вернём полностью · возможна увеличенная посадка</p>
+          отмена за 6 часов - вернём полностью · возможна увеличенная посадка</p>
         <div class="b-cta-row io">
           <div class="mono-note">мгновенное подтверждение · СБП или карта · бронь придёт в Telegram</div>
         </div>
@@ -1237,6 +1276,8 @@
       <div class="io">
         <div class="plan-card">
           <div class="d-head"><b>ПЛАН ЗАЛА / СХЕМА</b><span>ЛИСТ 05·13</span></div>
+          <div class="plan-mobile-hint">← двигай схему влево и вправо →</div>
+          <div class="plan-scroll">
           <svg class="plan" viewBox="0 0 1000 740" role="group" aria-label="Схема зала: выберите стол, кабинет или место у бара">
               <defs>
                 <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
@@ -1351,6 +1392,7 @@
                 <text class="cap" x="568" y="635" text-anchor="middle">4–6</text>
               </g>
             </svg>
+          </div>
           <div class="b-legend">
             <span><i class="sw sw-free"></i>свободно</span>
             <span><i class="sw sw-busy"></i>занято</span>
