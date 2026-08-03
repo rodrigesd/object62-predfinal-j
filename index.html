@@ -1029,7 +1029,7 @@
   .bk-pick:not(.is-empty) .bk-pick-empty{display:none}
   .bk-pick-ph[hidden],.bk-stick-ph[hidden]{display:none!important}
   @keyframes bkPickIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-  .bk-pick-ph{width:132px;height:auto;aspect-ratio:16/10;object-fit:cover;display:block;
+  .bk-pick-ph{width:132px;height:auto;aspect-ratio:16/10;object-fit:cover;display:block;cursor:zoom-in;
     border:1px solid rgba(200,125,74,.4);border-radius:2px;
     filter:saturate(.92) contrast(1.04) brightness(.94)}
   .bk-pick-txt{display:flex;flex-direction:column;gap:5px;min-width:0}
@@ -2296,12 +2296,14 @@ document.querySelectorAll('.q-btn').forEach(btn=>{
 
 /* ---------- лайтбокс ---------- */
 const lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img'), lbCap = lb.querySelector('.lb-cap');
-const shots = [...document.querySelectorAll('.g-item')];
+let shots = [...document.querySelectorAll('.g-item')];
+const galleryShots = shots.slice();
 let cur = 0;
 function showShot(i){
   cur = (i + shots.length) % shots.length;
-  lbImg.src = shots[cur].querySelector('img').src;
-  lbCap.textContent = shots[cur].dataset.cap;
+  const el = shots[cur];
+  lbImg.src = el.dataset.full || el.querySelector('img').src;
+  lbCap.textContent = el.dataset.cap;
 }
 shots.forEach((el,i)=> el.addEventListener('click', ()=>{ showShot(i); lb.classList.add('open'); }));
 lb.querySelector('.lb-x').addEventListener('click', ()=>lb.classList.remove('open'));
@@ -2593,6 +2595,19 @@ var BOOKING_CFG = {
     }
     document.getElementById('bkV1').textContent = 'выберите на схеме →';
     B.spot = null; maxReached = 1; goto(1);
+  }
+  /* ---- зум фото выбранного места: листаем только его снимки ---- */
+  var bkPickPh = document.getElementById('bkPickPh');
+  if (bkPickPh){
+    bkPickPh.addEventListener('click', function(){
+      if (!B.spot || bkPickPh.hidden) return;
+      var active = document.querySelector('.plan .spot.sel');
+      var cap = active ? (active.dataset.title || B.spotLabel) : B.spotLabel;
+      var fake = { dataset: { full: bkPickPh.currentSrc || bkPickPh.src, cap: cap } };
+      shots = [fake];
+      showShot(0);
+      lb.classList.add('open');
+    });
   }
   var pickX = document.getElementById('bkPickX');
   if (pickX) pickX.addEventListener('click', function(){
