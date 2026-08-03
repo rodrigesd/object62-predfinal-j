@@ -56,7 +56,7 @@
     50%{transform:translate(-4%,-2%)}70%{transform:translate(3%,3%)}90%{transform:translate(-2%,4%)}
   }
   /* пылинки в луче света */
-  #dust{position:fixed;inset:0;z-index:2;pointer-events:none}
+  #dust{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none}
 
   /* ---------- общие атомы ---------- */
   .wrap{max-width:1280px;margin:0 auto;padding:0 44px}
@@ -131,7 +131,7 @@
   }
   .g-alt button:hover{color:var(--wax)}
   .g-note{margin-top:22px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;line-height:1.8;color:#8a6d49}
-  .g-deny{margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--wax-bright)}
+  .g-deny{margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--copper-hot)}
 
   /* ---------- навигация ---------- */
   header.nav{
@@ -198,9 +198,11 @@
     color:var(--bone);text-wrap:balance;
   }
   h1 .cop{color:var(--copper-hot)}
-  h1 .line{display:block;overflow:hidden}
-  body.anim h1 .line>span{display:inline-block;transform:translateY(112%)}
-  h1 .line>span{display:inline-block}
+  h1 .line{display:block}
+  /* Важно: у строки есть нижний запас, а сам span двигается только внутри неё.
+     Так хвост «у» не режется и на старте анимации, и после неё. */
+  h1 .line>span{display:block;padding-bottom:.12em;margin-bottom:-.12em}
+  body.anim h1 .line>span{display:block;transform:translateY(112%);will-change:transform}
 
   .hero-sub{
     margin-top:28px;max-width:410px;
@@ -231,7 +233,7 @@
   }
   .fact{padding:0 34px;border-left:1px solid rgba(233,220,195,.16)}
   .fact:first-child{padding-left:0;border-left:none}
-  .fact b{font-family:'District','JetBrains Mono',var(--serif);font-weight:400;font-size:27px;color:var(--bone);display:block;letter-spacing:.06em}
+  .fact b{font-family:var(--serif);font-weight:400;font-size:29px;color:var(--bone);display:block;letter-spacing:.01em}
   .fact b i{font-style:normal;font-size:15px;color:var(--copper-hot)}
   .fact > span{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:rgba(239,230,210,.42);text-transform:uppercase}
 
@@ -251,7 +253,7 @@
   }
   .rule:hover{border-color:rgba(200,125,74,.4);transform:translateY(-4px)}
   .rule i{
-    font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--wax-bright);
+    font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--copper-hot);
     display:block;margin-bottom:16px;
   }
   .rule b{font-family:var(--serif);font-weight:400;font-size:19px;color:var(--bone);display:block;margin-bottom:10px}
@@ -460,7 +462,7 @@
   }
   .privs{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin-top:34px}
   .priv{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px dashed rgba(233,220,195,.12)}
-  .priv i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--wax-bright);letter-spacing:.18em;padding-top:3px}
+  .priv i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--copper-hot);letter-spacing:.18em;padding-top:3px}
   .priv span{font-size:14px;line-height:1.5;color:rgba(239,230,210,.75)}
 
   /* ---------- фотополоса ---------- */
@@ -525,7 +527,7 @@
     background:none;border:none;cursor:pointer;color:var(--bone);
     padding:26px 0;
   }
-  .q-btn i{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--wax-bright);flex:none}
+  .q-btn i{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--copper-hot);flex:none}
   .q-btn b{font-family:var(--serif);font-weight:400;font-size:20px;flex:1}
   .q-btn .pm{font-family:var(--mono);font-size:16px;color:var(--copper-hot);transition:transform .35s}
   .q.open .pm{transform:rotate(45deg)}
@@ -589,8 +591,8 @@
   }
   .age{
     display:inline-flex;align-items:center;justify-content:center;
-    width:44px;height:44px;border:1.6px solid var(--wax-bright);border-radius:50%;
-    color:var(--wax-bright);font-family:var(--mono);font-size:12px;letter-spacing:.05em;flex:none;
+    width:44px;height:44px;border:1.6px solid var(--copper-hot);border-radius:50%;
+    color:var(--copper-hot);font-family:var(--mono);font-size:12px;letter-spacing:.05em;flex:none;
   }
   .f-warn{width:100%;margin-top:6px;color:rgba(239,230,210,.3)}
 
@@ -649,6 +651,15 @@
   /* передний слой — на всю страницу: поверх секций, но под шапкой и меню */
   #smokeFront{position:fixed;inset:0;width:100%;height:100%;
     pointer-events:none;z-index:42;opacity:.40}
+  /* Retina/HiDPI (MacBook, телефоны): те же слои читаются заметно слабее,
+     потому что полупрозрачность размазывается по вдвое мелкому пикселю.
+     Компенсируем яркость слоёв, сама графика не меняется. */
+  @media (min-resolution:1.5dppx){
+    #smokeBack{opacity:.82}
+    #smokeFront{opacity:.56}
+    #dust{opacity:1;filter:saturate(1.08) brightness(1.22)}
+    #gateSmoke{opacity:.58}
+  }
   @media (prefers-reduced-motion: reduce){
     #smokeBack,#smokeFront{display:none}
   }
@@ -666,7 +677,7 @@
   .g-badge{
     display:inline-flex;align-items:center;gap:12px;
     font-family:'District',var(--mono);font-size:11px;letter-spacing:.3em;color:var(--copper-hot);
-    border:1px solid rgba(200,125,74,.35);border-radius:999px;padding:9px 16px 8px;
+    border:1px solid rgba(200,125,74,.35);border-radius:2px;padding:9px 16px 8px;
     margin-bottom:34px;text-transform:uppercase;
   }
   .g-h1{
@@ -679,11 +690,12 @@
   .g-form{display:flex;gap:12px;margin-top:34px}
   .g-form input{
     flex:1;min-width:0;background:rgba(233,220,195,.05);
-    border:1px solid rgba(233,220,195,.2);border-radius:999px;
+    border:1px solid rgba(233,220,195,.2);border-radius:2px;
     font-family:'District',var(--mono);font-size:16px;letter-spacing:.22em;color:var(--bone);
     padding:16px 24px;outline:none;transition:border-color .3s;
   }
   .g-form input:focus{border-color:var(--copper)}
+  .g-form .btn{border-radius:2px}
   .g-alt{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap}
   .g-alt button{
     background:none;border:none;cursor:pointer;
@@ -704,7 +716,7 @@
   .btn{position:relative;overflow:hidden}
   .btn::before{
     content:'';position:absolute;top:0;bottom:0;width:56px;left:-90px;
-    background:linear-gradient(100deg,transparent,rgba(255,240,220,.5),transparent);
+    background:linear-gradient(100deg,transparent,rgba(255,214,160,.42),transparent);
     transform:skewX(-18deg);pointer-events:none;
     animation:btnsheen 5.4s ease-in-out 2.4s infinite;
   }
@@ -999,6 +1011,110 @@
   .bk-hint{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
     color:rgba(205,191,164,.55);line-height:1.65;margin:9px 0 0}
 
+  /* якорный скролл не должен уводить блок под фиксированную шапку */
+  #bron{scroll-margin-top:76px}
+  .bk-step{scroll-margin-top:76px}
+  /* резерв снизу под sticky-панель выбора: последний блок доскролливается */
+  body.bk-has-stick .booking{padding-bottom:120px}
+
+  /* ---- карточка выбранного места (шаг 01): фото + подпись + депозит ---- */
+  .bk-pick{display:grid;grid-template-columns:132px minmax(0,1fr);gap:14px;
+    align-items:start;padding:0 18px 16px;animation:bkPickIn .32s ease both}
+  .bk-pick.is-empty{grid-template-columns:minmax(0,1fr);animation:none}
+  .bk-pick-empty{min-height:132px;padding:18px;border:1px dashed rgba(200,125,74,.45);border-radius:2px;
+    background:rgba(200,125,74,.05);display:flex;flex-direction:column;justify-content:center;gap:7px}
+  .bk-pick-empty b{font-family:var(--serif);font-weight:400;font-size:19px;color:var(--bone);line-height:1.2}
+  .bk-pick-empty span{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--paper-dim)}
+  .bk-pick.is-empty .bk-pick-txt,.bk-pick.is-empty .bk-pick-x{display:none}
+  .bk-pick:not(.is-empty) .bk-pick-empty{display:none}
+  .bk-pick-ph[hidden],.bk-stick-ph[hidden]{display:none!important}
+  @keyframes bkPickIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .bk-pick-ph{width:132px;height:auto;aspect-ratio:16/10;object-fit:cover;display:block;
+    border:1px solid rgba(200,125,74,.4);border-radius:2px;
+    filter:saturate(.92) contrast(1.04) brightness(.94)}
+  .bk-pick-txt{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .bk-pick-txt b{font-family:var(--serif);font-weight:400;font-size:19px;
+    color:var(--bone);line-height:1.2}
+  .bk-pick-cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--copper-hot)}
+  .bk-pick-note{font-family:var(--sans);font-size:13px;line-height:1.5;
+    color:var(--paper-dim)}
+  .bk-pick-dep{font-family:'District','JetBrains Mono',monospace;font-size:12px;
+    letter-spacing:.1em;color:rgba(205,191,164,.72);margin-top:1px}
+  .bk-pick-x{grid-column:2;justify-self:start;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(205,191,164,.55);
+    background:none;border:none;border-bottom:1px solid rgba(205,191,164,.28);
+    padding:0 0 2px;cursor:pointer;transition:color .2s,border-color .2s}
+  .bk-pick-x:hover{color:var(--copper-hot);border-color:var(--copper)}
+  @media (prefers-reduced-motion: reduce){.bk-pick{animation:none}}
+
+  /* ---- мобильная сетка мест (список с фото, вместо нечитаемой схемы) ---- */
+  .bk-mgrid{display:none}
+  .bk-mgrid-hint{display:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+    color:rgba(205,191,164,.5);margin:2px 0 10px}
+  @media (max-width:900px){
+    .plan-card{display:none}
+    .bk-mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .bk-mgrid-hint{display:block}
+  }
+  @media (max-width:380px){ .bk-mgrid{grid-template-columns:1fr} }
+  .bk-mcard{position:relative;display:flex;flex-direction:column;overflow:hidden;
+    border:1px solid rgba(205,191,164,.16);border-radius:3px;background:rgba(200,125,74,.04);
+    cursor:pointer;transition:border-color .25s, box-shadow .25s;
+    text-align:left;padding:0;font-family:inherit;color:inherit}
+  .bk-mcard:active{transform:scale(.985)}
+  .bk-mcard:focus-visible{outline:2px solid var(--copper-hot);outline-offset:2px}
+  .bk-mcard.busy{opacity:.48;cursor:not-allowed;filter:grayscale(.45)}
+  .bk-mcard.sel{border-color:var(--copper-hot);box-shadow:0 0 0 1px var(--copper-hot), 0 6px 18px -8px rgba(200,125,74,.5)}
+  .bk-mcard img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+    filter:saturate(.92) contrast(1.04) brightness(.94)}
+  .bk-mcard .bk-mbody{padding:9px 10px 10px;display:flex;flex-direction:column;gap:4px}
+  .bk-mcard .bk-mttl{font-family:var(--serif);font-weight:400;font-size:16px;color:var(--bone);line-height:1.15}
+  .bk-mcard .bk-mcap{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--copper-hot)}
+  .bk-mcard .bk-mdep{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
+    color:rgba(205,191,164,.72)}
+  .bk-mcard .bk-mstatus{position:absolute;top:8px;left:8px;z-index:2;
+    font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 7px;border-radius:2px;backdrop-filter:blur(6px)}
+  .bk-mcard .bk-mstatus.free{background:rgba(18,42,28,.72);color:#8fd6a8;border:1px solid rgba(143,214,168,.3)}
+  .bk-mcard .bk-mstatus.busy{background:rgba(42,20,18,.72);color:#e8836f;border:1px solid rgba(232,131,111,.3)}
+  .bk-mcard.sel .bk-mstatus{background:var(--copper-hot);color:#1a1008;border-color:var(--copper-hot)}
+
+  /* ---- sticky-панель выбранного места ---- */
+  .bk-stick{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:16px;z-index:44;
+    display:flex;align-items:center;gap:12px;
+    background:rgba(16,20,32,.92);border:1px solid rgba(200,125,74,.5);border-radius:3px;
+    padding:10px 10px 10px 12px;box-shadow:0 14px 40px -8px rgba(0,0,0,.7);
+    max-width:min(560px, calc(100vw - 24px));width:max-content;
+    opacity:0;pointer-events:none;transition:opacity .3s ease, transform .3s ease}
+  .bk-stick.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  .bk-stick-ph{width:56px;height:56px;object-fit:cover;border-radius:2px;flex:none;
+    filter:saturate(.92) contrast(1.04) brightness(.94)}
+  .bk-stick-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .bk-stick-txt b{font-family:var(--serif);font-weight:400;font-size:15px;color:var(--bone);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bk-stick-txt span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    color:rgba(205,191,164,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bk-stick .btn{flex:none;padding:11px 16px;font-size:11px;white-space:nowrap}
+  .bk-stick-x{flex:none;width:34px;height:34px;display:grid;place-items:center;
+    background:none;border:1px solid rgba(205,191,164,.2);border-radius:2px;
+    color:rgba(205,191,164,.6);font-size:18px;line-height:1;cursor:pointer;transition:border-color .2s,color .2s}
+  .bk-stick-x:hover{border-color:var(--copper);color:var(--copper-hot)}
+  @media (max-width:900px){
+    @media (max-width:900px){
+      .bk-stick{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));
+        transform:none;width:auto;max-width:none}
+      .bk-stick.show{transform:none}
+      .bk-stick-ph{width:48px;height:48px}
+    }
+  /* запас снизу, чтобы sticky-панель не перекрывала последние строки */
+  .booking{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  @media (prefers-reduced-motion: reduce){
+    .bk-stick,.bk-mcard{transition:none}
+    .bk-mcard:active{transform:none}
+  }
+
 </style>
 </head>
 <body class="locked">
@@ -1074,7 +1190,7 @@
   <div class="hero-bg">
     <img src="assets/hero-bg.jpg" alt="Главный зал лаунжа 6/2">
     <video class="hero-bg-video" autoplay muted loop playsinline preload="auto"
-           poster="assets/hero-bg-v2-h-poster.jpg" aria-hidden="true" tabindex="-1"></video>
+           poster="assets/hero-bg-v2-g-poster.jpg" aria-hidden="true" tabindex="-1"></video>
     <canvas id="smokeBack" aria-hidden="true"></canvas>
   </div>
   <div class="hero-grid">
@@ -1086,7 +1202,7 @@
       </div>
       <h1>
         <span class="line"><span>Сюда приходят</span></span>
-        <span class="line"><span class="cop">свои.</span></span>
+        <span class="line"><span class="cop">не случайно.</span></span>
       </h1>
       <p class="hero-sub hrev">Приглушённый свет, авторский бар, дымный кальян. Твой вечер без суеты.</p>
       <div class="cta-row hrev">
@@ -1181,7 +1297,7 @@
 <section class="booking" id="bron">
   <div class="wrap">
     <div class="b-grid">
-      <div>
+      <div class="booking-flow">
         <div class="sec-head io" style="margin-bottom:0">
           <div>
             <div class="kicker">// бронь</div>
@@ -1200,12 +1316,27 @@
               <span class="bk-no">01</span><span class="bk-ttl">Стол</span>
               <span class="bk-val" id="bkV1">выберите на схеме →</span>
             </div>
+            <!-- карточка выбранного места: фото появляется после выбора на схеме -->
+            <div class="bk-pick is-empty" id="bkPick">
+              <div class="bk-pick-empty" id="bkPickEmpty" role="status">
+                <b>Стол ещё не выбран</b>
+                <span>Тапни место на схеме — здесь появится его фото, вместимость и депозит.</span>
+              </div>
+              <img class="bk-pick-ph" id="bkPickPh" alt="" width="520" height="325" loading="lazy" decoding="async" hidden>
+              <div class="bk-pick-txt">
+                <b id="bkPickTtl"></b>
+                <span class="bk-pick-cap" id="bkPickCap"></span>
+                <span class="bk-pick-note" id="bkPickNote"></span>
+                <span class="bk-pick-dep" id="bkPickDep"></span>
+              </div>
+              <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места">Выбрать другое</button>
+            </div>
           </div>
 
           <div class="bk-step" data-bk="2">
             <div class="bk-head" data-goto="2">
               <span class="bk-no">02</span><span class="bk-ttl">Когда</span>
-              <span class="bk-val" id="bkV2"></span>
+              <span class="bk-val" id="bkV2">выберите дату и время →</span>
             </div>
             <div class="bk-body">
               <label class="bk-lbl">Дата</label>
@@ -1274,7 +1405,7 @@
           <div class="mono-note">мгновенное подтверждение · СБП или карта · бронь придёт в Telegram</div>
         </div>
       </div>
-      <div class="io">
+      <div class="io plan-col">
         <div class="plan-card">
           <div class="d-head"><b>ПЛАН ЗАЛА / СХЕМА</b><span>ЛИСТ 05·13</span></div>
           <div class="plan-mobile-hint">← двигай схему влево и вправо →</div>
@@ -1300,93 +1431,93 @@
                 <line x1="470" y1="700" x2="470" y2="724" stroke="#c87d4a" stroke-width="2.4"/>
                 <text x="470" y="736" text-anchor="middle">ВХОД · ТАМБУР</text>
               </g>
-              <g class="spot cab" data-id="vip-1" data-label="кабинет VIP-1" data-cap="до 8 гостей" tabindex="0" role="button" aria-label="Кабинет VIP-1, до 8 гостей, свободен">
+              <g class="spot cab" data-id="vip-1" data-photo="assets/spots/cab-cabinet.jpg" data-title="Кабинет Cabinet" data-note="Chesterfield, отдельный вход, винный шкаф, караоке" data-label="кабинет Cabinet" data-cap="до 12 гостей" tabindex="0" role="button" aria-label="Кабинет Cabinet, до 12 гостей, свободен">
                 <rect class="shape" x="62" y="62" width="150" height="108" rx="3"/>
-                <text x="137" y="116" text-anchor="middle">VIP-1</text>
-                <text class="cap" x="137" y="135" text-anchor="middle">ДО 8 ГОСТЕЙ</text>
+                <text x="137" y="116" text-anchor="middle">CABINET</text>
+                <text class="cap" x="137" y="135" text-anchor="middle">ДО 12 ГОСТЕЙ</text>
               </g>
-              <g class="spot cab" data-id="vip-2" data-label="кабинет VIP-2" data-cap="до 6 гостей" tabindex="0" role="button" aria-label="Кабинет VIP-2, до 6 гостей, свободен">
+              <g class="spot cab" data-id="vip-2" data-photo="assets/spots/cab-copper.jpg" data-title="Кабинет Copper" data-note="Медь и бархат, свой мини-бар, отдельный вход" data-label="кабинет Copper" data-cap="до 8 гостей" tabindex="0" role="button" aria-label="Кабинет Copper, до 8 гостей, свободен">
                 <rect class="shape" x="62" y="182" width="150" height="100" rx="3"/>
-                <text x="137" y="232" text-anchor="middle">VIP-2</text>
-                <text class="cap" x="137" y="251" text-anchor="middle">ДО 6 ГОСТЕЙ</text>
+                <text x="137" y="232" text-anchor="middle">COPPER</text>
+                <text class="cap" x="137" y="251" text-anchor="middle">ДО 8 ГОСТЕЙ</text>
               </g>
-              <g class="spot cab busy" data-id="vip-3" data-label="кабинет VIP-3" data-cap="до 6 гостей" role="button" aria-label="Кабинет VIP-3, до 6 гостей, занят">
+              <g class="spot cab busy" data-id="vip-3" data-photo="assets/spots/cab-luna.jpg" data-title="Кабинет Luna" data-note="Самая камерная, для свидания или узкого круга" data-label="кабинет Luna" data-cap="до 6 гостей" role="button" aria-label="Кабинет Luna, до 6 гостей, занят">
                 <rect class="shape" x="226" y="62" width="136" height="220" rx="3"/>
-                <text x="294" y="172" text-anchor="middle">VIP-3</text>
+                <text x="294" y="172" text-anchor="middle">LUNA</text>
                 <text class="cap" x="294" y="191" text-anchor="middle">ДО 6 ГОСТЕЙ</text>
               </g>
-              <g class="spot table big" data-id="big-1" data-label="большой стол Б-1" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-1, до 10 гостей, свободен">
+              <g class="spot table big" data-id="big-1" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-1" data-note="Длинный стол под компанию, у окна основного зала" data-label="большой стол Б-1" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-1, до 10 гостей, свободен">
                 <rect class="shape" x="378" y="62" width="140" height="100" rx="3"/>
                 <text x="448" y="112" text-anchor="middle">Б-1</text>
                 <text class="cap" x="448" y="131" text-anchor="middle">ДО 10 ГОСТЕЙ</text>
               </g>
-              <g class="spot table big" data-id="big-2" data-label="большой стол Б-2" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-2, до 10 гостей, свободен">
+              <g class="spot table big" data-id="big-2" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-2" data-note="Длинный стол под компанию, ближе к бару" data-label="большой стол Б-2" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-2, до 10 гостей, свободен">
                 <rect class="shape" x="378" y="176" width="140" height="106" rx="3"/>
                 <text x="448" y="229" text-anchor="middle">Б-2</text>
                 <text class="cap" x="448" y="248" text-anchor="middle">ДО 10 ГОСТЕЙ</text>
               </g>
-              <g class="spot seat" data-id="bar-1" data-label="место у бара Б-1" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-1, свободно">
+              <g class="spot seat" data-id="bar-1" data-photo="assets/spots/seat.jpg" data-title="Место у бара 1" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-1" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-1, свободно">
                 <circle class="ring" cx="590" cy="150" r="23"/>
                 <circle class="shape" cx="590" cy="150" r="16"/>
                 <text x="590" y="154" text-anchor="middle">1</text>
               </g>
-              <g class="spot seat" data-id="bar-2" data-label="место у бара Б-2" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-2, свободно">
+              <g class="spot seat" data-id="bar-2" data-photo="assets/spots/seat.jpg" data-title="Место у бара 2" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-2" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-2, свободно">
                 <circle class="ring" cx="644" cy="150" r="23"/>
                 <circle class="shape" cx="644" cy="150" r="16"/>
                 <text x="644" y="154" text-anchor="middle">2</text>
               </g>
-              <g class="spot seat busy" data-id="bar-3" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, занято">
+              <g class="spot seat busy" data-id="bar-3" data-photo="assets/spots/seat.jpg" data-title="Место у бара 3" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, занято">
                 <circle class="ring" cx="698" cy="150" r="23"/>
                 <circle class="shape" cx="698" cy="150" r="16"/>
                 <text x="698" y="154" text-anchor="middle">3</text>
               </g>
-              <g class="spot seat" data-id="bar-4" data-label="место у бара Б-4" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-4, свободно">
+              <g class="spot seat" data-id="bar-4" data-photo="assets/spots/seat.jpg" data-title="Место у бара 4" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-4" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-4, свободно">
                 <circle class="ring" cx="752" cy="150" r="23"/>
                 <circle class="shape" cx="752" cy="150" r="16"/>
                 <text x="752" y="154" text-anchor="middle">4</text>
               </g>
-              <g class="spot seat" data-id="bar-5" data-label="место у бара Б-5" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-5, свободно">
+              <g class="spot seat" data-id="bar-5" data-photo="assets/spots/seat.jpg" data-title="Место у бара 5" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-5" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-5, свободно">
                 <circle class="ring" cx="806" cy="150" r="23"/>
                 <circle class="shape" cx="806" cy="150" r="16"/>
                 <text x="806" y="154" text-anchor="middle">5</text>
               </g>
-              <g class="spot table" data-id="t-1" data-label="стол С-1" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-1, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-1" data-photo="assets/spots/table.jpg" data-title="Стол С-1" data-note="Столик у стены, полукруглый диван" data-label="стол С-1" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-1, 2–4 гостей, свободен">
                 <circle class="ring" cx="372" cy="352" r="40"/>
                 <circle class="shape" cx="372" cy="352" r="30"/>
                 <text x="372" y="351" text-anchor="middle">С-1</text>
                 <text class="cap" x="372" y="367" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table busy" data-id="t-2" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, занят">
+              <g class="spot table busy" data-id="t-2" data-photo="assets/spots/table.jpg" data-title="Стол С-2" data-note="Столик у стены, полукруглый диван" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, занят">
                 <circle class="ring" cx="372" cy="448" r="40"/>
                 <circle class="shape" cx="372" cy="448" r="30"/>
                 <text x="372" y="447" text-anchor="middle">С-2</text>
                 <text class="cap" x="372" y="463" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-3" data-label="стол С-3" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-3, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-3" data-photo="assets/spots/table.jpg" data-title="Стол С-3" data-note="Столик у стены, полукруглый диван" data-label="стол С-3" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-3, 2–4 гостей, свободен">
                 <circle class="ring" cx="372" cy="544" r="40"/>
                 <circle class="shape" cx="372" cy="544" r="30"/>
                 <text x="372" y="543" text-anchor="middle">С-3</text>
                 <text class="cap" x="372" y="559" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-4" data-label="стол С-4" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-4, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-4" data-photo="assets/spots/table.jpg" data-title="Стол С-4" data-note="Столик у стены, полукруглый диван" data-label="стол С-4" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-4, 2–4 гостей, свободен">
                 <circle class="ring" cx="372" cy="645" r="40"/>
                 <circle class="shape" cx="372" cy="645" r="30"/>
                 <text x="372" y="644" text-anchor="middle">С-4</text>
                 <text class="cap" x="372" y="660" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-5" data-label="стол С-5" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-5, 4–6 гостей, свободен">
+              <g class="spot table" data-id="t-5" data-photo="assets/spots/table-l.jpg" data-title="Стол С-5" data-note="Под люстрой, в центре зала" data-label="стол С-5" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-5, 4–6 гостей, свободен">
                 <circle class="ring" cx="568" cy="400" r="40"/>
                 <circle class="shape" cx="568" cy="400" r="30"/>
                 <text x="568" y="399" text-anchor="middle">С-5</text>
                 <text class="cap" x="568" y="415" text-anchor="middle">4–6</text>
               </g>
-              <g class="spot table busy" data-id="t-6" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, занят">
+              <g class="spot table busy" data-id="t-6" data-photo="assets/spots/table-l.jpg" data-title="Стол С-6" data-note="Под люстрой, в центре зала" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, занят">
                 <circle class="ring" cx="568" cy="510" r="40"/>
                 <circle class="shape" cx="568" cy="510" r="30"/>
                 <text x="568" y="509" text-anchor="middle">С-6</text>
                 <text class="cap" x="568" y="525" text-anchor="middle">4–6</text>
               </g>
-              <g class="spot table" data-id="t-7" data-label="стол С-7" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-7, 4–6 гостей, свободен">
+              <g class="spot table" data-id="t-7" data-photo="assets/spots/table-l.jpg" data-title="Стол С-7" data-note="Под люстрой, в центре зала" data-label="стол С-7" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-7, 4–6 гостей, свободен">
                 <circle class="ring" cx="568" cy="620" r="40"/>
                 <circle class="shape" cx="568" cy="620" r="30"/>
                 <text x="568" y="619" text-anchor="middle">С-7</text>
@@ -1402,8 +1533,21 @@
             <span>7 столов · 2 больших · 3 VIP · 5 мест у бара</span>
           </div>
         </div>
+        <!-- на мобильном: список мест карточками с фото вместо схемы (идея Restoplace) -->
+        <div class="bk-mgrid-hint">тапни по месту — покажем фото и депозит</div>
+        <div class="bk-mgrid" id="bkMgrid" aria-label="Список мест: выберите стол, кабинет или место у бара"></div>
       </div>
     </div>
+  </div>
+  <!-- sticky-панель выбранного места: гость не теряет контекст после тапа -->
+  <div class="bk-stick" id="bkStick" role="status" aria-live="polite" hidden>
+    <img class="bk-stick-ph" id="bkStickPh" alt="" width="160" height="100" decoding="async" hidden>
+    <div class="bk-stick-txt">
+      <b id="bkStickTtl"></b>
+      <span id="bkStickSub"></span>
+    </div>
+    <button class="btn bk-stick-btn" type="button" id="bkStickGo">Продолжить</button>
+    <button class="bk-stick-x" type="button" id="bkStickX" aria-label="Сбросить выбор места">×</button>
   </div>
 </section>
 
@@ -1912,24 +2056,45 @@ if(window.gsap && !RM && matchMedia('(pointer:fine)').matches){
   });
 }
 
-/* ---------- пылинки (один rAF, пауза при скрытой вкладке) ---------- */
+/* ---------- пылинки (один rAF, пауза при скрытой вкладке) ----------
+   Канвас масштабируется под плотность экрана: на Retina без этого
+   частица радиусом меньше пикселя размазывалась и пропадала. */
 (function(){
   if(RM) return;
   const cv = document.getElementById('dust'), cx = cv.getContext('2d');
-  let W,H,parts=[];
-  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+  let W,H,dpr=1,parts=[];
+  /* спрайт-точка со свечением: рисуется один раз, дальше только drawImage */
+  const SP=64, sp=document.createElement('canvas'); sp.width=sp.height=SP;
+  (function(){
+    const sg=sp.getContext('2d'), gr=sg.createRadialGradient(SP/2,SP/2,0,SP/2,SP/2,SP/2);
+    gr.addColorStop(0,'rgba(255,226,184,1)');
+    gr.addColorStop(.28,'rgba(240,196,144,.72)');
+    gr.addColorStop(.6,'rgba(226,168,110,.20)');
+    gr.addColorStop(1,'rgba(226,168,110,0)');
+    sg.fillStyle=gr; sg.fillRect(0,0,SP,SP);
+  })();
+  function resize(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+    cx.setTransform(dpr,0,0,dpr,0,0);
+  }
   resize(); addEventListener('resize',resize);
-  for(let i=0;i<64;i++)parts.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.3,s:Math.random()*.00022+.00006,ph:Math.random()*6.28,a:Math.random()*.32+.08});
+  /* Золотая середина: характер как у старой версии, но с чуть более явной
+     читаемостью на Retina. Меньше мух, больше воздуха. */
+  for(let i=0;i<96;i++)parts.push({x:Math.random(),y:Math.random(),r:.62+Math.random()*1.05,s:Math.random()*.00016+.000045,ph:Math.random()*6.28,a:Math.random()*.30+.28});
   function tick(t){
     if(!document.hidden){
       cx.clearRect(0,0,W,H);
+      cx.globalCompositeOperation='lighter';
       for(const p of parts){
         p.y-=p.s; p.x+=Math.sin(t*.0004+p.ph)*.00012;
         if(p.y<-.02){p.y=1.02;p.x=Math.random()}
-        const glow=Math.max(0,1-Math.hypot(p.x-.32,p.y-.4)*1.7);
-        cx.beginPath();cx.arc(p.x*W,p.y*H,p.r,0,6.28);
-        cx.fillStyle=`rgba(232,190,140,${p.a*(.25+.75*glow)})`;cx.fill();
+        const d=p.r*3.7;
+        cx.globalAlpha=Math.min(1,p.a*(.75+.25*Math.max(0,1-Math.hypot(p.x-.32,p.y-.4)*1.7)));
+        cx.drawImage(sp,p.x*W-d/2,p.y*H-d/2,d,d);
       }
+      cx.globalAlpha=1;
     }
     requestAnimationFrame(tick);
   }
@@ -1958,9 +2123,9 @@ document.querySelectorAll('.io').forEach(el=>io.observe(el));
       var x = size/2 + (Math.random()-.5)*size*.4;
       var y = size/2 + (Math.random()-.5)*size*.4;
       var gr = g.createRadialGradient(x,y,0,x,y,r);
-      var tone = warm ? '224,196,164' : '206,198,186';
-      gr.addColorStop(0, 'rgba('+tone+',.13)');
-      gr.addColorStop(.55,'rgba('+tone+',.05)');
+      var tone = warm ? '230,202,170' : '210,202,190';
+      gr.addColorStop(0, 'rgba('+tone+',.16)');
+      gr.addColorStop(.55,'rgba('+tone+',.062)');
       gr.addColorStop(1, 'rgba('+tone+',0)');
       g.fillStyle = gr; g.fillRect(0,0,size,size);
     }
@@ -1973,9 +2138,15 @@ document.querySelectorAll('.io').forEach(el=>io.observe(el));
     if (!cv) return;
     var g = cv.getContext('2d');
     var puffs = [makePuff(256,false), makePuff(256,false), makePuff(256,true), makePuff(256,false)];
-    var W, H, P = [];
-    function rs(){ W = cv.width = cv.clientWidth || innerWidth;
-                   H = cv.height = cv.clientHeight || innerHeight; }
+    var W, H, dpr = 1, P = [];
+    /* backing store под плотность экрана: на Retina иначе всё блёкло */
+    function rs(){
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = cv.clientWidth || innerWidth;
+      H = cv.clientHeight || innerHeight;
+      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+      g.setTransform(dpr,0,0,dpr,0,0);
+    }
     rs(); addEventListener('resize', rs, {passive:true});
     function spawn(init){
       var side = Math.random();
@@ -2157,7 +2328,7 @@ document.getElementById('mapFacade').addEventListener('click', function(){
 </script>
 
 <!-- ================= ВИДЕО-ФОН HERO =================
-     v2-h «Волна+»: свет течёт слева направо, поверх — плотный дым.
+     v2-g «Дыхание+»: свет медленно пульсирует в глубине кадра, поверх — плотный дым.
      Кадр сдвинут вправо-вниз, скрим расширен — свечение читается.
      Мобильные (<=768px) получают 720p. -->
 <script>
@@ -2166,7 +2337,7 @@ document.getElementById('mapFacade').addEventListener('click', function(){
   if(!video) return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){ video.remove(); return; }
   var mobile = Math.min(screen.width, window.innerWidth) <= 768;
-  var base = 'assets/hero-bg-v2-h' + (mobile ? '-720' : '');
+  var base = 'assets/hero-bg-v2-g' + (mobile ? '-720' : '');
   [['webm','video/webm'],['mp4','video/mp4']].forEach(function(f){
     var s = document.createElement('source');
     s.src = base + '.' + f[0]; s.type = f[1];
@@ -2246,6 +2417,8 @@ var BOOKING_CFG = {
   mode: 'demo',
   payInitUrl: '/api/pay/init',
   deposits: { table: 2000, big: 4000, cab: 5000, seat: 1000 },
+  /* депозит конкретного места, если он отличается от типового (кабинеты) */
+  depositBySpot: { 'vip-1': 15000, 'vip-2': 10000, 'vip-3': 8000 },
   durationMinutes: 180
 };
 (function(){
@@ -2276,7 +2449,11 @@ var BOOKING_CFG = {
   var steps = wiz.querySelectorAll('.bk-step');
   var maxReached = 1;
 
-  function dep(kind){ return BOOKING_CFG.deposits[kind] || BOOKING_CFG.deposits.table; }
+  function dep(kind){
+    var byId = BOOKING_CFG.depositBySpot || {};
+    if (B.spot && byId[B.spot]) return byId[B.spot];
+    return BOOKING_CFG.deposits[kind] || BOOKING_CFG.deposits.table;
+  }
   function money(v){ return v.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽'; }
   function kindOf(el){
     if (el.classList.contains('cab')) return 'cab';
@@ -2284,7 +2461,96 @@ var BOOKING_CFG = {
     if (el.classList.contains('seat')) return 'seat';
     return 'table';
   }
-  function err(id, show){ document.getElementById(id).classList.toggle('show', !!show); }
+  function err(id, show){ var el = document.getElementById(id); if (el) el.classList.toggle('show', !!show); }
+
+  /* ---- депозит места до выбора (для карточек сетки) ---- */
+  function depFor(el){
+    var byId = BOOKING_CFG.depositBySpot || {};
+    if (byId[el.dataset.id]) return byId[el.dataset.id];
+    return BOOKING_CFG.deposits[kindOf(el)] || BOOKING_CFG.deposits.table;
+  }
+
+  /* ---- sticky-панель выбранного места ---- */
+  var stick = document.getElementById('bkStick');
+  /* единое правило видимости: панель есть, только когда место выбрано
+     И гость ещё не перешёл к шагу 2 кнопкой «Продолжить»/«Дальше».
+     Отдельный флаг, а не maxReached: на мобильном maxReached поднимается
+     сразу при выборе, но панель должна остаться видимой. */
+  var stickDismissed = true;
+  function refreshStick(){
+    if (!stick) return;
+    var want = !!(B.spot && !stickDismissed);
+    stick.hidden = !want;
+    stick.classList.toggle('show', want);
+    syncStickPad();
+  }
+  function showStick(el){
+    if (!stick) return;
+    var img = document.getElementById('bkStickPh');
+    img.src = el.dataset.photo || '';
+    img.alt = el.dataset.title || el.dataset.label || '';
+    document.getElementById('bkStickTtl').textContent = el.dataset.title || el.dataset.label || '';
+    document.getElementById('bkStickSub').textContent = (el.dataset.cap || '') + ' · депозит ' + money(depFor(el));
+    stickDismissed = false;
+    refreshStick();
+  }
+  function hideStick(){
+    if (!stick) return;
+    stickDismissed = true;
+    refreshStick();
+  }
+  /* резерв снизу под панель, чтобы последний блок доскролливался */
+  function syncStickPad(){
+    document.body.classList.toggle('bk-has-stick', !!(stick && !stick.hidden));
+  }
+  var stickGo = document.getElementById('bkStickGo');
+  if (stickGo) stickGo.addEventListener('click', function(){
+    hideStick();
+    goto(2);
+    var step2 = document.querySelector('.bk-step[data-bk="2"]');
+    if (step2) step2.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+  var stickX = document.getElementById('bkStickX');
+  if (stickX) stickX.addEventListener('click', function(){
+    var cur = document.querySelector('.plan .spot.sel');
+    if (cur) cur.classList.remove('sel');
+    syncGridSel(null);
+    hideStick();
+    clearPick();
+  });
+  /* синхронизация .sel между схемой и мобильной сеткой */
+  function syncGridSel(id){
+    document.querySelectorAll('#bkMgrid .bk-mcard').forEach(function(c){
+      c.classList.toggle('sel', !!id && c.dataset.id === id);
+    });
+  }
+
+  /* ---- мобильная сетка мест из спотов схемы ---- */
+  (function buildMobileGrid(){
+    var grid = document.getElementById('bkMgrid');
+    if (!grid) return;
+    document.querySelectorAll('.plan .spot').forEach(function(el){
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'bk-mcard' + (el.classList.contains('busy') ? ' busy' : '');
+      card.dataset.id = el.dataset.id;
+      card.setAttribute('aria-label', el.getAttribute('aria-label') || '');
+      var status = el.classList.contains('busy') ? 'занято' : 'свободно';
+      card.innerHTML =
+        '<span class="bk-mstatus ' + (el.classList.contains('busy') ? 'busy' : 'free') + '">' + status + '</span>' +
+        '<img src="' + (el.dataset.photo || '') + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="bk-mbody">' +
+          '<span class="bk-mttl">' + (el.dataset.title || el.dataset.label || '') + '</span>' +
+          '<span class="bk-mcap">' + (el.dataset.cap || '') + '</span>' +
+          '<span class="bk-mdep">депозит ' + money(depFor(el)) + '</span>' +
+        '</span>';
+      card.addEventListener('click', function(){
+        if (el.classList.contains('busy')) return;
+        el.dispatchEvent(new Event('click', {bubbles:true}));
+      });
+      grid.appendChild(card);
+    });
+  })();
 
   function goto(n){
     if (n > maxReached) return;
@@ -2304,13 +2570,61 @@ var BOOKING_CFG = {
   });
 
   /* ---- шаг 1: место со схемы ---- */
+  var pickBox = document.getElementById('bkPick');
+  function fillPick(el){
+    if (!pickBox) return;
+    var ph = el.dataset.photo || '';
+    var img = document.getElementById('bkPickPh');
+    if (ph){ img.src = ph; img.alt = el.dataset.title || B.spotLabel; img.hidden = false; }
+    else { img.removeAttribute('src'); img.hidden = true; }
+    document.getElementById('bkPickTtl').textContent  = el.dataset.title || B.spotLabel;
+    document.getElementById('bkPickCap').textContent  = B.cap;
+    document.getElementById('bkPickNote').textContent = el.dataset.note || '';
+    document.getElementById('bkPickDep').textContent  = 'депозит ' + money(dep(B.spotKind));
+    pickBox.hidden = false;
+    pickBox.classList.remove('is-empty');
+  }
+  function clearPick(){
+    if (pickBox){
+      pickBox.hidden = false;
+      pickBox.classList.add('is-empty');
+      var img = document.getElementById('bkPickPh');
+      if (img){ img.removeAttribute('src'); img.hidden = true; }
+    }
+    document.getElementById('bkV1').textContent = 'выберите на схеме →';
+    B.spot = null; maxReached = 1; goto(1);
+  }
+  var pickX = document.getElementById('bkPickX');
+  if (pickX) pickX.addEventListener('click', function(){
+    var cur = document.querySelector('.plan .spot.sel');
+    if (cur) cur.classList.remove('sel');
+    clearPick();
+    syncGridSel(null);
+    hideStick();
+    var plan = document.querySelector('.plan-card');
+    if (plan && !window.matchMedia('(max-width: 900px)').matches) plan.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
   function onSpot(el){
-    B.spot = el.dataset.id; B.spotLabel = el.dataset.label;
+    B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
     B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
-    document.getElementById('bkV1').textContent = (B.spotLabel + ' · ' + B.cap);
-    maxReached = Math.max(maxReached, 2);
+    document.getElementById('bkV1').textContent = B.spotLabel + (B.cap ? ' · ' + B.cap : '');
+    fillPick(el);
+    syncGridSel(B.spot);
+    showStick(el);
     buildDates();
-    goto(2);
+    var narrow = window.matchMedia('(max-width: 900px)').matches;
+    if (narrow){
+      /* мобильный: место выбрано, sticky-панель с «Продолжить» видна,
+         мастер остаётся на шаге 1 — гость сам жмёт «Продолжить» и
+         переходит к дате. Так не возникает гонки двух CTA и панель
+         не исчезает мгновенно после тапа. */
+      if (maxReached < 2) maxReached = 2;
+    } else {
+      /* десктоп: сразу открываем шаг «Когда», sticky не нужен */
+      hideStick();
+      if (maxReached < 2) { maxReached = 2; goto(2); }
+    }
   }
   var planObserver = document.querySelector('.plan');
   if (planObserver){
@@ -2318,7 +2632,7 @@ var BOOKING_CFG = {
       var g = e.target.closest('.spot');
       if (!g || g.classList.contains('busy')) return;
       setTimeout(function(){ if (g.classList.contains('sel')) onSpot(g);
-        else { document.getElementById('bkV1').textContent = 'выберите на схеме →'; maxReached = 1; goto(1); } }, 10);
+        else { clearPick(); syncGridSel(null); hideStick(); } }, 10);
     });
     planObserver.addEventListener('keydown', function(e){
       if (e.key !== 'Enter' && e.key !== ' ') return;
