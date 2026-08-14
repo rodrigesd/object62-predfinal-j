@@ -55,7 +55,7 @@
     0%,100%{transform:translate(0,0)}10%{transform:translate(-3%,2%)}30%{transform:translate(2%,-4%)}
     50%{transform:translate(-4%,-2%)}70%{transform:translate(3%,3%)}90%{transform:translate(-2%,4%)}
   }
-  /* пылинки в луче света */
+  /* пылинки в луче: канвас на весь экран, но сами пылинки живут внутри блоков */
   #dust{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none}
 
   /* ---------- общие атомы ---------- */
@@ -154,7 +154,11 @@
     color:rgba(239,230,210,.6);text-decoration:none;transition:color .3s;
   }
   .nav-links a:hover{color:var(--copper-hot)}
-  .nav-cta{padding:12px 22px;font-size:12.5px}
+  .nav-cta{padding:12px 22px;font-size:12.5px;flex:none}
+  @media (max-width:1280px){
+    .nav-links{gap:20px}
+    .nav-links a{font-size:10.5px;letter-spacing:.12em}
+  }
 
   /* ---------- герой ---------- */
   .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
@@ -322,14 +326,6 @@
   @media (max-width:640px){
     .b-count{flex-direction:column;gap:4px}   /* мобила: счётчики столбиком, без висячих хвостов */
   }
-  .steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em}
-  .step{
-    display:flex;align-items:center;gap:8px;
-    color:rgba(239,230,210,.4);border:1px dashed rgba(233,220,195,.2);border-radius:2px;padding:9px 13px;
-  }
-  .step.on{color:var(--ink);background:var(--copper);border-color:var(--copper)}
-  .step i{font-family:'District','JetBrains Mono',monospace;font-style:normal}
-  .steps .arr{align-self:center;color:rgba(239,230,210,.3)}
   .trust{
     margin-top:34px;padding:20px 22px;border-left:2px solid var(--wax);
     background:linear-gradient(90deg, rgba(140,47,35,.12), transparent 80%);
@@ -357,7 +353,6 @@
   }
   .plan-card .d-head{position:relative;z-index:2}
   .plan-scroll{position:relative;z-index:2}
-  .plan-mobile-hint{display:none}
   .plan-card svg.plan{width:100%;height:auto;max-height:clamp(320px,52vh,520px);display:block;position:relative;z-index:2}
   .plan .spot .shape{fill:rgba(200,125,74,.12);stroke:#241a10;stroke-width:2;cursor:pointer;transition:fill .25s, stroke .25s}
   .plan .spot .ring{fill:none;stroke:#241a10;stroke-dasharray:3 6;opacity:.3;pointer-events:none}
@@ -422,7 +417,7 @@
   }
 
   /* ---------- кабинеты ---------- */
-  .cabinets{padding:100px 0;background:var(--ink-2)}
+  .cabinets{padding:72px 0;background:var(--ink-2)}
   .c-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
   .c-card{
     position:relative;border:1px solid rgba(233,220,195,.1);border-radius:3px;overflow:hidden;
@@ -432,7 +427,7 @@
   }
   .c-card:hover{border-color:rgba(200,125,74,.45);transform:translateY(-5px)}
   .c-card .ph{position:relative;overflow:hidden}
-  .c-card .ph img{width:100%;height:350px;object-fit:cover;filter:sepia(.1) contrast(1.03);transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
+  .c-card .ph img{width:100%;height:270px;object-fit:cover;filter:sepia(.1) contrast(1.03);transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
   .c-card:hover .ph img{transform:scale(1.05)}
   .c-card .ph::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(11,8,5,.55))}
   .c-tag{
@@ -758,7 +753,8 @@
     .m-photo img{height:420px}
     .k-photo img{height:440px}
     .c-grid{grid-template-columns:1fr}
-    .c-card .ph img{height:300px}
+    .c-card .ph img{height:220px}
+    .c-body{padding:20px 20px 22px}
     .a-grid{grid-template-columns:1fr 1fr}
     .r-grid{grid-template-columns:1fr;max-width:560px}
     .r-card:nth-child(2){transform:rotate(.8deg)}
@@ -769,18 +765,6 @@
     .burger{display:block}
     .nav-cta{padding:11px 16px;font-size:11.5px}
   }
-  @media (max-width:900px){
-    .plan-scroll{width:100%;max-width:100%;box-sizing:border-box;overflow-x:auto;overflow-y:hidden;margin:0;padding:0 0 8px;
-      border:1px solid rgba(36,26,16,.18);border-radius:2px;
-      scrollbar-width:thin;scrollbar-color:rgba(140,47,35,.65) rgba(36,26,16,.12);
-      -webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
-    .plan-scroll::-webkit-scrollbar{height:6px}
-    .plan-scroll::-webkit-scrollbar-track{background:rgba(36,26,16,.12);border-radius:3px}
-    .plan-scroll::-webkit-scrollbar-thumb{background:rgba(140,47,35,.65);border-radius:3px}
-    .plan-card svg.plan{width:960px;max-width:none;max-height:none}
-    .plan-mobile-hint{display:block;position:relative;z-index:2;margin:8px 0 6px;
-      font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#6d5234}
-  }
   @media (max-width:640px){
     .wrap{padding:0 20px}
     .hero-grid{padding:120px 20px 20px}
@@ -789,13 +773,13 @@
     .mnav{padding:78px 20px 24px}
     .mnav-links a{font-size:21px;padding:15px 2px}
     /* --- докрутка адаптива --- */
-    .tab{padding:11px 14px;font-size:11.5px}          /* тап-таргет табов меню */
+    .tabs .tab{padding:12px 14px;font-size:11.5px}          /* тап-таргет табов меню */
     .tabs{gap:8px;margin-top:26px}
     .dish-top{flex-wrap:wrap;gap:6px}                 /* цена не улетает от названия */
     .dish-top .dots{min-width:14px}
     .m-photo img{height:260px}
     .k-photo img{height:420px}
-    .c-card .ph img{height:280px}
+    .c-card .ph img{height:210px}
     .strip{height:280px}
     .fact b{font-size:24px}
     .b-legend{flex-wrap:wrap;gap:10px;font-size:9px}
@@ -804,12 +788,14 @@
     .bk-head{padding:14px 14px}
     .bk-body{padding:0 14px 16px}
     .bk-val{font-size:10px}
-    .plan-card{padding:14px 14px 14px;transform:none;max-width:100%;overflow:hidden}
-    .plan-card svg.plan{width:820px}
-    .plan .spot.seat .ring{r:28px;pointer-events:all;fill:transparent}
     .bk-srow b{text-align:right;padding-left:6px}        /* не прилипает к правому краю */
     .bk-val{padding-right:4px}                           /* значения в свёрнутых шагах */
     .b-cta-row .btn{width:100%}                          /* CTA на всю ширину на мобиле */
+    /* мелкие ссылки: расширяем тап-зону невидимым паддингом, не ломая вёрстку */
+    header.nav .logo{padding:10px 0;margin:-10px 0}
+    .ct-row a{padding:9px 0;display:inline-block;margin:-9px 0}
+    .f-col a{padding:12px 0;display:block;margin:0}
+    footer .logo{padding:10px 0;margin:-10px 0;display:inline-flex}
     .bk-agree{min-height:44px;padding:8px 4px}           /* вся подпись — тап-зона */
     .bk-agree span{font-size:12.5px}
     .bk-agree input{margin-top:3px;transform:scale(1.35);transform-origin:top left}  /* тап-зона больше */
@@ -829,7 +815,6 @@
     .a-grid{grid-template-columns:1fr}
     .privs{grid-template-columns:1fr}
     .sec-head{flex-direction:column;align-items:flex-start;gap:8px}
-    .steps .arr{display:none}
     .g-form{flex-direction:column}
     .g-h1{font-size:36px}
     .lb-nav{display:none}
@@ -1014,8 +999,6 @@
   /* якорный скролл не должен уводить блок под фиксированную шапку */
   #bron{scroll-margin-top:76px}
   .bk-step{scroll-margin-top:76px}
-  /* резерв снизу под sticky-панель выбора: последний блок доскролливается */
-  body.bk-has-stick .booking{padding-bottom:120px}
 
   /* ---- карточка выбранного места (шаг 01): фото + подпись + депозит ---- */
   .bk-pick{display:grid;grid-template-columns:132px minmax(0,1fr);gap:14px;
@@ -1027,7 +1010,7 @@
   .bk-pick-empty span{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--paper-dim)}
   .bk-pick.is-empty .bk-pick-txt,.bk-pick.is-empty .bk-pick-x{display:none}
   .bk-pick:not(.is-empty) .bk-pick-empty{display:none}
-  .bk-pick-ph[hidden],.bk-stick-ph[hidden]{display:none!important}
+  .bk-pick-ph[hidden]{display:none!important}
   @keyframes bkPickIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
   .bk-pick-ph{width:132px;height:auto;aspect-ratio:16/10;object-fit:cover;display:block;cursor:zoom-in;
     border:1px solid rgba(200,125,74,.4);border-radius:2px;
@@ -1048,7 +1031,8 @@
   .bk-pick-x:hover{color:var(--copper-hot);border-color:var(--copper)}
   @media (prefers-reduced-motion: reduce){.bk-pick{animation:none}}
 
-  /* ---- мобильная сетка мест (список с фото, вместо нечитаемой схемы) ---- */
+  /* ---- витрина мест карточками: только на мобильном/планшете (≤900px),
+     на десктопе выбор идёт по схеме зала ---- */
   .bk-mgrid{display:none}
   .bk-mgrid-hint{display:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
     color:rgba(205,191,164,.5);margin:2px 0 10px}
@@ -1081,38 +1065,216 @@
   .bk-mcard .bk-mstatus.busy{background:rgba(42,20,18,.72);color:#e8836f;border:1px solid rgba(232,131,111,.3)}
   .bk-mcard.sel .bk-mstatus{background:var(--copper-hot);color:#1a1008;border-color:var(--copper-hot)}
 
-  /* ---- sticky-панель выбранного места ---- */
-  .bk-stick{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:16px;z-index:44;
-    display:flex;align-items:center;gap:12px;
-    background:rgba(16,20,32,.92);border:1px solid rgba(200,125,74,.5);border-radius:3px;
-    padding:10px 10px 10px 12px;box-shadow:0 14px 40px -8px rgba(0,0,0,.7);
-    max-width:min(560px, calc(100vw - 24px));width:max-content;
-    opacity:0;pointer-events:none;transition:opacity .3s ease, transform .3s ease}
-  .bk-stick.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
-  .bk-stick-ph{width:56px;height:56px;object-fit:cover;border-radius:2px;flex:none;
-    filter:saturate(.92) contrast(1.04) brightness(.94)}
-  .bk-stick-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-  .bk-stick-txt b{font-family:var(--serif);font-weight:400;font-size:15px;color:var(--bone);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bk-stick-txt span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
-    color:rgba(205,191,164,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bk-stick .btn{flex:none;padding:11px 16px;font-size:11px;white-space:nowrap}
-  .bk-stick-x{flex:none;width:34px;height:34px;display:grid;place-items:center;
-    background:none;border:1px solid rgba(205,191,164,.2);border-radius:2px;
-    color:rgba(205,191,164,.6);font-size:18px;line-height:1;cursor:pointer;transition:border-color .2s,color .2s}
-  .bk-stick-x:hover{border-color:var(--copper);color:var(--copper-hot)}
+  /* ---- карточки-витрина мест (мобайл): крупнее тап-зоны ---- */
   @media (max-width:900px){
-    @media (max-width:900px){
-      .bk-stick{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));
-        transform:none;width:auto;max-width:none}
-      .bk-stick.show{transform:none}
-      .bk-stick-ph{width:48px;height:48px}
-    }
-  /* запас снизу, чтобы sticky-панель не перекрывала последние строки */
-  .booking{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+    .bk-mcard .bk-mbody{padding:10px 12px 12px;gap:5px}
+    .bk-mcard .bk-mttl{font-size:17px}
+    .bk-mcard .bk-mcap{font-size:9.5px}
+    .bk-mcard .bk-mdep{font-size:10px}
+    .bk-mgrid{gap:14px}
+  }
   @media (prefers-reduced-motion: reduce){
-    .bk-stick,.bk-mcard{transition:none}
+    .bk-mcard{transition:none}
     .bk-mcard:active{transform:none}
+  }
+
+  /* ===== мобильный мастер брони (полноэкраный wizard, флоу Restoplace) ===== */
+  .bk-mobile-cta{display:none}
+  .bkw{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;
+    background:linear-gradient(175deg,#151009 0%,var(--ink) 55%);
+    padding-top:env(safe-area-inset-top);
+    opacity:0;visibility:hidden;transition:opacity .3s ease, visibility .3s}
+  .bkw.open{opacity:1;visibility:visible}
+  .bkw[hidden]{display:none}
+  body.bkw-open{overflow:hidden}
+  .bkw-top{display:flex;align-items:center;gap:12px;padding:14px 16px 10px;flex:none}
+  .bkw-back{width:44px;height:44px;flex:none;display:grid;place-items:center;
+    background:none;border:1px solid rgba(205,191,164,.25);border-radius:3px;
+    color:var(--paper-dim);font-size:17px;line-height:1;cursor:pointer;
+    transition:border-color .2s,color .2s}
+  .bkw-back:hover{border-color:var(--copper);color:var(--copper-hot)}
+  .bkw-title{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+  .bkw-title span{font-family:var(--mono);font-size:9px;letter-spacing:.24em;
+    color:var(--copper-hot);text-transform:uppercase}
+  .bkw-title b{font-family:var(--serif);font-weight:400;font-size:21px;color:var(--bone);line-height:1.05}
+  .bkw-x{width:44px;height:44px;flex:none;display:grid;place-items:center;
+    background:none;border:1px solid rgba(205,191,164,.25);border-radius:3px;
+    color:var(--paper-dim);font-size:22px;line-height:1;cursor:pointer;
+    transition:border-color .2s,color .2s}
+  .bkw-x:hover{border-color:var(--copper);color:var(--copper-hot)}
+  .bkw-prog{display:flex;gap:6px;padding:2px 16px 12px;flex:none}
+  .bkw-prog i{flex:1;height:2px;border-radius:1px;background:rgba(205,191,164,.16);transition:background .3s}
+  .bkw-prog i.on{background:var(--copper)}
+  .bkw-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;padding:2px 16px 24px}
+  .bkw-step{display:none}
+  .bkw-step.on{display:block;animation:bkwIn .3s ease both}
+  @keyframes bkwIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .bkw-note{font-family:var(--mono);font-size:10px;letter-spacing:.06em;line-height:1.7;
+    color:rgba(205,191,164,.55);margin:0 0 14px}
+  /* фильтры мест */
+  .bkw-filters{display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;padding-bottom:10px;margin-bottom:12px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .bkw-filters::-webkit-scrollbar{display:none}
+  .bkw-filter{flex:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--paper-dim);background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);
+    border-radius:2px;padding:10px 13px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .bkw-filter.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
+  /* карточка места в списке */
+  .bkw-list{display:flex;flex-direction:column;gap:10px}
+  .bkw-card{position:relative;display:flex;gap:12px;align-items:center;text-align:left;
+    padding:10px 12px 10px 10px;border:1px solid rgba(205,191,164,.17);border-radius:3px;
+    background:rgba(200,125,74,.045);cursor:pointer;transition:border-color .2s, box-shadow .2s;
+    font-family:inherit;color:inherit;width:100%}
+  .bkw-card:active{transform:scale(.99)}
+  .bkw-card:focus-visible{outline:2px solid var(--copper-hot);outline-offset:2px}
+  .bkw-card img{width:104px;height:78px;object-fit:cover;border-radius:2px;flex:none;
+    filter:saturate(.92) contrast(1.04) brightness(.94)}
+  .bkw-card-txt{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+  .bkw-card-txt b{font-family:var(--serif);font-weight:400;font-size:17px;color:var(--bone);line-height:1.15}
+  .bkw-card-cap{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--copper-hot)}
+  .bkw-card-dep{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:rgba(205,191,164,.75)}
+  .bkw-card-mark{flex:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 8px;border-radius:2px;align-self:flex-start;margin-top:2px}
+  .bkw-card-mark.free{background:rgba(18,42,28,.75);color:#8fd6a8;border:1px solid rgba(143,214,168,.3)}
+  .bkw-card-mark.busy{background:rgba(42,20,18,.75);color:#e8836f;border:1px solid rgba(232,131,111,.3)}
+  .bkw-card.sel{border-color:var(--copper-hot);box-shadow:0 0 0 1px var(--copper-hot)}
+  .bkw-card.sel .bkw-card-mark{background:var(--copper-hot);color:#1a1008;border-color:var(--copper-hot)}
+  .bkw-card.busy{opacity:.5;cursor:not-allowed}
+  /* выбранное место чипом на следующих шагах */
+  .bkw-selchip{display:flex;align-items:center;gap:12px;padding:9px 10px;margin-bottom:16px;
+    border:1px solid rgba(200,125,74,.5);border-radius:3px;background:rgba(200,125,74,.09)}
+  .bkw-selchip img{width:64px;height:48px;object-fit:cover;border-radius:2px;flex:none;
+    filter:saturate(.92) contrast(1.04) brightness(.94)}
+  .bkw-selchip-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .bkw-selchip-txt b{font-family:var(--serif);font-weight:400;font-size:15px;color:var(--bone);line-height:1.2}
+  .bkw-selchip-txt span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:rgba(205,191,164,.72)}
+  .bkw-selchip-x{flex:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--copper-hot);background:none;border:1px solid rgba(200,125,74,.45);border-radius:2px;
+    padding:9px 11px;cursor:pointer}
+  /* дата и время */
+  .bkw-lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:rgba(205,191,164,.55);margin:4px 0 8px}
+  .bkw-dates{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;
+    scroll-snap-type:x proximity;scrollbar-width:thin;
+    scrollbar-color:rgba(200,125,74,.5) transparent;-webkit-overflow-scrolling:touch}
+  .bkw-dates::-webkit-scrollbar{height:5px}
+  .bkw-dates::-webkit-scrollbar-thumb{background:rgba(200,125,74,.55);border-radius:3px}
+  .bkw-date{flex:none;scroll-snap-align:start;min-width:74px;display:flex;flex-direction:column;gap:3px;
+    align-items:center;padding:10px 12px;cursor:pointer;
+    font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--paper);
+    background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);border-radius:2px;transition:all .15s}
+  .bkw-date i{font-style:normal;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(205,191,164,.6)}
+  .bkw-date.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
+  .bkw-date.on i{color:rgba(26,16,8,.7)}
+  .bkw-times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+  .bkw-time{font-family:var(--mono);font-size:13px;color:var(--paper);text-align:center;
+    background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);border-radius:2px;
+    padding:13px 0;cursor:pointer;transition:all .15s}
+  .bkw-time.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
+  .bkw-time:disabled{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+  .bkw-times-hint{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:rgba(205,191,164,.5);
+    padding:14px 0}
+  /* контакты */
+  .bkw-field{margin-top:14px}
+  .bkw-inp{width:100%;font-family:var(--sans);font-size:16px;color:var(--bone);
+    background:rgba(11,8,5,.5);border:1px solid rgba(205,191,164,.25);border-radius:2px;
+    padding:14px 14px;outline:none;transition:border .15s}
+  .bkw-inp:focus{border-color:var(--copper)}
+  .bkw-inp.err{border-color:var(--wax);background:rgba(140,47,35,.12)}
+  .bkw-inp::placeholder{color:rgba(205,191,164,.35)}
+  .bkw-guests{display:flex;align-items:center;gap:10px}
+  .bkw-step-btn{width:48px;height:48px;flex:none;display:grid;place-items:center;
+    font-family:var(--mono);font-size:20px;color:var(--paper);
+    background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.25);border-radius:2px;
+    cursor:pointer;transition:border-color .2s}
+  .bkw-step-btn:hover{border-color:var(--copper)}
+  .bkw-guests b{flex:1;text-align:center;font-family:var(--serif);font-weight:400;font-size:22px;
+    color:var(--bone);border:1px dashed rgba(205,191,164,.2);border-radius:2px;padding:9px 0}
+  .bkw-err{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:#e8836f;
+    margin-top:12px;display:none}
+  .bkw-err.show{display:block}
+  /* подтверждение */
+  .bkw-sum{border:1px dashed rgba(205,191,164,.28);border-radius:3px;padding:4px 16px;margin-top:4px}
+  .bkw-srow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;
+    border-bottom:1px dashed rgba(205,191,164,.13);font-size:15px;color:var(--bone)}
+  .bkw-srow:last-child{border-bottom:none}
+  .bkw-srow span{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:rgba(205,191,164,.55);flex:none}
+  .bkw-srow b{font-weight:500;text-align:right}
+  .bkw-srow.dep b{font-family:'District','JetBrains Mono',monospace;font-size:20px;color:var(--copper-hot)}
+  .bkw-agree{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;
+    color:var(--paper-dim);margin-top:14px;min-height:44px;padding:8px 2px}
+  .bkw-agree input{margin-top:3px;transform:scale(1.4);transform-origin:top left;accent-color:var(--copper)}
+  .bkw-hint{font-family:var(--mono);font-size:10px;letter-spacing:.04em;line-height:1.7;
+    color:rgba(205,191,164,.55);margin-top:12px}
+  /* нижняя панель действия */
+  .bkw-foot{flex:none;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, rgba(11,8,5,0) 0%, rgba(11,8,5,.94) 40%);
+    display:flex;flex-direction:column;gap:9px}
+  .bkw-foot-hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-align:center;
+    color:rgba(205,191,164,.5)}
+  .bkw-go{width:100%;padding:19px 20px;font-size:15px;letter-spacing:.04em}
+  .bkw-go:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+  .bkw-go:disabled::before{display:none}
+  @media (min-width:901px){ .bkw{display:none} }
+  @media (max-width:900px){
+    /* инлайн-аккордеон брони и sticky живут только на десктопе */
+    #bkWizard{display:none}
+    .bk-mobile-cta{display:flex;flex-direction:column;gap:14px;align-items:stretch;margin-top:26px}
+    .bk-mobile-cta .btn{width:100%;justify-content:center;padding:20px 24px;font-size:15px}
+    .booking{padding-bottom:70px}
+  }
+  @media (max-width:640px){
+    .bkw-times{grid-template-columns:repeat(4,1fr)}
+  }
+  @media (max-width:350px){
+    .bkw-times{grid-template-columns:repeat(3,1fr)}
+    .bkw-card img{width:88px;height:66px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bkw,.bkw-step.on{transition:none;animation:none}
+  }
+
+  /* ===== история архитектора ===== */
+  .lore{padding:100px 0;background:linear-gradient(180deg,var(--ink) 0%,var(--ink-2) 100%);overflow:hidden}
+  .lore-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:44px;align-items:center}
+  .lore-photo{position:relative;cursor:zoom-in;overflow:hidden;border-radius:2px;transform:rotate(.8deg)}
+  .lore-photo img{width:100%;height:560px;object-fit:cover;display:block;
+    filter:sepia(.22) contrast(1.05) brightness(.86);
+    transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  .lore-photo:hover img{transform:scale(1.04)}
+  .lore-photo::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,8,5,.25) 0%,transparent 40%,rgba(11,8,5,.78) 100%)}
+  .lore-photo .cap{position:absolute;left:18px;bottom:14px;z-index:2;
+    font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:rgba(239,230,210,.8)}
+  .lore-sheet{
+    position:relative;color:#241a10;border-radius:3px;padding:30px 32px 32px;
+    background:radial-gradient(140% 100% at 20% 0%, #f2e7cf 0%, #e9dcc3 45%, #d9c9a8 100%);
+    border:1px solid rgba(36,26,16,.2);transform:rotate(-.7deg);
+    box-shadow:0 40px 90px -20px rgba(0,0,0,.8), 0 6px 18px rgba(0,0,0,.45), inset 0 0 60px rgba(120,90,50,.18);
+  }
+  .lore-sheet::before{
+    content:'';position:absolute;inset:0;border-radius:3px;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='0.16'/%3E%3C/svg%3E");
+  }
+  .lore-sheet>*{position:relative;z-index:2}
+  .lore-p{font-size:15px;line-height:1.72;color:#3d2d1c;margin-top:16px}
+  .lore-end{margin-top:22px;font-family:'District',var(--mono);font-size:15px;letter-spacing:.08em;
+    line-height:1.8;color:var(--wax)}
+  .lore-cta{margin-top:24px}
+  @media (max-width:1100px){
+    .lore-grid{grid-template-columns:1fr;gap:34px}
+    .lore-photo{transform:none;max-width:640px}
+    .lore-photo img{height:420px}
+    .lore-sheet{transform:none}
+  }
+  @media (max-width:640px){
+    .lore{padding:80px 0}
+    .lore-photo img{height:300px}
+    .lore-sheet{padding:22px 20px 24px}
+    .lore-p{font-size:14.5px}
+    .lore-cta{width:100%;justify-content:center}
   }
 
 </style>
@@ -1151,6 +1313,7 @@
     <a href="#bron">Бронь</a>
     <a href="#menu">Меню</a>
     <a href="#atmosfera">Атмосфера</a>
+    <a href="#story">История</a>
     <a href="#cabinets">Кабинеты</a>
     <a href="#club">Клуб</a>
     <a href="#reviews">Отзывы</a>
@@ -1170,10 +1333,11 @@
     <a href="#bron"><i>01</i>Бронь<em>выбрать стол</em></a>
     <a href="#menu"><i>02</i>Меню<em>бар · кальяны · кухня</em></a>
     <a href="#atmosfera"><i>03</i>Атмосфера<em>как выглядит 6/2</em></a>
-    <a href="#cabinets"><i>04</i>Кабинеты<em>3 закрытые комнаты</em></a>
-    <a href="#club"><i>05</i>Клуб<em>резидент 6/2</em></a>
-    <a href="#reviews"><i>06</i>Отзывы<em>свои говорят</em></a>
-    <a href="menu.html"><i>07</i>Полное меню<em>вся карта</em></a>
+    <a href="#story"><i>04</i>История<em>архив архитектора</em></a>
+    <a href="#cabinets"><i>05</i>Кабинеты<em>3 закрытые комнаты</em></a>
+    <a href="#club"><i>06</i>Клуб<em>резидент 6/2</em></a>
+    <a href="#reviews"><i>07</i>Отзывы<em>свои говорят</em></a>
+    <a href="menu.html"><i>08</i>Полное меню<em>вся карта</em></a>
   </nav>
   <div class="mnav-foot">
     <a class="btn mnav-cta" href="#bron">Забронировать стол</a>
@@ -1230,7 +1394,7 @@
       <div>
         <div class="kicker">шифр объекта · правила клуба</div>
       </div>
-      <div class="sheet-no">ЛИСТ 03/13</div>
+      <div class="sheet-no">ЛИСТ 03/14</div>
     </div>
     <div class="rules">
       <div class="rule io">
@@ -1262,7 +1426,7 @@
         <h2>Почерк архитектора</h2>
         <p class="sec-sub">Так выглядит 6/2. Настоящий интерьер, без стоков и рендеров.</p>
       </div>
-      <div class="sheet-no">ЛИСТ 04/13</div>
+      <div class="sheet-no">ЛИСТ 04/14</div>
     </div>
     <div class="g-grid">
       <figure class="g-item g-1 io" data-cap="СНИМОК 01 · ГЛАВНЫЙ ЗАЛ">
@@ -1293,6 +1457,41 @@
   </div>
 </section>
 
+<!-- ===== 04½ · история архитектора ===== -->
+<section class="lore" id="story">
+  <div class="wrap">
+    <div class="sec-head io">
+      <div>
+        <div class="kicker">// история · легенда объекта</div>
+        <h2>Он не оставлял имени.<br>Только шифры. Только объекты.</h2>
+      </div>
+      <div class="sheet-no">ЛИСТ 05/14</div>
+    </div>
+    <div class="lore-grid">
+      <figure class="lore-photo io" data-cap="АРХИВ · ФРАГМЕНТ БЕЗ ДАТЫ">
+        <img src="assets/strip-hall.jpg" alt="Архивный кадр: зал объекта 6/2" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>АРХИВ</b> · ФРАГМЕНТ БЕЗ ДАТЫ ↗</figcaption>
+      </figure>
+      <div class="lore-sheet io">
+        <div class="d-head"><b>ФРАГМЕНТ ВОССТАНОВЛЕННОЙ ИСТОРИИ</b><span>ШИФР 6/2</span></div>
+        <p class="lore-p">К нему обращались те, кому нужно было исчезнуть посреди большого города.
+           Архитектор создавал такие места. Для него это были объекты. Для них это было убежище.</p>
+        <p class="lore-p">В начале 1930-х его путь привёл в Нью-Йорк. Именно там он создал Объект 6/2:
+           убежище, с которого всё началось. Шифр 6/2 так и не расшифровали.
+           Для посвящённых он означал одно: доступ только для своих.</p>
+        <p class="lore-p">Со временем Архитектор исчез, не оставив ни имён заказчиков, ни точного
+           местоположения объектов. Спустя десятилетия его потомок восстановил замысел нескольких
+           убежищ и собрал их в одном месте. Это продолжение той самой истории:
+           здесь по-прежнему ценятся приватность, атмосфера и ощущение, что время замерло.</p>
+        <p class="lore-end">Сейчас двери открыты многим.<br>Но будет ли так всегда, не знает никто.</p>
+        <a class="btn lore-cta" href="#bron">Забронировать, пока открыто
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M11 1l5 5-5 5M16 6H0" stroke="currentColor" stroke-width="1.6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== 05 · бронь ===== -->
 <section class="booking" id="bron">
   <div class="wrap">
@@ -1301,13 +1500,20 @@
         <div class="sec-head io" style="margin-bottom:0">
           <div>
             <div class="kicker">// бронь</div>
-            <h2>Тапни свой стол</h2>
+            <h2>Забронируй свой вечер</h2>
           </div>
         </div>
         <div class="b-count io" title="считается из схемы зала">
           <span>сейчас свободно <b id="cntTables">10 из 12</b> столов</span>
           <span>VIP: <b id="cntCabs">2 из 3</b></span>
           <span>бар: <b id="cntBar">4 из 5</b></span>
+        </div>
+        <!-- мобильный вход в мастер брони (десктоп сразу видит аккордеон и план) -->
+        <div class="bk-mobile-cta io">
+          <button class="btn" type="button" id="bkOpen">Выбрать стол и время
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M11 1l5 5-5 5M16 6H0" stroke="currentColor" stroke-width="1.6"/></svg>
+          </button>
+          <span class="mono-note">бронь оформляется здесь же · депозит целиком идёт в счёт заказа</span>
         </div>
         <div class="bk io" id="bkWizard">
 
@@ -1407,8 +1613,7 @@
       </div>
       <div class="io plan-col">
         <div class="plan-card">
-          <div class="d-head"><b>ПЛАН ЗАЛА / СХЕМА</b><span>ЛИСТ 05·13</span></div>
-          <div class="plan-mobile-hint">← двигай схему влево и вправо →</div>
+          <div class="d-head"><b>ПЛАН ЗАЛА / СХЕМА</b><span>ЛИСТ 06·14</span></div>
           <div class="plan-scroll">
           <svg class="plan" viewBox="0 0 1000 740" role="group" aria-label="Схема зала: выберите стол, кабинет или место у бара">
               <defs>
@@ -1533,21 +1738,96 @@
             <span>7 столов · 2 больших · 3 VIP · 5 мест у бара</span>
           </div>
         </div>
-        <!-- на мобильном: список мест карточками с фото вместо схемы (идея Restoplace) -->
+        <!-- на мобильном: список мест карточками с фото вместо схемы; тап открывает мастер брони -->
         <div class="bk-mgrid-hint">тапни по месту — покажем фото и депозит</div>
         <div class="bk-mgrid" id="bkMgrid" aria-label="Список мест: выберите стол, кабинет или место у бара"></div>
       </div>
     </div>
   </div>
-  <!-- sticky-панель выбранного места: гость не теряет контекст после тапа -->
-  <div class="bk-stick" id="bkStick" role="status" aria-live="polite" hidden>
-    <img class="bk-stick-ph" id="bkStickPh" alt="" width="160" height="100" decoding="async" hidden>
-    <div class="bk-stick-txt">
-      <b id="bkStickTtl"></b>
-      <span id="bkStickSub"></span>
+  <!-- мобильный полноэкранный мастер брони (флоу Restoplace): место → когда → кто → подтверждение -->
+  <div class="bkw" id="bkw" role="dialog" aria-modal="true" aria-label="Бронирование стола" hidden>
+    <div class="bkw-top">
+      <button class="bkw-back" type="button" id="bkwBack" aria-label="Назад">←</button>
+      <div class="bkw-title"><span id="bkwKicker">ШАГ 01/04 · МЕСТО</span><b id="bkwTitle">Куда вас посадить</b></div>
+      <button class="bkw-x" type="button" id="bkwX" aria-label="Закрыть бронирование">×</button>
     </div>
-    <button class="btn bk-stick-btn" type="button" id="bkStickGo">Продолжить</button>
-    <button class="bk-stick-x" type="button" id="bkStickX" aria-label="Сбросить выбор места">×</button>
+    <div class="bkw-prog" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+    <div class="bkw-body" id="bkwBody">
+
+      <div class="bkw-step on" data-bkw="1">
+        <p class="bkw-note">12 столов · 3 кабинета · 5 мест у бара. Занятые места обновляются администратором.</p>
+        <div class="bkw-filters" id="bkwFilters">
+          <button class="bkw-filter on" type="button" data-f="all">Все</button>
+          <button class="bkw-filter" type="button" data-f="table">Столы</button>
+          <button class="bkw-filter" type="button" data-f="big">Большие</button>
+          <button class="bkw-filter" type="button" data-f="cab">Кабинеты</button>
+          <button class="bkw-filter" type="button" data-f="seat">У бара</button>
+        </div>
+        <div class="bkw-list" id="bkwList"></div>
+      </div>
+
+      <div class="bkw-step" data-bkw="2">
+        <div class="bkw-selchip" id="bkwSelchip">
+          <img id="bkwSelPh" alt="" width="64" height="48" loading="lazy" decoding="async">
+          <div class="bkw-selchip-txt"><b id="bkwSelTtl"></b><span id="bkwSelSub"></span></div>
+          <button class="bkw-selchip-x" type="button" id="bkwSelX">Изменить</button>
+        </div>
+        <label class="bkw-lbl">Дата</label>
+        <div class="bkw-dates" id="bkwDates"></div>
+        <label class="bkw-lbl">Время</label>
+        <div class="bkw-times" id="bkwTimes"><span class="bkw-times-hint">Сначала выберите дату</span></div>
+        <div class="bkw-err" id="bkwE2">Выберите дату и время</div>
+      </div>
+
+      <div class="bkw-step" data-bkw="3">
+        <div class="bkw-selchip" id="bkwSelchip3">
+          <img id="bkwSelPh3" alt="" width="64" height="48" loading="lazy" decoding="async">
+          <div class="bkw-selchip-txt"><b id="bkwSelTtl3"></b><span id="bkwSelSub3"></span></div>
+          <button class="bkw-selchip-x" type="button" id="bkwSelX3">Изменить</button>
+        </div>
+        <div class="bkw-field">
+          <label class="bkw-lbl" for="bkwName">Имя</label>
+          <input class="bkw-inp" id="bkwName" type="text" autocomplete="name" placeholder="Как к вам обращаться">
+        </div>
+        <div class="bkw-field">
+          <label class="bkw-lbl" for="bkwPhone">Телефон</label>
+          <input class="bkw-inp" id="bkwPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00">
+        </div>
+        <div class="bkw-field">
+          <label class="bkw-lbl">Гостей</label>
+          <div class="bkw-guests">
+            <button class="bkw-step-btn" type="button" id="bkwGminus" aria-label="Меньше гостей">−</button>
+            <b id="bkwGval">2</b>
+            <button class="bkw-step-btn" type="button" id="bkwGplus" aria-label="Больше гостей">+</button>
+          </div>
+        </div>
+        <div class="bkw-field">
+          <label class="bkw-lbl" for="bkwComment">Комментарий · необязательно</label>
+          <input class="bkw-inp" id="bkwComment" type="text" placeholder="Повод, пожелания">
+        </div>
+        <div class="bkw-err" id="bkwE3">Проверьте имя и телефон</div>
+      </div>
+
+      <div class="bkw-step" data-bkw="4">
+        <p class="bkw-note">Проверьте детали. Депозит закрепляет стол и целиком идёт в счёт заказа.</p>
+        <div class="bkw-sum">
+          <div class="bkw-srow"><span>Место</span><b id="bkwS1"></b></div>
+          <div class="bkw-srow"><span>Дата и время</span><b id="bkwS2"></b></div>
+          <div class="bkw-srow"><span>Гость</span><b id="bkwS3"></b></div>
+          <div class="bkw-srow"><span>Гостей</span><b id="bkwS4"></b></div>
+          <div class="bkw-srow dep"><span>Депозит</span><b id="bkwS5"></b></div>
+        </div>
+        <label class="bk-agree bkw-agree"><input type="checkbox" id="bkwAgree">
+          <span>Согласен с условиями брони и обработкой персональных данных</span></label>
+        <div class="bkw-err" id="bkwE4">Подтвердите согласие с условиями</div>
+        <p class="bkw-hint">Оплата через Т-Банк · СБП или карта. Отмена за 6 часов: вернём депозит полностью.</p>
+      </div>
+
+    </div>
+    <div class="bkw-foot">
+      <div class="bkw-foot-hint" id="bkwFootHint" hidden></div>
+      <button class="btn bkw-go" type="button" id="bkwGo" disabled>Дальше</button>
+    </div>
   </div>
 </section>
 
@@ -1559,7 +1839,7 @@
         <div class="kicker">// меню</div>
         <h2>Бар, кальян, кухня</h2>
       </div>
-      <div class="sheet-no">ЛИСТ 06/13</div>
+      <div class="sheet-no">ЛИСТ 07/14</div>
     </div>
     <div class="m-grid">
       <div>
@@ -1658,10 +1938,10 @@
         <div class="kicker">// событийники</div>
         <h2>Закрытые кабинеты</h2>
       </div>
-      <div class="sheet-no">ЛИСТ 07/13</div>
+      <div class="sheet-no">ЛИСТ 08/14</div>
     </div>
     <div class="c-grid">
-      <article class="c-card io">
+      <article class="c-card io" data-spot="vip-1">
         <div class="ph">
           <div class="c-tag">ДО 12 ГОСТЕЙ</div>
           <img src="assets/cab-cabinet.jpg" alt="Кабинет Cabinet">
@@ -1673,7 +1953,7 @@
           <a class="btn-ghost" href="#bron">Забронировать</a>
         </div>
       </article>
-      <article class="c-card io">
+      <article class="c-card io" data-spot="vip-2">
         <div class="ph">
           <div class="c-tag">ДО 8 ГОСТЕЙ</div>
           <img src="assets/cab-copper.jpg" alt="Кабинет Copper">
@@ -1685,7 +1965,7 @@
           <a class="btn-ghost" href="#bron">Забронировать</a>
         </div>
       </article>
-      <article class="c-card io">
+      <article class="c-card io" data-spot="vip-3">
         <div class="ph">
           <div class="c-tag">ДО 6 ГОСТЕЙ</div>
           <img src="assets/cab-luna.jpg" alt="Кабинет Luna">
@@ -1713,7 +1993,7 @@
   <div class="wrap">
     <div class="k-grid">
       <div class="k-photo io">
-        <img src="assets/club-resident.jpg" alt="Гостевая зона клуба Резидент 6/2">
+        <img src="assets/rezident-object.jpg" alt="Гостевая зона клуба Резидент 6/2">
         <div class="cap">СНИМОК · ЗОНА РЕЗИДЕНТОВ</div>
       </div>
       <div>
@@ -1722,7 +2002,7 @@
             <div class="kicker">// клуб</div>
             <h2>Резидент 6/2</h2>
           </div>
-          <div class="sheet-no">ЛИСТ 08/13</div>
+          <div class="sheet-no">ЛИСТ 09/14</div>
         </div>
         <div class="k-cond io">Вход по приглашению или после трёх визитов. Принадлежность зарабатывается.</div>
         <div class="privs io">
@@ -1758,7 +2038,7 @@
         <h2>Афиша недели</h2>
         <p class="sec-sub">Каждую неделю свои вечера. Полное расписание в Telegram, обновляем по вторникам.</p>
       </div>
-      <div class="sheet-no">ЛИСТ 09/13</div>
+      <div class="sheet-no">ЛИСТ 10/14</div>
     </div>
     <div class="a-grid">
       <article class="a-card io">
@@ -1801,9 +2081,9 @@
     <div class="sec-head io">
       <div>
         <div class="kicker">// отзывы</div>
-        <h2>Свои говорят</h2>
+        <h2>Об объекте словами</h2>
       </div>
-      <div class="sheet-no">ЛИСТ 10/13</div>
+      <div class="sheet-no">ЛИСТ 11/14</div>
     </div>
     <div class="r-stats io">
       <div class="fact"><b>4,9 <i>★</i></b><span title="[проверить]">Яндекс</span></div>
@@ -1843,7 +2123,7 @@
         <div class="kicker">// архив</div>
         <h2>Архив вопросов</h2>
       </div>
-      <div class="sheet-no">ЛИСТ 11/13</div>
+      <div class="sheet-no">ЛИСТ 12/14</div>
     </div>
     <div class="faq-list io">
       <div class="q">
@@ -1885,7 +2165,7 @@
             <h2>Сведения</h2>
             <p class="sec-sub">Рогожский вал, 6к2. Пять минут пешком от метро.</p>
           </div>
-          <div class="sheet-no">ЛИСТ 12/13</div>
+          <div class="sheet-no">ЛИСТ 13/14</div>
         </div>
         <div class="ct-rows io">
           <div class="ct-row"><span>Адрес</span><div>Москва, Рогожский вал, 6к2</div></div>
@@ -2056,13 +2336,17 @@ if(window.gsap && !RM && matchMedia('(pointer:fine)').matches){
   });
 }
 
-/* ---------- пылинки (один rAF, пауза при скрытой вкладке) ----------
-   Канвас масштабируется под плотность экрана: на Retina без этого
-   частица радиусом меньше пикселя размазывалась и пропадала. */
+/* ---------- пылинки в луче света (один rAF, пауза при скрытой вкладке) ----
+   Визуал и характер движения — из эталона predfinal-j: тёплые светящиеся
+   спрайты, аддитивное смешение "lighter", пульс яркости возле фокуса луча,
+   медленный подъём с синусным дрейфом. В эталоне скорость зависела от
+   кадров/сек (на 120 Гц вдвое быстрее, на 30 вдвое медленнее) — здесь она
+   нормализована по времени и взята посередине: заметно живые, но не суетливые.
+   Частицы привязаны к блокам (секциям страницы), а не к экрану. */
 (function(){
   if(RM) return;
   const cv = document.getElementById('dust'), cx = cv.getContext('2d');
-  let W,H,dpr=1,parts=[];
+  let W,H,dpr=1;
   /* спрайт-точка со свечением: рисуется один раз, дальше только drawImage */
   const SP=64, sp=document.createElement('canvas'); sp.width=sp.height=SP;
   (function(){
@@ -2080,32 +2364,113 @@ if(window.gsap && !RM && matchMedia('(pointer:fine)').matches){
     cx.setTransform(dpr,0,0,dpr,0,0);
   }
   resize(); addEventListener('resize',resize);
-  /* Золотая середина: характер как у старой версии, но с чуть более явной
-     читаемостью на Retina. Меньше мух, больше воздуха. */
-  for(let i=0;i<96;i++)parts.push({x:Math.random(),y:Math.random(),r:.62+Math.random()*1.05,s:Math.random()*.00016+.000045,ph:Math.random()*6.28,a:Math.random()*.30+.28});
+
+  /* блоки-источники: секции страницы, пыль распределена по их высоте */
+  const blocks = Array.from(document.querySelectorAll('main section'));
+  const rects = new Map();
+  let rectsDirty = true;
+  function measure(){
+    const sy = scrollY;
+    for(const b of blocks){
+      const r = b.getBoundingClientRect();
+      rects.set(b, {t: r.top + sy, b: r.bottom + sy, l: r.left, r: r.right, h: Math.max(1, r.height)});
+    }
+    rectsDirty = false;
+  }
+  measure();
+  addEventListener('resize', ()=>{rectsDirty = true});
+  addEventListener('load', ()=>{rectsDirty = true});
+  setInterval(()=>{rectsDirty = true}, 4000);
+
+  const N = 96, parts = [];
+  const rnd = (a,b)=> a + Math.random()*(b-a);
+
+  function spawn(p, near){
+    /* near=true: выбираем блок рядом с вьюпортом, чтобы пыль не тратилась впустую */
+    let pool = blocks;
+    if(near){
+      const sy = scrollY;
+      const vis = blocks.filter(b=>{
+        const rc = rects.get(b);
+        return rc && rc.b > sy - H*.6 && rc.t < sy + H*1.6;
+      });
+      if(vis.length) pool = vis;
+    }
+    /* блок взвешенно пропорционально высоте: плотность пыли по странице равномерная */
+    const tot = pool.reduce((s,c)=>{const rc=rects.get(c); return s + (rc ? Math.max(0,rc.b-rc.t) : 0);},0);
+    let pick = Math.random()*tot, b = pool[pool.length-1];
+    for(const cand of pool){ const rc=rects.get(cand); pick -= rc ? Math.max(0,rc.b-rc.t) : 0; if(pick<=0){b=cand;break;} }
+    p.b = b;
+    p.u = Math.random();                    /* позиция внутри блока по горизонтали, 0..1 */
+    p.v = Math.random();                    /* позиция внутри блока по вертикали, 0..1 */
+    p.r = .62 + Math.random()*1.05;         /* радиус ядра, как в эталоне */
+    p.s = rnd(.000025, .000075);            /* доля высоты блока в мс: середина скоростей */
+    p.ph = Math.random()*6.28;
+    p.a = Math.random()*.30+.28;            /* базовая яркость */
+  }
+  for(let i=0;i<N;i++){ const p={}; spawn(p,false); parts.push(p); }
+
+  let last = performance.now();
   function tick(t){
     if(!document.hidden){
+      const dt = Math.min(64, t - last); last = t;
+      if(rectsDirty) measure();
+      const sy = scrollY;
       cx.clearRect(0,0,W,H);
       cx.globalCompositeOperation='lighter';
       for(const p of parts){
-        p.y-=p.s; p.x+=Math.sin(t*.0004+p.ph)*.00012;
-        if(p.y<-.02){p.y=1.02;p.x=Math.random()}
-        const d=p.r*3.7;
-        cx.globalAlpha=Math.min(1,p.a*(.75+.25*Math.max(0,1-Math.hypot(p.x-.32,p.y-.4)*1.7)));
-        cx.drawImage(sp,p.x*W-d/2,p.y*H-d/2,d,d);
+        p.v -= p.s*dt;                                   /* подъём с поправкой на время кадра */
+        p.u += Math.sin(t*.0004+p.ph)*.00012*dt/16;      /* синусный дрейф, как в эталоне */
+        if(p.v < -.02){ spawn(p, true); p.v = 1.02; }    /* ушла выше блока — рождается снизу */
+        const rc = rects.get(p.b);
+        if(!rc) continue;
+        const x = rc.l + p.u*(rc.r - rc.l);
+        const y = rc.t + p.v*rc.h - sy;
+        if(y < -12 || y > H+12) continue;                /* вне вьюпорта не рисуем */
+        /* «луч света» как в эталоне, но локальный: в верхней трети каждого блока */
+        const glow = Math.max(0, 1-Math.hypot(p.u-.32, p.v-.4)*1.7);
+        const d = p.r*3.7;
+        cx.globalAlpha = Math.min(1, p.a*(.75+.25*glow));
+        cx.drawImage(sp, x-d/2, y-d/2, d, d);
       }
       cx.globalAlpha=1;
-    }
+    } else last = t;
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 })();
 
 /* ---------- появление секций ---------- */
+const ioEls = Array.from(document.querySelectorAll('.io'));
+let pending = new Set(ioEls);
 const io = new IntersectionObserver(es=>{
-  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  es.forEach(e=>{ if(e.isIntersecting) reveal(e.target); });
 },{threshold:.12, rootMargin:'0px 0px -6% 0px'});
-document.querySelectorAll('.io').forEach(el=>io.observe(el));
+function reveal(el){ el.classList.add('in'); io.unobserve(el); pending.delete(el); }
+ioEls.forEach(el=>io.observe(el));
+/* страховка: IO иногда пропускает элементы при быстром флике на iOS/Android —
+   блок оставался невидимым, но кликабельным («тап по пустоте выбирает кабинет»).
+   Принудительно раскрываем всё, что уже во вьюпорте. */
+function sweep(){
+  sweepRaf = false;
+  if(!pending.size) return;
+  const vh = innerHeight;
+  for(const el of [...pending]){
+    const r = el.getBoundingClientRect();
+    if(r.height > 0 && r.bottom > vh*.05 && r.top < vh*.97) reveal(el);
+  }
+}
+let sweepRaf = false;
+addEventListener('scroll', ()=>{ if(!sweepRaf && pending.size){ sweepRaf = true; requestAnimationFrame(sweep); } }, {passive:true});
+/* тап по ещё невидимому блоку раскрывает его на месте */
+addEventListener('pointerdown', e=>{
+  const el = e.target.closest && e.target.closest('.io:not(.in)');
+  if(el) reveal(el);
+}, true);
+/* контрольный sweep первые секунды после загрузки */
+let sweepN = 0;
+const sweepIv = setInterval(()=>{ sweep(); if(!pending.size || ++sweepN > 16) clearInterval(sweepIv); }, 500);
+setTimeout(sweep, 900);
 
 /* ================= ДЫМ (портировано из d2-copper-smoke) =================
    Спрайты клубов рисуются процедурно в offscreen-канвас, частицы дрейфуют
@@ -2305,14 +2670,19 @@ function showShot(i){
   lbImg.src = el.dataset.full || el.querySelector('img').src;
   lbCap.textContent = el.dataset.cap;
 }
+function closeLb(){
+  lb.classList.remove('open');
+  /* зум фото брони подменяет shots одним снимком — галерею надо вернуть */
+  shots = galleryShots.slice();
+}
 shots.forEach((el,i)=> el.addEventListener('click', ()=>{ showShot(i); lb.classList.add('open'); }));
-lb.querySelector('.lb-x').addEventListener('click', ()=>lb.classList.remove('open'));
+lb.querySelector('.lb-x').addEventListener('click', closeLb);
 lb.querySelector('.lb-prev').addEventListener('click', e=>{e.stopPropagation();showShot(cur-1)});
 lb.querySelector('.lb-next').addEventListener('click', e=>{e.stopPropagation();showShot(cur+1)});
-lb.addEventListener('click', e=>{ if(e.target===lb) lb.classList.remove('open'); });
+lb.addEventListener('click', e=>{ if(e.target===lb) closeLb(); });
 addEventListener('keydown', e=>{
   if(!lb.classList.contains('open')) return;
-  if(e.key==='Escape') lb.classList.remove('open');
+  if(e.key==='Escape') closeLb();
   if(e.key==='ArrowLeft') showShot(cur-1);
   if(e.key==='ArrowRight') showShot(cur+1);
 });
@@ -2472,62 +2842,14 @@ var BOOKING_CFG = {
     return BOOKING_CFG.deposits[kindOf(el)] || BOOKING_CFG.deposits.table;
   }
 
-  /* ---- sticky-панель выбранного места ---- */
-  var stick = document.getElementById('bkStick');
-  /* единое правило видимости: панель есть, только когда место выбрано
-     И гость ещё не перешёл к шагу 2 кнопкой «Продолжить»/«Дальше».
-     Отдельный флаг, а не maxReached: на мобильном maxReached поднимается
-     сразу при выборе, но панель должна остаться видимой. */
-  var stickDismissed = true;
-  function refreshStick(){
-    if (!stick) return;
-    var want = !!(B.spot && !stickDismissed);
-    stick.hidden = !want;
-    stick.classList.toggle('show', want);
-    syncStickPad();
-  }
-  function showStick(el){
-    if (!stick) return;
-    var img = document.getElementById('bkStickPh');
-    img.src = el.dataset.photo || '';
-    img.alt = el.dataset.title || el.dataset.label || '';
-    document.getElementById('bkStickTtl').textContent = el.dataset.title || el.dataset.label || '';
-    document.getElementById('bkStickSub').textContent = (el.dataset.cap || '') + ' · депозит ' + money(depFor(el));
-    stickDismissed = false;
-    refreshStick();
-  }
-  function hideStick(){
-    if (!stick) return;
-    stickDismissed = true;
-    refreshStick();
-  }
-  /* резерв снизу под панель, чтобы последний блок доскролливался */
-  function syncStickPad(){
-    document.body.classList.toggle('bk-has-stick', !!(stick && !stick.hidden));
-  }
-  var stickGo = document.getElementById('bkStickGo');
-  if (stickGo) stickGo.addEventListener('click', function(){
-    hideStick();
-    goto(2);
-    var step2 = document.querySelector('.bk-step[data-bk="2"]');
-    if (step2) step2.scrollIntoView({behavior:'smooth', block:'center'});
-  });
-  var stickX = document.getElementById('bkStickX');
-  if (stickX) stickX.addEventListener('click', function(){
-    var cur = document.querySelector('.plan .spot.sel');
-    if (cur) cur.classList.remove('sel');
-    syncGridSel(null);
-    hideStick();
-    clearPick();
-  });
-  /* синхронизация .sel между схемой и мобильной сеткой */
+  /* ---- mobile: синхронизация выбора между схемой и витриной ---- */
   function syncGridSel(id){
     document.querySelectorAll('#bkMgrid .bk-mcard').forEach(function(c){
       c.classList.toggle('sel', !!id && c.dataset.id === id);
     });
   }
 
-  /* ---- мобильная сетка мест из спотов схемы ---- */
+  /* ---- мобильная витрина мест: тап открывает полноэкранный мастер ---- */
   (function buildMobileGrid(){
     var grid = document.getElementById('bkMgrid');
     if (!grid) return;
@@ -2548,7 +2870,8 @@ var BOOKING_CFG = {
         '</span>';
       card.addEventListener('click', function(){
         if (el.classList.contains('busy')) return;
-        el.dispatchEvent(new Event('click', {bubbles:true}));
+        if (window.matchMedia('(max-width: 900px)').matches) openWizard(el.dataset.id);
+        else el.dispatchEvent(new Event('click', {bubbles:true}));
       });
       grid.appendChild(card);
     });
@@ -2561,10 +2884,9 @@ var BOOKING_CFG = {
       s.classList.toggle('on', k === n);
       s.classList.toggle('done', k !== n && k <= maxReached);
     });
-    /* дублирующий индикатор в шапке секции, если он есть */
-    document.querySelectorAll('.steps .step').forEach(function(el, i){
-      el.classList.toggle('on', i < n);
-    });
+    /* активный шаг всегда на экране: мягко докручиваем, если он ушёл за край */
+    var cur = wiz.querySelector('.bk-step.on');
+    if (cur) cur.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'nearest'});
   }
   wiz.addEventListener('click', function(e){
     var t = e.target.closest('[data-goto]');
@@ -2615,7 +2937,6 @@ var BOOKING_CFG = {
     if (cur) cur.classList.remove('sel');
     clearPick();
     syncGridSel(null);
-    hideStick();
     var plan = document.querySelector('.plan-card');
     if (plan && !window.matchMedia('(max-width: 900px)').matches) plan.scrollIntoView({behavior:'smooth', block:'center'});
   });
@@ -2626,20 +2947,9 @@ var BOOKING_CFG = {
     document.getElementById('bkV1').textContent = B.spotLabel + (B.cap ? ' · ' + B.cap : '');
     fillPick(el);
     syncGridSel(B.spot);
-    showStick(el);
     buildDates();
-    var narrow = window.matchMedia('(max-width: 900px)').matches;
-    if (narrow){
-      /* мобильный: место выбрано, sticky-панель с «Продолжить» видна,
-         мастер остаётся на шаге 1 — гость сам жмёт «Продолжить» и
-         переходит к дате. Так не возникает гонки двух CTA и панель
-         не исчезает мгновенно после тапа. */
-      if (maxReached < 2) maxReached = 2;
-    } else {
-      /* десктоп: сразу открываем шаг «Когда», sticky не нужен */
-      hideStick();
-      if (maxReached < 2) { maxReached = 2; goto(2); }
-    }
+    /* десктоп: сразу открываем шаг «Когда» (мобильный флоу живёт в wizard'е) */
+    if (maxReached < 2) { maxReached = 2; goto(2); }
   }
   var planObserver = document.querySelector('.plan');
   if (planObserver){
@@ -2647,7 +2957,7 @@ var BOOKING_CFG = {
       var g = e.target.closest('.spot');
       if (!g || g.classList.contains('busy')) return;
       setTimeout(function(){ if (g.classList.contains('sel')) onSpot(g);
-        else { clearPick(); syncGridSel(null); hideStick(); } }, 10);
+        else { clearPick(); syncGridSel(null); } }, 10);
     });
     planObserver.addEventListener('keydown', function(e){
       if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -2659,6 +2969,11 @@ var BOOKING_CFG = {
   /* ---- шаг 2: дата и время ---- */
   var MONTHS = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
   var DAYS = ['вс','пн','вт','ср','чт','пт','сб'];
+  /* локальный ISO (toISOString режет по UTC: ночью дата уезжала на вчера) */
+  function isoLocal(d){
+    var p = function(n){ return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
   function buildDates(){
     var box = document.getElementById('bkDates');
     if (box.children.length) return;
@@ -2668,7 +2983,7 @@ var BOOKING_CFG = {
         : DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'bk-chip'; b.textContent = label;
-      b.dataset.iso = d.toISOString().slice(0,10); b.dataset.human = label;
+      b.dataset.iso = isoLocal(d); b.dataset.human = label;
       b.addEventListener('click', function(){
         box.querySelectorAll('.bk-chip').forEach(function(c){ c.classList.remove('on'); });
         this.classList.add('on');
@@ -2680,7 +2995,7 @@ var BOOKING_CFG = {
   }
   function buildTimes(){
     var box = document.getElementById('bkTimes'); box.innerHTML = ''; B.time = null;
-    var isToday = B.date && B.date.iso === new Date().toISOString().slice(0,10);
+    var isToday = B.date && B.date.iso === isoLocal(new Date());
     var nowMin = new Date().getHours()*60 + new Date().getMinutes();
     for (var m = 16*60; m <= 25*60+30; m += 30){
       var hh = Math.floor(m/60) % 24, mm = m % 60;
@@ -2800,6 +3115,298 @@ var BOOKING_CFG = {
     } catch(e){}
     modals.req.querySelector('[data-step="form"]').hidden = true;
     modals.req.querySelector('[data-step="done"]').hidden = false;
+  });
+
+  /* ================================================================
+     МОБИЛЬНЫЙ WIZARD БРОНИ (полный экран, флоу Restoplace)
+     шаги: место → когда → кто → подтверждение и оплата.
+     Состояние общее с десктопным аккордеоном (объект B).
+     ================================================================ */
+  var bkw = document.getElementById('bkw');
+  var wstep = 1;
+  var wLastFocus = null;
+  var WSTEP_META = {
+    1: { kicker: 'ШАГ 01/04 · МЕСТО',  title: 'Куда вас посадить',  go: 'Дальше' },
+    2: { kicker: 'ШАГ 02/04 · КОГДА',  title: 'Дата и время',       go: 'Дальше' },
+    3: { kicker: 'ШАГ 03/04 · ГОСТИ',  title: 'Кто придёт',         go: 'Дальше' },
+    4: { kicker: 'ШАГ 04/04 · ОПЛАТА', title: 'Проверьте и оплатите', go: '' }
+  };
+
+  function spotById(id){ return document.querySelector('.plan .spot[data-id="' + id + '"]'); }
+
+  /* ---- шаг 1: список мест ---- */
+  var bkwListBuilt = false;
+  function buildWizardList(filter){
+    var list = document.getElementById('bkwList');
+    list.innerHTML = '';
+    document.querySelectorAll('.plan .spot').forEach(function(el){
+      var kind = kindOf(el);
+      if (filter && filter !== 'all' && kind !== filter) return;
+      var busy = el.classList.contains('busy');
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'bkw-card' + (busy ? ' busy' : '') + (B.spot === el.dataset.id ? ' sel' : '');
+      card.dataset.id = el.dataset.id;
+      card.setAttribute('aria-label', el.getAttribute('aria-label') || '');
+      card.innerHTML =
+        '<img src="' + (el.dataset.photo || '') + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="bkw-card-txt">' +
+          '<b>' + (el.dataset.title || el.dataset.label || '') + '</b>' +
+          '<span class="bkw-card-cap">' + (el.dataset.cap || '') + '</span>' +
+          '<span class="bkw-card-dep">депозит ' + money(depFor(el)) + '</span>' +
+        '</span>' +
+        '<span class="bkw-card-mark ' + (busy ? 'busy' : 'free') + '">' + (busy ? 'занято' : 'свободно') + '</span>';
+      card.addEventListener('click', function(){
+        if (busy) return;
+        selectWizardSpot(el.dataset.id);
+      });
+      list.appendChild(card);
+    });
+    updateWizardGo();
+  }
+  function selectWizardSpot(id){
+    var el = spotById(id);
+    if (!el) return;
+    B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
+    B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
+    buildDates(); /* даты десктопного мастера заодно */
+    document.querySelectorAll('#bkwList .bkw-card').forEach(function(c){
+      c.classList.toggle('sel', c.dataset.id === id);
+    });
+    syncGridSel(id);
+    /* лёгкая задержка, чтобы выбор был виден, и сразу следующий шаг */
+    setTimeout(function(){ gotoWizardStep(2); }, 220);
+  }
+  document.getElementById('bkwFilters').addEventListener('click', function(e){
+    var f = e.target.closest('.bkw-filter');
+    if (!f) return;
+    document.querySelectorAll('.bkw-filter').forEach(function(x){ x.classList.remove('on'); });
+    f.classList.add('on');
+    buildWizardList(f.dataset.f);
+  });
+
+  /* ---- шаг 2: дата и время ---- */
+  var bkwDatesBuilt = false;
+  function buildWizardDates(){
+    var box = document.getElementById('bkwDates');
+    box.innerHTML = '';
+    for (var i = 0; i < 14; i++){
+      var d = new Date(); d.setDate(d.getDate() + i);
+      var iso = isoLocal(d);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bkw-date' + (B.date && B.date.iso === iso ? ' on' : '');
+      b.dataset.iso = iso;
+      if (i === 0){ b.dataset.human = 'Сегодня'; b.innerHTML = 'Сегодня<i>' + DAYS[d.getDay()] + '</i>'; }
+      else if (i === 1){ b.dataset.human = 'Завтра'; b.innerHTML = 'Завтра<i>' + DAYS[d.getDay()] + '</i>'; }
+      else {
+        b.dataset.human = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
+        b.innerHTML = d.getDate() + ' ' + MONTHS[d.getMonth()] + '<i>' + DAYS[d.getDay()] + '</i>';
+      }
+      b.addEventListener('click', function(){
+        box.querySelectorAll('.bkw-date').forEach(function(c){ c.classList.remove('on'); });
+        this.classList.add('on');
+        B.date = { iso: this.dataset.iso, human: this.dataset.human };
+        B.time = null;
+        buildWizardTimes();
+        updateWizardGo();
+      });
+      box.appendChild(b);
+    }
+    bkwDatesBuilt = true;
+  }
+  function buildWizardTimes(){
+    var box = document.getElementById('bkwTimes');
+    box.innerHTML = '';
+    if (!B.date){ box.innerHTML = '<span class="bkw-times-hint">Сначала выберите дату</span>'; return; }
+    var isToday = B.date.iso === isoLocal(new Date());
+    var nowMin = new Date().getHours()*60 + new Date().getMinutes();
+    for (var m = 16*60; m <= 25*60+30; m += 30){
+      var hh = Math.floor(m/60) % 24, mm = m % 60;
+      var t = (hh < 10 ? '0' : '') + hh + ':' + (mm === 0 ? '00' : mm);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'bkw-time' + (B.time === t ? ' on' : '');
+      b.textContent = t; b.dataset.t = t;
+      if (isToday && m < nowMin + 60) b.disabled = true;
+      b.addEventListener('click', function(){
+        box.querySelectorAll('.bkw-time').forEach(function(c){ c.classList.remove('on'); });
+        this.classList.add('on'); B.time = this.dataset.t;
+        updateWizardGo();
+      });
+      box.appendChild(b);
+    }
+  }
+
+  /* ---- чип выбранного места на шагах 2-3 ---- */
+  function fillSelchips(){
+    var el = B.spot ? spotById(B.spot) : null;
+    [['bkwSelchip','bkwSelPh','bkwSelTtl','bkwSelSub','bkwSelX'],
+     ['bkwSelchip3','bkwSelPh3','bkwSelTtl3','bkwSelSub3','bkwSelX3']].forEach(function(ids){
+      var chip = document.getElementById(ids[0]);
+      if (!chip) return;
+      if (!el){ chip.hidden = true; return; }
+      chip.hidden = false;
+      document.getElementById(ids[1]).src = el.dataset.photo || '';
+      document.getElementById(ids[2]).textContent = el.dataset.title || el.dataset.label || '';
+      document.getElementById(ids[3]).textContent = (el.dataset.cap || '') + ' · депозит ' + money(depFor(el));
+    });
+  }
+  ['bkwSelX','bkwSelX3'].forEach(function(id){
+    document.getElementById(id).addEventListener('click', function(){ gotoWizardStep(1); });
+  });
+
+  /* ---- гости: степпер ---- */
+  function renderGuests(){ document.getElementById('bkwGval').textContent = B.guests; }
+  document.getElementById('bkwGminus').addEventListener('click', function(){
+    if (B.guests > 1) B.guests--; renderGuests();
+  });
+  document.getElementById('bkwGplus').addEventListener('click', function(){
+    if (B.guests < 12) B.guests++; renderGuests();
+  });
+
+  /* ---- состояние кнопки «Дальше» + подсказки ---- */
+  function updateWizardGo(){
+    var go = document.getElementById('bkwGo');
+    var hint = document.getElementById('bkwFootHint');
+    var disabled = false, label = WSTEP_META[wstep].go, hintText = '';
+    if (wstep === 1){
+      disabled = !B.spot;
+      hintText = disabled ? 'выберите свободное место' : ('выбрано: ' + B.spotLabel);
+    } else if (wstep === 2){
+      disabled = !(B.date && B.time);
+      hintText = disabled ? 'выберите дату и время' : (B.date.human + ' · ' + B.time);
+    } else if (wstep === 3){
+      disabled = false;
+      hintText = 'имя и телефон нужны для подтверждения';
+    } else if (wstep === 4){
+      label = 'Оплатить депозит ' + money(dep(B.spotKind));
+      hintText = 'оплата через Т-Банк · СБП или карта';
+    }
+    go.disabled = disabled;
+    go.textContent = label;
+    hint.hidden = !hintText;
+    hint.textContent = hintText;
+  }
+
+  /* ---- переходы ---- */
+  function gotoWizardStep(n){
+    wstep = Math.max(1, Math.min(4, n));
+    document.querySelectorAll('#bkw .bkw-step').forEach(function(s){
+      s.classList.toggle('on', Number(s.dataset.bkw) === wstep);
+    });
+    document.querySelectorAll('#bkw .bkw-prog i').forEach(function(seg, i){
+      seg.classList.toggle('on', i < wstep);
+    });
+    document.getElementById('bkwKicker').textContent = WSTEP_META[wstep].kicker;
+    document.getElementById('bkwTitle').textContent = WSTEP_META[wstep].title;
+    if (wstep === 2){ if (!bkwDatesBuilt) buildWizardDates(); else buildWizardTimes(); fillSelchips(); }
+    if (wstep === 3){ fillSelchips(); renderGuests(); }
+    if (wstep === 4){ fillSummaryWizard(); }
+    document.getElementById('bkwBody').scrollTop = 0;
+    updateWizardGo();
+  }
+
+  function fillSummaryWizard(){
+    document.getElementById('bkwS1').textContent = B.spotLabel + (B.cap ? ' (' + B.cap + ')' : '');
+    document.getElementById('bkwS2').textContent = B.date ? B.date.human + ', ' + B.time : '';
+    document.getElementById('bkwS3').textContent = B.name + ' · ' + B.phone;
+    document.getElementById('bkwS4').textContent = B.guests;
+    document.getElementById('bkwS5').textContent = money(dep(B.spotKind));
+    document.getElementById('bkwS1').closest('.bkw-sum').scrollIntoView({block:'nearest'});
+  }
+
+  function validateWizardContacts(){
+    B.name = document.getElementById('bkwName').value.trim();
+    B.phone = document.getElementById('bkwPhone').value.trim();
+    B.comment = document.getElementById('bkwComment').value.trim();
+    var phoneOk = /^([+]?[0-9][\s\-()0-9]{9,16})$/.test(B.phone);
+    document.getElementById('bkwName').classList.toggle('err', B.name.length < 2);
+    document.getElementById('bkwPhone').classList.toggle('err', !phoneOk);
+    return B.name.length >= 2 && phoneOk;
+  }
+
+  document.getElementById('bkwGo').addEventListener('click', function(){
+    if (wstep === 1){ if (B.spot) gotoWizardStep(2); return; }
+    if (wstep === 2){
+      if (!B.date || !B.time){ err('bkwE2', 1); return; }
+      err('bkwE2', 0); gotoWizardStep(3); return;
+    }
+    if (wstep === 3){
+      if (!validateWizardContacts()){ err('bkwE3', 1); return; }
+      err('bkwE3', 0); gotoWizardStep(4); return;
+    }
+    if (wstep === 4){
+      if (!document.getElementById('bkwAgree').checked){ err('bkwE4', 1); return; }
+      err('bkwE4', 0);
+      var go = document.getElementById('bkwGo');
+      var p = orderPayload();
+      try { localStorage.setItem('o62booking', JSON.stringify(p)); } catch(e){}
+      go.disabled = true; go.textContent = 'Переходим к оплате…';
+      if (BOOKING_CFG.mode === 'demo'){
+        setTimeout(function(){
+          go.disabled = false; updateWizardGo();
+          openModal('ok');
+        }, 1500);
+        return;
+      }
+      fetch(BOOKING_CFG.payInitUrl, { method:'POST',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) })
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if (res && res.paymentUrl) location.href = res.paymentUrl;
+          else { go.disabled = false; updateWizardGo(); openModal('fail'); }
+        })
+        .catch(function(){ go.disabled = false; updateWizardGo(); openModal('fail'); });
+    }
+  });
+
+  document.getElementById('bkwBack').addEventListener('click', function(){
+    if (wstep === 1) closeWizard(); else gotoWizardStep(wstep - 1);
+  });
+
+  function openWizard(preSpotId){
+    if (!bkw) return;
+    wLastFocus = document.activeElement;
+    bkw.hidden = false;
+    requestAnimationFrame(function(){ bkw.classList.add('open'); });
+    document.body.classList.add('bkw-open');
+    if (!bkwListBuilt){ buildWizardList('all'); bkwListBuilt = true; }
+    if (preSpotId && !spotById(preSpotId)?.classList.contains('busy')){
+      var el = spotById(preSpotId);
+      B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
+      B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
+      document.querySelectorAll('#bkwList .bkw-card').forEach(function(c){
+        c.classList.toggle('sel', c.dataset.id === B.spot);
+      });
+      gotoWizardStep(2);
+    } else if (!B.spot){
+      gotoWizardStep(1);
+    } else {
+      gotoWizardStep(wstep);
+    }
+  }
+  function closeWizard(){
+    if (!bkw || bkw.hidden) return;
+    bkw.classList.remove('open');
+    document.body.classList.remove('bkw-open');
+    setTimeout(function(){ bkw.hidden = true; }, 300);
+    if (wLastFocus && wLastFocus.focus) wLastFocus.focus();
+  }
+  document.getElementById('bkwX').addEventListener('click', closeWizard);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !bkw.hidden) closeWizard();
+  });
+  var bkOpenBtn = document.getElementById('bkOpen');
+  if (bkOpenBtn) bkOpenBtn.addEventListener('click', function(){ openWizard(); });
+
+  /* на мобильном любой якорь «бронь» открывает wizard вместо скролла;
+     внутри карточки кабинета — сразу с этим кабинетом выбранным */
+  document.querySelectorAll('a[href="#bron"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      if (!window.matchMedia('(max-width: 900px)').matches) return;
+      e.preventDefault();
+      var holder = a.closest('[data-spot]');
+      openWizard(holder ? holder.dataset.spot : (B.spot || null));
+    });
   });
 })();
 </script>
