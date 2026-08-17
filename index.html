@@ -340,16 +340,15 @@
   /* карта-план как лист досье */
   .plan-card{
     position:relative;
-    background:radial-gradient(140% 100% at 20% 0%, #f2e7cf 0%, #e9dcc3 45%, #d9c9a8 100%);
+    background:
+      linear-gradient(155deg, rgba(242,231,207,.34) 0%, rgba(216,200,168,.46) 100%),
+      url("assets/paper.jpg") 24% 28%/cover,
+      #e9dcc3;
     max-width:100%;box-sizing:border-box;overflow:hidden;
     color:#241a10;border:1px solid rgba(36,26,16,.2);border-radius:3px;
     padding:16px 20px 16px;
     transform:rotate(-.7deg);
     box-shadow:0 40px 90px -20px rgba(0,0,0,.8), 0 6px 18px rgba(0,0,0,.45), inset 0 0 60px rgba(120,90,50,.18);
-  }
-  .plan-card::before{
-    content:'';position:absolute;inset:0;border-radius:3px;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='0.16'/%3E%3C/svg%3E");
   }
   .plan-card .d-head{position:relative;z-index:2}
   .plan-scroll{position:relative;z-index:2}
@@ -492,18 +491,17 @@
   .r-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
   .r-card{
     position:relative;
-    background:radial-gradient(140% 100% at 20% 0%, #f2e7cf 0%, #e9dcc3 45%, #d9c9a8 100%);
+    background:
+      linear-gradient(155deg, rgba(242,231,207,.34) 0%, rgba(216,200,168,.46) 100%),
+      url("assets/paper.jpg") var(--paper-pos,50% 50%)/cover,
+      #e9dcc3;
     color:#241a10;border-radius:3px;
     padding:28px 28px 24px;
     box-shadow:0 26px 60px -18px rgba(0,0,0,.7), 0 5px 14px rgba(0,0,0,.4), inset 0 0 50px rgba(120,90,50,.15);
   }
-  .r-card::before{
-    content:'';position:absolute;inset:0;border-radius:3px;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='0.16'/%3E%3C/svg%3E");
-  }
-  .r-card:nth-child(1){transform:rotate(-1.1deg)}
-  .r-card:nth-child(2){transform:rotate(.8deg) translateY(14px)}
-  .r-card:nth-child(3){transform:rotate(-.6deg)}
+  .r-card:nth-child(1){--paper-pos:10% 18%;transform:rotate(-1.1deg)}
+  .r-card:nth-child(2){--paper-pos:90% 26%;transform:rotate(.8deg) translateY(14px)}
+  .r-card:nth-child(3){--paper-pos:38% 88%;transform:rotate(-.6deg)}
   .r-stars{color:var(--wax);font-size:15px;letter-spacing:.28em}
   .r-card blockquote{margin-top:16px;font-size:15px;line-height:1.65;color:#3d2d1c}
   .r-who{
@@ -1255,13 +1253,11 @@
       radial-gradient(46% 34% at 10% 84%, rgba(118,84,42,.22) 0%, transparent 72%),
       radial-gradient(28% 20% at 42% 32%, rgba(150,112,62,.12) 0%, transparent 70%),
       radial-gradient(22% 16% at 66% 68%, rgba(140,100,52,.14) 0%, transparent 72%),
-      radial-gradient(140% 100% at 20% 0%, #f2e7cf 0%, #e7d8bc 45%, #d3c09c 100%);
+      linear-gradient(160deg, rgba(242,231,207,.30) 0%, rgba(211,192,156,.40) 100%),
+      url("assets/paper.jpg") 72% 42%/cover,
+      #e7d8bc;
     border:1px solid rgba(36,26,16,.28);transform:rotate(-.7deg);
     box-shadow:0 40px 90px -20px rgba(0,0,0,.8), 0 6px 18px rgba(0,0,0,.45), inset 0 0 60px rgba(120,90,50,.22);
-  }
-  .lore-sheet::before{
-    content:'';position:absolute;inset:0;border-radius:3px;pointer-events:none;opacity:.75;mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='4'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23p)' opacity='0.28'/%3E%3C/svg%3E");
   }
   .lore-sheet::after{
     content:'';position:absolute;inset:0;border-radius:3px;pointer-events:none;
