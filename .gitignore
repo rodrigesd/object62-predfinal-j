@@ -1,2 +1,5 @@
 qa-*.png
+qa-pr1-*.json
 prod-hero.png
+.wrangler/
+node_modules/

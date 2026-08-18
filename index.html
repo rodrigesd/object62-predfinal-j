@@ -1514,23 +1514,23 @@
         </div>
         <!-- мобильный вход в мастер брони (десктоп сразу видит аккордеон и план) -->
         <div class="bk-mobile-cta io">
-          <button class="btn" type="button" id="bkOpen">Выбрать стол и время
+          <button class="btn" type="button" id="bkOpen" data-str="cta.mobile" data-str-mode="first">Выбрать стол и время
             <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M11 1l5 5-5 5M16 6H0" stroke="currentColor" stroke-width="1.6"/></svg>
           </button>
-          <span class="mono-note">бронь оформляется здесь же · депозит целиком идёт в счёт заказа</span>
+          <span class="mono-note" data-str="cta.note">бронь оформляется здесь же · депозит целиком идёт в счёт заказа</span>
         </div>
         <div class="bk io" id="bkWizard">
 
           <div class="bk-step done" data-bk="1">
             <div class="bk-head" data-goto="1">
-              <span class="bk-no">01</span><span class="bk-ttl">Стол</span>
-              <span class="bk-val" id="bkV1">выберите на схеме →</span>
+              <span class="bk-no">01</span><span class="bk-ttl" data-str="step1.title">Стол</span>
+              <span class="bk-val" id="bkV1" data-str="step1.valueEmpty">выберите на схеме →</span>
             </div>
             <!-- карточка выбранного места: фото появляется после выбора на схеме -->
             <div class="bk-pick is-empty" id="bkPick">
               <div class="bk-pick-empty" id="bkPickEmpty" role="status">
-                <b>Стол ещё не выбран</b>
-                <span>Тапни место на схеме — здесь появится его фото, вместимость и депозит.</span>
+                <b data-str="step1.pickEmptyTitle">Стол ещё не выбран</b>
+                <span data-str="step1.pickEmptyText">Тапни место на схеме — здесь появится его фото, вместимость и депозит.</span>
               </div>
               <img class="bk-pick-ph" id="bkPickPh" alt="" width="520" height="325" loading="lazy" decoding="async" hidden>
               <div class="bk-pick-txt">
@@ -1539,80 +1539,79 @@
                 <span class="bk-pick-note" id="bkPickNote"></span>
                 <span class="bk-pick-dep" id="bkPickDep"></span>
               </div>
-              <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места">Выбрать другое</button>
+              <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места" data-str="step1.pickOther">Выбрать другое</button>
             </div>
           </div>
 
           <div class="bk-step" data-bk="2">
             <div class="bk-head" data-goto="2">
-              <span class="bk-no">02</span><span class="bk-ttl">Когда</span>
-              <span class="bk-val" id="bkV2">выберите дату и время →</span>
+              <span class="bk-no">02</span><span class="bk-ttl" data-str="step2.title">Когда</span>
+              <span class="bk-val" id="bkV2" data-str="step2.valueEmpty">выберите дату и время →</span>
             </div>
             <div class="bk-body">
-              <label class="bk-lbl">Дата</label>
+              <label class="bk-lbl" data-str="step2.dateLabel">Дата</label>
               <div class="bk-lane"><div class="bk-chips" id="bkDates"></div></div>
-              <label class="bk-lbl">Время</label>
-              <div class="bk-lane"><div class="bk-chips" id="bkTimes"><span class="bk-hint" style="margin:0">Сначала выберите дату</span></div></div>
-              <div class="bk-err" id="bkE2">Выберите дату и время</div>
-              <div class="bk-act"><button class="btn" type="button" id="bkTo3">Дальше →</button></div>
+              <label class="bk-lbl" data-str="step2.timeLabel">Время</label>
+              <div class="bk-lane"><div class="bk-chips" id="bkTimes"><span class="bk-hint" style="margin:0" data-str="step2.pickDateFirst">Сначала выберите дату</span></div></div>
+              <div class="bk-err" id="bkE2" data-str="step2.error">Выберите дату и время</div>
+              <div class="bk-act"><button class="btn" type="button" id="bkTo3" data-str="nav.next">Дальше →</button></div>
             </div>
           </div>
 
           <div class="bk-step" data-bk="3">
             <div class="bk-head" data-goto="3">
-              <span class="bk-no">03</span><span class="bk-ttl">Кто</span>
+              <span class="bk-no">03</span><span class="bk-ttl" data-str="step3.title">Кто</span>
               <span class="bk-val" id="bkV3"></span>
             </div>
             <div class="bk-body">
               <div class="bk-grid2">
-                <div><label class="bk-lbl" for="bkName">Имя</label>
-                  <input class="bk-inp" id="bkName" type="text" autocomplete="name" placeholder="Как к вам обращаться"></div>
-                <div><label class="bk-lbl" for="bkPhone">Телефон</label>
-                  <input class="bk-inp" id="bkPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00"></div>
+                <div><label class="bk-lbl" for="bkName" data-str="step3.nameLabel">Имя</label>
+                  <input class="bk-inp" id="bkName" type="text" autocomplete="name" placeholder="Как к вам обращаться" data-str-ph="step3.namePlaceholder"></div>
+                <div><label class="bk-lbl" for="bkPhone" data-str="step3.phoneLabel">Телефон</label>
+                  <input class="bk-inp" id="bkPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" data-str-ph="step3.phonePlaceholder"></div>
               </div>
               <div class="bk-grid2">
-                <div><label class="bk-lbl" for="bkGuests">Гостей</label>
+                <div><label class="bk-lbl" for="bkGuests" data-str="step3.guestsLabel">Гостей</label>
                   <input class="bk-inp" id="bkGuests" type="number" min="1" max="12" value="2"></div>
-                <div><label class="bk-lbl" for="bkComment">Комментарий</label>
-                  <input class="bk-inp" id="bkComment" type="text" placeholder="Повод, пожелания — необязательно"></div>
+                <div><label class="bk-lbl" for="bkComment" data-str="step3.commentLabel">Комментарий</label>
+                  <input class="bk-inp" id="bkComment" type="text" placeholder="Повод, пожелания — необязательно" data-str-ph="step3.commentPlaceholder"></div>
               </div>
-              <div class="bk-err" id="bkE3">Проверьте имя и телефон</div>
-              <div class="bk-act"><button class="btn" type="button" id="bkTo4">Дальше →</button>
-                <button class="bk-edit" type="button" data-goto="2">← Назад</button></div>
+              <div class="bk-err" id="bkE3" data-str="step3.error">Проверьте имя и телефон</div>
+              <div class="bk-act"><button class="btn" type="button" id="bkTo4" data-str="nav.next">Дальше →</button>
+                <button class="bk-edit" type="button" data-goto="2" data-str="nav.back">← Назад</button></div>
             </div>
           </div>
 
           <div class="bk-step" data-bk="4">
             <div class="bk-head" data-goto="4">
-              <span class="bk-no">04</span><span class="bk-ttl">Подтверждение и оплата</span>
+              <span class="bk-no">04</span><span class="bk-ttl" data-str="step4.title">Подтверждение и оплата</span>
             </div>
             <div class="bk-body">
               <div class="bk-sum">
-                <div class="bk-srow"><span>Место</span><b id="bkS1"></b></div>
-                <div class="bk-srow"><span>Дата и время</span><b id="bkS2"></b></div>
-                <div class="bk-srow"><span>Гость</span><b id="bkS3"></b></div>
-                <div class="bk-srow"><span>Гостей</span><b id="bkS4"></b></div>
-                <div class="bk-srow bk-dep"><span>Депозит</span><b id="bkS5"></b></div>
+                <div class="bk-srow"><span data-str="step4.rowSpot">Место</span><b id="bkS1"></b></div>
+                <div class="bk-srow"><span data-str="step4.rowWhen">Дата и время</span><b id="bkS2"></b></div>
+                <div class="bk-srow"><span data-str="step4.rowGuest">Гость</span><b id="bkS3"></b></div>
+                <div class="bk-srow"><span data-str="step4.rowGuests">Гостей</span><b id="bkS4"></b></div>
+                <div class="bk-srow bk-dep"><span data-str="step4.rowDeposit">Депозит</span><b id="bkS5"></b></div>
               </div>
-              <p class="bk-hint">Депозит закрепляет стол и целиком идёт в счёт заказа.
+              <p class="bk-hint" data-str="step4.hint">Депозит закрепляет стол и целиком идёт в счёт заказа.
                  Отмена за 6 часов - вернём полностью.</p>
               <label class="bk-agree"><input type="checkbox" id="bkAgree">
-                <span>Согласен с условиями брони и обработкой персональных данных</span></label>
-              <div class="bk-err" id="bkE4">Подтвердите согласие с условиями</div>
+                <span data-str="step4.agree">Согласен с условиями брони и обработкой персональных данных</span></label>
+              <div class="bk-err" id="bkE4" data-str="step4.error">Подтвердите согласие с условиями</div>
               <div class="bk-act">
-                <button class="btn" type="button" id="bkPay">Оплатить депозит</button>
-                <span class="bk-pay"><i>Т</i> Оплата через Т-Банк · СБП или карта</span>
-                <button class="bk-edit" type="button" data-goto="3">← Назад</button>
+                <button class="btn" type="button" id="bkPay" data-str="step4.payButton">Оплатить депозит</button>
+                <span class="bk-pay" data-str="step4.payNote" data-str-mode="last"><i>Т</i> Оплата через Т-Банк · СБП или карта</span>
+                <button class="bk-edit" type="button" data-goto="3" data-str="nav.back">← Назад</button>
               </div>
-              <div class="bk-wait" id="bkWait"><span class="bk-spin"></span>
-                Переходим на защищённую страницу Т-Банк…</div>
+              <div class="bk-wait" id="bkWait"><span class="bk-spin"></span><span data-str="step4.wait">Переходим на защищённую страницу Т-Банк…</span></div>
             </div>
           </div>
         </div>
-        <p class="bk-foot io">Бронь оформляется здесь же · депозит целиком идёт в счёт заказа ·
+        <p class="bk-foot io" data-str="foot.note">Бронь оформляется здесь же · депозит целиком идёт в счёт заказа ·
           отмена за 6 часов - вернём полностью · возможна увеличенная посадка</p>
         <div class="b-cta-row io">
-          <div class="mono-note">мгновенное подтверждение · СБП или карта · бронь придёт в Telegram</div>
+          <div class="mono-note" data-str="foot.confirmNote">мгновенное подтверждение · СБП или карта · бронь придёт в Telegram</div>
         </div>
       </div>
       <div class="io plan-col">
@@ -1640,87 +1639,87 @@
                 <line x1="788" y1="720" x2="788" y2="744" stroke="#c87d4a" stroke-width="2.4"/>
                 <text x="788" y="756" text-anchor="middle">ВХОД · ТАМБУР</text>
               </g>
-              <g class="spot cab" data-id="vip-1" data-photo="assets/spots/cab-cabinet.jpg" data-title="Кабинет Cabinet" data-note="Chesterfield, отдельный вход, винный шкаф, караоке" data-label="кабинет Cabinet" data-cap="до 12 гостей" tabindex="0" role="button" aria-label="Кабинет Cabinet, до 12 гостей, свободен">
+              <g class="spot cab" data-id="vip-1" data-table-id="cab_cabinet" data-photo="assets/spots/cab-cabinet.jpg" data-title="Кабинет Cabinet" data-note="Chesterfield, отдельный вход, винный шкаф, караоке" data-label="кабинет Cabinet" data-cap="до 12 гостей" tabindex="0" role="button" aria-label="Кабинет Cabinet, до 12 гостей, свободен">
                 <rect class="shape" x="226" y="62" width="136" height="220" rx="3"/>
                 <text x="294" y="172" text-anchor="middle">CABINET</text>
                 <text class="cap" x="294" y="191" text-anchor="middle">ДО 12 ГОСТЕЙ</text>
               </g>
-              <g class="spot cab" data-id="vip-2" data-photo="assets/spots/cab-copper.jpg" data-title="Кабинет Copper" data-note="Медь и бархат, свой мини-бар, отдельный вход" data-label="кабинет Copper" data-cap="до 8 гостей" tabindex="0" role="button" aria-label="Кабинет Copper, до 8 гостей, свободен">
+              <g class="spot cab" data-id="vip-2" data-table-id="cab_copper" data-photo="assets/spots/cab-copper.jpg" data-title="Кабинет Copper" data-note="Медь и бархат, свой мини-бар, отдельный вход" data-label="кабинет Copper" data-cap="до 8 гостей" tabindex="0" role="button" aria-label="Кабинет Copper, до 8 гостей, свободен">
                 <rect class="shape" x="62" y="182" width="150" height="100" rx="3"/>
                 <text x="137" y="232" text-anchor="middle">COPPER</text>
                 <text class="cap" x="137" y="251" text-anchor="middle">ДО 8 ГОСТЕЙ</text>
               </g>
-              <g class="spot cab busy" data-id="vip-3" data-photo="assets/spots/cab-luna.jpg" data-title="Кабинет Luna" data-note="Самая камерная, для свидания или узкого круга" data-label="кабинет Luna" data-cap="до 6 гостей" role="button" aria-label="Кабинет Luna, до 6 гостей, занят">
+              <g class="spot cab busy" data-id="vip-3" data-table-id="cab_luna" data-photo="assets/spots/cab-luna.jpg" data-title="Кабинет Luna" data-note="Самая камерная, для свидания или узкого круга" data-label="кабинет Luna" data-cap="до 6 гостей" role="button" aria-label="Кабинет Luna, до 6 гостей, занят">
                 <rect class="shape" x="62" y="62" width="150" height="108" rx="3"/>
                 <text x="137" y="116" text-anchor="middle">LUNA</text>
                 <text class="cap" x="137" y="135" text-anchor="middle">ДО 6 ГОСТЕЙ</text>
               </g>
-              <g class="spot table big" data-id="big-1" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-1" data-note="Длинный стол под компанию, у окна основного зала" data-label="большой стол Б-1" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-1, до 10 гостей, свободен">
+              <g class="spot table big" data-id="big-1" data-table-id="b1" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-1" data-note="Длинный стол под компанию, у окна основного зала" data-label="большой стол Б-1" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-1, до 10 гостей, свободен">
                 <rect class="shape" x="378" y="62" width="140" height="100" rx="3"/>
                 <text x="448" y="112" text-anchor="middle">Б-1</text>
                 <text class="cap" x="448" y="131" text-anchor="middle">ДО 10 ГОСТЕЙ</text>
               </g>
-              <g class="spot table big" data-id="big-2" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-2" data-note="Длинный стол под компанию, ближе к бару" data-label="большой стол Б-2" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-2, до 10 гостей, свободен">
+              <g class="spot table big" data-id="big-2" data-table-id="b2" data-photo="assets/spots/big.jpg" data-title="Большой стол Б-2" data-note="Длинный стол под компанию, ближе к бару" data-label="большой стол Б-2" data-cap="до 10 гостей" tabindex="0" role="button" aria-label="Большой стол Б-2, до 10 гостей, свободен">
                 <rect class="shape" x="378" y="176" width="140" height="106" rx="3"/>
                 <text x="448" y="229" text-anchor="middle">Б-2</text>
                 <text class="cap" x="448" y="248" text-anchor="middle">ДО 10 ГОСТЕЙ</text>
               </g>
-              <g class="spot seat" data-id="bar-1" data-photo="assets/spots/seat.jpg" data-title="Место у бара 1" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-1" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-1, свободно">
+              <g class="spot seat" data-id="bar-1" data-table-id="bar1" data-photo="assets/spots/seat.jpg" data-title="Место у бара 1" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-1" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-1, свободно">
                 <circle class="ring" cx="600" cy="150" r="23"/>
                 <circle class="shape" cx="600" cy="150" r="16"/>
                 <text x="600" y="154" text-anchor="middle">1</text>
               </g>
-              <g class="spot seat" data-id="bar-2" data-photo="assets/spots/seat.jpg" data-title="Место у бара 2" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-2" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-2, свободно">
+              <g class="spot seat" data-id="bar-2" data-table-id="bar2" data-photo="assets/spots/seat.jpg" data-title="Место у бара 2" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-2" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-2, свободно">
                 <circle class="ring" cx="674" cy="150" r="23"/>
                 <circle class="shape" cx="674" cy="150" r="16"/>
                 <text x="674" y="154" text-anchor="middle">2</text>
               </g>
-              <g class="spot seat busy" data-id="bar-3" data-photo="assets/spots/seat.jpg" data-title="Место у бара 3" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, занято">
+              <g class="spot seat busy" data-id="bar-3" data-table-id="bar3" data-photo="assets/spots/seat.jpg" data-title="Место у бара 3" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, занято">
                 <circle class="ring" cx="748" cy="150" r="23"/>
                 <circle class="shape" cx="748" cy="150" r="16"/>
                 <text x="748" y="154" text-anchor="middle">3</text>
               </g>
-              <g class="spot seat" data-id="bar-4" data-photo="assets/spots/seat.jpg" data-title="Место у бара 4" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-4" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-4, свободно">
+              <g class="spot seat" data-id="bar-4" data-table-id="bar4" data-photo="assets/spots/seat.jpg" data-title="Место у бара 4" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-4" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-4, свободно">
                 <circle class="ring" cx="822" cy="150" r="23"/>
                 <circle class="shape" cx="822" cy="150" r="16"/>
                 <text x="822" y="154" text-anchor="middle">4</text>
               </g>
-              <g class="spot seat" data-id="bar-5" data-photo="assets/spots/seat.jpg" data-title="Место у бара 5" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-5" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-5, свободно">
+              <g class="spot seat" data-id="bar-5" data-table-id="bar5" data-photo="assets/spots/seat.jpg" data-title="Место у бара 5" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-5" data-cap="1 гость" tabindex="0" role="button" aria-label="Место у бара Б-5, свободно">
                 <circle class="ring" cx="896" cy="150" r="23"/>
                 <circle class="shape" cx="896" cy="150" r="16"/>
                 <text x="896" y="154" text-anchor="middle">5</text>
               </g>
-              <g class="spot table" data-id="t-1" data-photo="assets/spots/table.jpg" data-title="Стол С-1" data-note="Столик у стены, полукруглый диван" data-label="стол С-1" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-1, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-1" data-table-id="s1" data-photo="assets/spots/table.jpg" data-title="Стол С-1" data-note="Столик у стены, полукруглый диван" data-label="стол С-1" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-1, 2–4 гостей, свободен">
                 <rect class="shape" x="664" y="340" width="76" height="64" rx="3"/>
                 <text x="702" y="371" text-anchor="middle">С-1</text>
                 <text class="cap" x="702" y="387" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table busy" data-id="t-2" data-photo="assets/spots/table.jpg" data-title="Стол С-2" data-note="Столик у стены, полукруглый диван" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, занят">
+              <g class="spot table busy" data-id="t-2" data-table-id="s2" data-photo="assets/spots/table.jpg" data-title="Стол С-2" data-note="Столик у стены, полукруглый диван" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, занят">
                 <rect class="shape" x="664" y="436" width="76" height="64" rx="3"/>
                 <text x="702" y="467" text-anchor="middle">С-2</text>
                 <text class="cap" x="702" y="483" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-3" data-photo="assets/spots/table.jpg" data-title="Стол С-3" data-note="Столик у стены, полукруглый диван" data-label="стол С-3" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-3, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-3" data-table-id="s3" data-photo="assets/spots/table.jpg" data-title="Стол С-3" data-note="Столик у стены, полукруглый диван" data-label="стол С-3" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-3, 2–4 гостей, свободен">
                 <rect class="shape" x="664" y="532" width="76" height="64" rx="3"/>
                 <text x="702" y="563" text-anchor="middle">С-3</text>
                 <text class="cap" x="702" y="579" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-4" data-photo="assets/spots/table.jpg" data-title="Стол С-4" data-note="Столик у стены, полукруглый диван" data-label="стол С-4" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-4, 2–4 гостей, свободен">
+              <g class="spot table" data-id="t-4" data-table-id="s4" data-photo="assets/spots/table.jpg" data-title="Стол С-4" data-note="Столик у стены, полукруглый диван" data-label="стол С-4" data-cap="2–4 гостей" tabindex="0" role="button" aria-label="Стол С-4, 2–4 гостей, свободен">
                 <rect class="shape" x="664" y="628" width="76" height="64" rx="3"/>
                 <text x="702" y="659" text-anchor="middle">С-4</text>
                 <text class="cap" x="702" y="675" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table" data-id="t-5" data-photo="assets/spots/table-l.jpg" data-title="Стол С-5" data-note="Под люстрой, в центре зала" data-label="стол С-5" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-5, 4–6 гостей, свободен">
+              <g class="spot table" data-id="t-5" data-table-id="s5" data-photo="assets/spots/table-l.jpg" data-title="Стол С-5" data-note="Под люстрой, в центре зала" data-label="стол С-5" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-5, 4–6 гостей, свободен">
                 <rect class="shape" x="836" y="372" width="76" height="64" rx="3"/>
                 <text x="874" y="403" text-anchor="middle">С-5</text>
                 <text class="cap" x="874" y="419" text-anchor="middle">4–6</text>
               </g>
-              <g class="spot table busy" data-id="t-6" data-photo="assets/spots/table-l.jpg" data-title="Стол С-6" data-note="Под люстрой, в центре зала" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, занят">
+              <g class="spot table busy" data-id="t-6" data-table-id="s6" data-photo="assets/spots/table-l.jpg" data-title="Стол С-6" data-note="Под люстрой, в центре зала" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, занят">
                 <rect class="shape" x="836" y="482" width="76" height="64" rx="3"/>
                 <text x="874" y="513" text-anchor="middle">С-6</text>
                 <text class="cap" x="874" y="529" text-anchor="middle">4–6</text>
               </g>
-              <g class="spot table" data-id="t-7" data-photo="assets/spots/table-l.jpg" data-title="Стол С-7" data-note="Под люстрой, в центре зала" data-label="стол С-7" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-7, 4–6 гостей, свободен">
+              <g class="spot table" data-id="t-7" data-table-id="s7" data-photo="assets/spots/table-l.jpg" data-title="Стол С-7" data-note="Под люстрой, в центре зала" data-label="стол С-7" data-cap="4–6 гостей" tabindex="0" role="button" aria-label="Стол С-7, 4–6 гостей, свободен">
                 <rect class="shape" x="836" y="592" width="76" height="64" rx="3"/>
                 <text x="874" y="623" text-anchor="middle">С-7</text>
                 <text class="cap" x="874" y="639" text-anchor="middle">4–6</text>
@@ -1728,15 +1727,15 @@
             </svg>
           </div>
           <div class="b-legend">
-            <span><i class="sw sw-free"></i>свободно</span>
-            <span><i class="sw sw-busy"></i>занято</span>
-            <span><i class="sw sw-sel"></i>выбрано</span>
+            <span data-str="legend.free" data-str-mode="last"><i class="sw sw-free"></i>свободно</span>
+            <span data-str="legend.busy" data-str-mode="last"><i class="sw sw-busy"></i>занято</span>
+            <span data-str="legend.selected" data-str-mode="last"><i class="sw sw-sel"></i>выбрано</span>
             <span class="b-legend-sep">·</span>
-            <span>7 столов · 2 больших · 3 VIP · 5 мест у бара</span>
+            <span data-str="legend.inventory" data-vars="inv">7 столов · 2 больших · 3 VIP · 5 мест у бара</span>
           </div>
         </div>
         <!-- на мобильном: список мест карточками с фото вместо схемы; тап открывает мастер брони -->
-        <div class="bk-mgrid-hint">тапни по месту — покажем фото и депозит</div>
+        <div class="bk-mgrid-hint" data-str="plan.hintMobile">тапни по месту — покажем фото и депозит</div>
         <div class="bk-mgrid" id="bkMgrid" aria-label="Список мест: выберите стол, кабинет или место у бара"></div>
       </div>
     </div>
@@ -1752,13 +1751,13 @@
     <div class="bkw-body" id="bkwBody">
 
       <div class="bkw-step on" data-bkw="1">
-        <p class="bkw-note">12 столов · 3 кабинета · 5 мест у бара. Занятые места обновляются администратором.</p>
+        <p class="bkw-note" data-str="wizard.noteSpots" data-vars="inv">12 столов · 3 кабинета · 5 мест у бара. Занятые места обновляются администратором.</p>
         <div class="bkw-filters" id="bkwFilters">
-          <button class="bkw-filter on" type="button" data-f="all">Все</button>
-          <button class="bkw-filter" type="button" data-f="table">Столы</button>
-          <button class="bkw-filter" type="button" data-f="big">Большие</button>
-          <button class="bkw-filter" type="button" data-f="cab">Кабинеты</button>
-          <button class="bkw-filter" type="button" data-f="seat">У бара</button>
+          <button class="bkw-filter on" type="button" data-f="all" data-str="wizard.filterAll">Все</button>
+          <button class="bkw-filter" type="button" data-f="table" data-str="wizard.filterTable">Столы</button>
+          <button class="bkw-filter" type="button" data-f="big" data-str="wizard.filterBig">Большие</button>
+          <button class="bkw-filter" type="button" data-f="cab" data-str="wizard.filterCab">Кабинеты</button>
+          <button class="bkw-filter" type="button" data-f="seat" data-str="wizard.filterSeat">У бара</button>
         </div>
         <div class="bkw-list" id="bkwList"></div>
       </div>
@@ -1767,31 +1766,31 @@
         <div class="bkw-selchip" id="bkwSelchip">
           <img id="bkwSelPh" alt="" width="64" height="48" loading="lazy" decoding="async">
           <div class="bkw-selchip-txt"><b id="bkwSelTtl"></b><span id="bkwSelSub"></span></div>
-          <button class="bkw-selchip-x" type="button" id="bkwSelX">Изменить</button>
+          <button class="bkw-selchip-x" type="button" id="bkwSelX" data-str="wizard.change">Изменить</button>
         </div>
-        <label class="bkw-lbl">Дата</label>
+        <label class="bkw-lbl" data-str="step2.dateLabel">Дата</label>
         <div class="bkw-dates" id="bkwDates"></div>
-        <label class="bkw-lbl">Время</label>
-        <div class="bkw-times" id="bkwTimes"><span class="bkw-times-hint">Сначала выберите дату</span></div>
-        <div class="bkw-err" id="bkwE2">Выберите дату и время</div>
+        <label class="bkw-lbl" data-str="step2.timeLabel">Время</label>
+        <div class="bkw-times" id="bkwTimes"><span class="bkw-times-hint" data-str="step2.pickDateFirst">Сначала выберите дату</span></div>
+        <div class="bkw-err" id="bkwE2" data-str="step2.error">Выберите дату и время</div>
       </div>
 
       <div class="bkw-step" data-bkw="3">
         <div class="bkw-selchip" id="bkwSelchip3">
           <img id="bkwSelPh3" alt="" width="64" height="48" loading="lazy" decoding="async">
           <div class="bkw-selchip-txt"><b id="bkwSelTtl3"></b><span id="bkwSelSub3"></span></div>
-          <button class="bkw-selchip-x" type="button" id="bkwSelX3">Изменить</button>
+          <button class="bkw-selchip-x" type="button" id="bkwSelX3" data-str="wizard.change">Изменить</button>
         </div>
         <div class="bkw-field">
-          <label class="bkw-lbl" for="bkwName">Имя</label>
-          <input class="bkw-inp" id="bkwName" type="text" autocomplete="name" placeholder="Как к вам обращаться">
+          <label class="bkw-lbl" for="bkwName" data-str="step3.nameLabel">Имя</label>
+          <input class="bkw-inp" id="bkwName" type="text" autocomplete="name" placeholder="Как к вам обращаться" data-str-ph="step3.namePlaceholder">
         </div>
         <div class="bkw-field">
-          <label class="bkw-lbl" for="bkwPhone">Телефон</label>
-          <input class="bkw-inp" id="bkwPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00">
+          <label class="bkw-lbl" for="bkwPhone" data-str="step3.phoneLabel">Телефон</label>
+          <input class="bkw-inp" id="bkwPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" data-str-ph="step3.phonePlaceholder">
         </div>
         <div class="bkw-field">
-          <label class="bkw-lbl">Гостей</label>
+          <label class="bkw-lbl" data-str="step3.guestsLabel">Гостей</label>
           <div class="bkw-guests">
             <button class="bkw-step-btn" type="button" id="bkwGminus" aria-label="Меньше гостей">−</button>
             <b id="bkwGval">2</b>
@@ -1799,31 +1798,31 @@
           </div>
         </div>
         <div class="bkw-field">
-          <label class="bkw-lbl" for="bkwComment">Комментарий · необязательно</label>
-          <input class="bkw-inp" id="bkwComment" type="text" placeholder="Повод, пожелания">
+          <label class="bkw-lbl" for="bkwComment" data-str="step3.commentLabelOptional">Комментарий · необязательно</label>
+          <input class="bkw-inp" id="bkwComment" type="text" placeholder="Повод, пожелания" data-str-ph="step3.commentPlaceholderShort">
         </div>
-        <div class="bkw-err" id="bkwE3">Проверьте имя и телефон</div>
+        <div class="bkw-err" id="bkwE3" data-str="step3.error">Проверьте имя и телефон</div>
       </div>
 
       <div class="bkw-step" data-bkw="4">
-        <p class="bkw-note">Проверьте детали. Депозит закрепляет стол и целиком идёт в счёт заказа.</p>
+        <p class="bkw-note" data-str="wizard.noteConfirm">Проверьте детали. Депозит закрепляет стол и целиком идёт в счёт заказа.</p>
         <div class="bkw-sum">
-          <div class="bkw-srow"><span>Место</span><b id="bkwS1"></b></div>
-          <div class="bkw-srow"><span>Дата и время</span><b id="bkwS2"></b></div>
-          <div class="bkw-srow"><span>Гость</span><b id="bkwS3"></b></div>
-          <div class="bkw-srow"><span>Гостей</span><b id="bkwS4"></b></div>
-          <div class="bkw-srow dep"><span>Депозит</span><b id="bkwS5"></b></div>
+          <div class="bkw-srow"><span data-str="step4.rowSpot">Место</span><b id="bkwS1"></b></div>
+          <div class="bkw-srow"><span data-str="step4.rowWhen">Дата и время</span><b id="bkwS2"></b></div>
+          <div class="bkw-srow"><span data-str="step4.rowGuest">Гость</span><b id="bkwS3"></b></div>
+          <div class="bkw-srow"><span data-str="step4.rowGuests">Гостей</span><b id="bkwS4"></b></div>
+          <div class="bkw-srow dep"><span data-str="step4.rowDeposit">Депозит</span><b id="bkwS5"></b></div>
         </div>
         <label class="bk-agree bkw-agree"><input type="checkbox" id="bkwAgree">
-          <span>Согласен с условиями брони и обработкой персональных данных</span></label>
-        <div class="bkw-err" id="bkwE4">Подтвердите согласие с условиями</div>
-        <p class="bkw-hint">Оплата через Т-Банк · СБП или карта. Отмена за 6 часов: вернём депозит полностью.</p>
+          <span data-str="step4.agree">Согласен с условиями брони и обработкой персональных данных</span></label>
+        <div class="bkw-err" id="bkwE4" data-str="step4.error">Подтвердите согласие с условиями</div>
+        <p class="bkw-hint" data-str="wizard.payCancelHint">Оплата через Т-Банк · СБП или карта. Отмена за 6 часов: вернём депозит полностью.</p>
       </div>
 
     </div>
     <div class="bkw-foot">
       <div class="bkw-foot-hint" id="bkwFootHint" hidden></div>
-      <button class="btn bkw-go" type="button" id="bkwGo" disabled>Дальше</button>
+      <button class="btn bkw-go" type="button" id="bkwGo" disabled data-str="wizard.go">Дальше</button>
     </div>
   </div>
 </section>
@@ -3403,6 +3402,9 @@ var BOOKING_CFG = {
   });
 })();
 </script>
+
+<!-- PR1 · каркас данных: блок брони гидратируется из /api/v1/config (assets/js/booking.js) -->
+<script type="module" src="assets/js/booking.js"></script>
 
 </body>
 </html>
