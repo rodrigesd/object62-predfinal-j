@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prata&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- PR2 · slot-first: стили слот-бара, тултипов и статусов (ТЗ §0.3 — новый код в отдельных файлах) -->
+<link rel="stylesheet" href="assets/css/booking.css">
 <style>
   @font-face{
     font-family:'District';
@@ -1497,8 +1499,39 @@
 </section>
 
 <!-- ===== 05 · бронь ===== -->
+  <!-- подложка под bottom-sheet занятого стола (mobile, ТЗ §3.6) -->
+  <div class="bk-tip-veil" id="bkTipVeil"></div>
+  <!-- тултип занятого стола: desktop — у места, mobile — bottom-sheet (ТЗ §3.6);
+       fixed и вне трансформованных контейнеров, чтобы не ломался bottom-sheet -->
+  <div class="bk-tip" id="bkTip" hidden role="dialog" aria-label="Занятое место">
+    <button class="bk-tip-x" type="button" aria-label="Закрыть" data-str-aria="busy.close">×</button>
+    <div class="bk-tip-txt"></div>
+    <button class="btn" type="button"></button>
+  </div>
+
 <section class="booking" id="bron">
   <div class="wrap">
+    <!-- PR2 · слот-бар: дата, время, гости. Живая схема считается от этих значений (§3.2) -->
+    <div class="slotbar io" id="slotbar" role="group" aria-label="Выбор даты, времени и числа гостей" data-str-aria="slotbar.label">
+      <div class="slotbar-row slotbar-guests">
+        <label class="bk-lbl" data-str="step3.guestsLabel">Гостей</label>
+        <div class="slotbar-step">
+          <button type="button" id="sbGminus" aria-label="Меньше гостей" data-str-aria="guests.minus">−</button>
+          <b id="sbGval">2</b>
+          <button type="button" id="sbGplus" aria-label="Больше гостей" data-str-aria="guests.plus">+</button>
+        </div>
+        <div class="slotbar-summary" id="sbSum" aria-live="polite"></div>
+      </div>
+      <div class="slotbar-row">
+        <label class="bk-lbl" data-str="step2.dateLabel">Дата</label>
+        <div class="bk-lane"><div class="bk-chips" id="sbDates"></div></div>
+      </div>
+      <div class="slotbar-row">
+        <label class="bk-lbl" data-str="step2.timeLabel">Время</label>
+        <div class="bk-lane"><div class="bk-chips" id="sbTimes"></div></div>
+      </div>
+      <div class="bk-fallback" id="sbFallback">Работаем по заявке — администратор подтвердит</div>
+    </div>
     <div class="b-grid">
       <div class="booking-flow">
         <div class="sec-head io" style="margin-bottom:0">
@@ -1507,10 +1540,16 @@
             <h2>Место и время</h2>
           </div>
         </div>
-        <div class="b-count io" title="считается из схемы зала">
-          <span>сейчас свободно <b id="cntTables">10 из 12</b> столов</span>
+        <div class="b-count io" title="считается от выбранных даты и времени">
+          <span><span id="cntAt">сейчас свободно</span> <b id="cntTables">10 из 12</b> столов</span>
           <span>VIP: <b id="cntCabs">2 из 3</b></span>
           <span>бар: <b id="cntBar">4 из 5</b></span>
+        </div>
+        <!-- плашка «У вас есть заявка»: повторный заход после success-экрана (ТЗ §3.7) -->
+        <div class="bk-pending" id="bkPending" hidden role="status">
+          <b id="bkPendingLabel"></b>
+          <span id="bkPendingLine"></span>
+          <button type="button" id="bkPendingReset"></button>
         </div>
         <!-- мобильный вход в мастер брони (десктоп сразу видит аккордеон и план) -->
         <div class="bk-mobile-cta io">
@@ -1521,39 +1560,39 @@
         </div>
         <div class="bk io" id="bkWizard">
 
-          <div class="bk-step done" data-bk="1">
+          <div class="bk-step on" data-bk="1">
             <div class="bk-head" data-goto="1">
-              <span class="bk-no">01</span><span class="bk-ttl" data-str="step1.title">Стол</span>
-              <span class="bk-val" id="bkV1" data-str="step1.valueEmpty">выберите на схеме →</span>
+              <span class="bk-no">01</span><span class="bk-ttl" data-str="step1.title">Когда</span>
+              <span class="bk-val" id="bkV1"></span>
             </div>
-            <!-- карточка выбранного места: фото появляется после выбора на схеме -->
-            <div class="bk-pick is-empty" id="bkPick">
-              <div class="bk-pick-empty" id="bkPickEmpty" role="status">
-                <b data-str="step1.pickEmptyTitle">Стол ещё не выбран</b>
-                <span data-str="step1.pickEmptyText">Тапни место на схеме — здесь появится его фото, вместимость и депозит.</span>
-              </div>
-              <img class="bk-pick-ph" id="bkPickPh" alt="" width="520" height="325" loading="lazy" decoding="async" hidden>
-              <div class="bk-pick-txt">
-                <b id="bkPickTtl"></b>
-                <span class="bk-pick-cap" id="bkPickCap"></span>
-                <span class="bk-pick-note" id="bkPickNote"></span>
-                <span class="bk-pick-dep" id="bkPickDep"></span>
-              </div>
-              <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места" data-str="step1.pickOther">Выбрать другое</button>
+            <div class="bk-body">
+              <div class="bk-when-sum" id="bkWhenSum"></div>
+              <p class="bk-hint" data-str="step1.note" data-str-mode="first">Дата и время выбираются в слот-баре над схемой — занятость мест считается от выбранных значений.</p>
+              <div class="bk-act"><button class="btn" type="button" id="bkTo2" data-str="nav.next">Дальше →</button></div>
             </div>
           </div>
 
           <div class="bk-step" data-bk="2">
             <div class="bk-head" data-goto="2">
-              <span class="bk-no">02</span><span class="bk-ttl" data-str="step2.title">Когда</span>
-              <span class="bk-val" id="bkV2" data-str="step2.valueEmpty">выберите дату и время →</span>
+              <span class="bk-no">02</span><span class="bk-ttl" data-str="step2.title">Стол</span>
+              <span class="bk-val" id="bkV2" data-str="step2.valueEmpty">выберите на схеме →</span>
             </div>
             <div class="bk-body">
-              <label class="bk-lbl" data-str="step2.dateLabel">Дата</label>
-              <div class="bk-lane"><div class="bk-chips" id="bkDates"></div></div>
-              <label class="bk-lbl" data-str="step2.timeLabel">Время</label>
-              <div class="bk-lane"><div class="bk-chips" id="bkTimes"><span class="bk-hint" style="margin:0" data-str="step2.pickDateFirst">Сначала выберите дату</span></div></div>
-              <div class="bk-err" id="bkE2" data-str="step2.error">Выберите дату и время</div>
+              <!-- карточка выбранного места: фото появляется после выбора на схеме -->
+              <div class="bk-pick is-empty" id="bkPick">
+                <div class="bk-pick-empty" id="bkPickEmpty" role="status">
+                  <b data-str="pick.emptyTitle">Стол ещё не выбран</b>
+                  <span data-str="pick.emptyText">Тапни место на схеме — здесь появится его фото, вместимость и депозит.</span>
+                </div>
+                <img class="bk-pick-ph" id="bkPickPh" alt="" width="520" height="325" loading="lazy" decoding="async" hidden>
+                <div class="bk-pick-txt">
+                  <b id="bkPickTtl"></b>
+                  <span class="bk-pick-cap" id="bkPickCap"></span>
+                  <span class="bk-pick-note" id="bkPickNote"></span>
+                  <span class="bk-pick-dep" id="bkPickDep"></span>
+                </div>
+                <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места" data-str="pick.other">Выбрать другое</button>
+              </div>
               <div class="bk-act"><button class="btn" type="button" id="bkTo3" data-str="nav.next">Дальше →</button></div>
             </div>
           </div>
@@ -1584,7 +1623,7 @@
 
           <div class="bk-step" data-bk="4">
             <div class="bk-head" data-goto="4">
-              <span class="bk-no">04</span><span class="bk-ttl" data-str="step4.title">Подтверждение и оплата</span>
+              <span class="bk-no">04</span><span class="bk-ttl" data-str="step4.title">Подтверждение</span>
             </div>
             <div class="bk-body">
               <div class="bk-sum">
@@ -1594,22 +1633,30 @@
                 <div class="bk-srow"><span data-str="step4.rowGuests">Гостей</span><b id="bkS4"></b></div>
                 <div class="bk-srow bk-dep"><span data-str="step4.rowDeposit">Депозит</span><b id="bkS5"></b></div>
               </div>
-              <p class="bk-hint" data-str="step4.hint">Депозит закрепляет стол и целиком идёт в счёт заказа.
-                 Отмена за 6 часов - вернём полностью.</p>
+              <p class="bk-hint" data-str="step4.hint" data-str-mode="first" data-vars="cancel">Депозит закрепляет стол и целиком идёт в счёт заказа. Отмена заранее - вернём полностью.</p>
               <label class="bk-agree"><input type="checkbox" id="bkAgree">
                 <span data-str="step4.agree">Согласен с условиями брони и обработкой персональных данных</span></label>
               <div class="bk-err" id="bkE4" data-str="step4.error">Подтвердите согласие с условиями</div>
+              <div class="bk-err" id="bkErrBox"></div>
               <div class="bk-act">
-                <button class="btn" type="button" id="bkPay" data-str="step4.payButton">Оплатить депозит</button>
-                <span class="bk-pay" data-str="step4.payNote" data-str-mode="last"><i>Т</i> Оплата через Т-Банк · СБП или карта</span>
+                <button class="btn" type="button" id="bkSubmit" data-str="phase0.submit">Отправить заявку</button>
+                <span class="mono-note" data-str="phase0.note" style="font-size:10px">Администратор подтвердит бронь по телефону</span>
                 <button class="bk-edit" type="button" data-goto="3" data-str="nav.back">← Назад</button>
               </div>
-              <div class="bk-wait" id="bkWait"><span class="bk-spin"></span><span data-str="step4.wait">Переходим на защищённую страницу Т-Банк…</span></div>
+              <div class="bk-wait" id="bkWait"><span class="bk-spin"></span><span data-str="step4.wait">Отправляем заявку…</span></div>
             </div>
           </div>
         </div>
-        <p class="bk-foot io" data-str="foot.note">Бронь оформляется здесь же · депозит целиком идёт в счёт заказа ·
-          отмена за 6 часов - вернём полностью · возможна увеличенная посадка</p>
+        <!-- success-экран после отправки заявки (ТЗ §3.7) -->
+        <div class="bk-step on bk-success" id="bkSuccess" hidden>
+          <div class="bk-head"><span class="bk-no">✓</span><span class="bk-ttl" id="bkSuccessTitle">Заявка принята</span></div>
+          <div class="bk-body" style="display:block">
+            <p class="bk-when-sum" id="bkSuccessLine"></p>
+            <p class="bk-hint" data-str="phase0.note">Администратор подтвердит бронь по телефону</p>
+            <div class="bk-act"><button class="btn" type="button" id="bkSuccessBtn">Отлично</button></div>
+          </div>
+        </div>
+        <p class="bk-foot io" data-str="foot.note" data-vars="cancel" data-str-mode="first">Бронь оформляется здесь же · депозит целиком идёт в счёт заказа · отмена заранее - вернём полностью · возможна увеличенная посадка</p>
         <div class="b-cta-row io">
           <div class="mono-note" data-str="foot.confirmNote">мгновенное подтверждение · СБП или карта · бронь придёт в Telegram</div>
         </div>
@@ -1649,7 +1696,7 @@
                 <text x="137" y="232" text-anchor="middle">COPPER</text>
                 <text class="cap" x="137" y="251" text-anchor="middle">ДО 8 ГОСТЕЙ</text>
               </g>
-              <g class="spot cab busy" data-id="vip-3" data-table-id="cab_luna" data-photo="assets/spots/cab-luna.jpg" data-title="Кабинет Luna" data-note="Самая камерная, для свидания или узкого круга" data-label="кабинет Luna" data-cap="до 6 гостей" role="button" aria-label="Кабинет Luna, до 6 гостей, занят">
+              <g class="spot cab" data-id="vip-3" data-table-id="cab_luna" data-photo="assets/spots/cab-luna.jpg" data-title="Кабинет Luna" data-note="Самая камерная, для свидания или узкого круга" data-label="кабинет Luna" data-cap="до 6 гостей" role="button" aria-label="Кабинет Luna, до 6 гостей, свободен">
                 <rect class="shape" x="62" y="62" width="150" height="108" rx="3"/>
                 <text x="137" y="116" text-anchor="middle">LUNA</text>
                 <text class="cap" x="137" y="135" text-anchor="middle">ДО 6 ГОСТЕЙ</text>
@@ -1674,7 +1721,7 @@
                 <circle class="shape" cx="674" cy="150" r="16"/>
                 <text x="674" y="154" text-anchor="middle">2</text>
               </g>
-              <g class="spot seat busy" data-id="bar-3" data-table-id="bar3" data-photo="assets/spots/seat.jpg" data-title="Место у бара 3" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, занято">
+              <g class="spot seat" data-id="bar-3" data-table-id="bar3" data-photo="assets/spots/seat.jpg" data-title="Место у бара 3" data-note="За стойкой, разговор с барменом и вид на пролив" data-label="место у бара Б-3" data-cap="1 гость" role="button" aria-label="Место у бара Б-3, свободно">
                 <circle class="ring" cx="748" cy="150" r="23"/>
                 <circle class="shape" cx="748" cy="150" r="16"/>
                 <text x="748" y="154" text-anchor="middle">3</text>
@@ -1694,7 +1741,7 @@
                 <text x="702" y="371" text-anchor="middle">С-1</text>
                 <text class="cap" x="702" y="387" text-anchor="middle">2–4</text>
               </g>
-              <g class="spot table busy" data-id="t-2" data-table-id="s2" data-photo="assets/spots/table.jpg" data-title="Стол С-2" data-note="Столик у стены, полукруглый диван" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, занят">
+              <g class="spot table" data-id="t-2" data-table-id="s2" data-photo="assets/spots/table.jpg" data-title="Стол С-2" data-note="Столик у стены, полукруглый диван" data-label="стол С-2" data-cap="2–4 гостей" role="button" aria-label="Стол С-2, 2–4 гостей, свободен">
                 <rect class="shape" x="664" y="436" width="76" height="64" rx="3"/>
                 <text x="702" y="467" text-anchor="middle">С-2</text>
                 <text class="cap" x="702" y="483" text-anchor="middle">2–4</text>
@@ -1714,7 +1761,7 @@
                 <text x="874" y="403" text-anchor="middle">С-5</text>
                 <text class="cap" x="874" y="419" text-anchor="middle">4–6</text>
               </g>
-              <g class="spot table busy" data-id="t-6" data-table-id="s6" data-photo="assets/spots/table-l.jpg" data-title="Стол С-6" data-note="Под люстрой, в центре зала" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, занят">
+              <g class="spot table" data-id="t-6" data-table-id="s6" data-photo="assets/spots/table-l.jpg" data-title="Стол С-6" data-note="Под люстрой, в центре зала" data-label="стол С-6" data-cap="4–6 гостей" role="button" aria-label="Стол С-6, 4–6 гостей, свободен">
                 <rect class="shape" x="836" y="482" width="76" height="64" rx="3"/>
                 <text x="874" y="513" text-anchor="middle">С-6</text>
                 <text class="cap" x="874" y="529" text-anchor="middle">4–6</text>
@@ -1740,17 +1787,36 @@
       </div>
     </div>
   </div>
-  <!-- мобильный полноэкранный мастер брони (флоу Restoplace): место → когда → кто → подтверждение -->
+  <!-- мобильный полноэкранный мастер брони (флоу Restoplace): когда → место → кто → подтверждение -->
   <div class="bkw" id="bkw" role="dialog" aria-modal="true" aria-label="Бронирование стола" hidden>
     <div class="bkw-top">
       <button class="bkw-back" type="button" id="bkwBack" aria-label="Назад">←</button>
-      <div class="bkw-title"><span id="bkwKicker">ШАГ 01/04 · МЕСТО</span><b id="bkwTitle">Куда вас посадить</b></div>
+      <div class="bkw-title"><span id="bkwKicker">ШАГ 01/04 · КОГДА</span><b id="bkwTitle">Дата и время</b></div>
       <button class="bkw-x" type="button" id="bkwX" aria-label="Закрыть бронирование">×</button>
     </div>
     <div class="bkw-prog" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
     <div class="bkw-body" id="bkwBody">
 
       <div class="bkw-step on" data-bkw="1">
+        <label class="bkw-lbl" data-str="step2.dateLabel">Дата</label>
+        <div class="bkw-dates" id="bkwDates"></div>
+        <label class="bkw-lbl" data-str="step2.timeLabel">Время</label>
+        <div class="bkw-times" id="bkwTimes"></div>
+        <div class="bkw-field">
+          <label class="bkw-lbl" data-str="step3.guestsLabel">Гостей</label>
+          <div class="bkw-guests">
+            <button class="bkw-step-btn" type="button" id="bkwGminus" aria-label="Меньше гостей">−</button>
+            <b id="bkwGval">2</b>
+            <button class="bkw-step-btn" type="button" id="bkwGplus" aria-label="Больше гостей">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bkw-step" data-bkw="2">
+        <div class="bkw-slotline" id="bkwSlotLine">
+          <span id="bkwSlotLineText"></span>
+          <button type="button" class="bkw-selchip-x" id="bkwChangeWhen" data-str="wizard.goToSlotbar">Изменить время</button>
+        </div>
         <p class="bkw-note" data-str="wizard.noteSpots" data-vars="inv">12 столов · 3 кабинета · 5 мест у бара. Занятые места обновляются администратором.</p>
         <div class="bkw-filters" id="bkwFilters">
           <button class="bkw-filter on" type="button" data-f="all" data-str="wizard.filterAll">Все</button>
@@ -1760,19 +1826,6 @@
           <button class="bkw-filter" type="button" data-f="seat" data-str="wizard.filterSeat">У бара</button>
         </div>
         <div class="bkw-list" id="bkwList"></div>
-      </div>
-
-      <div class="bkw-step" data-bkw="2">
-        <div class="bkw-selchip" id="bkwSelchip">
-          <img id="bkwSelPh" alt="" width="64" height="48" loading="lazy" decoding="async">
-          <div class="bkw-selchip-txt"><b id="bkwSelTtl"></b><span id="bkwSelSub"></span></div>
-          <button class="bkw-selchip-x" type="button" id="bkwSelX" data-str="wizard.change">Изменить</button>
-        </div>
-        <label class="bkw-lbl" data-str="step2.dateLabel">Дата</label>
-        <div class="bkw-dates" id="bkwDates"></div>
-        <label class="bkw-lbl" data-str="step2.timeLabel">Время</label>
-        <div class="bkw-times" id="bkwTimes"><span class="bkw-times-hint" data-str="step2.pickDateFirst">Сначала выберите дату</span></div>
-        <div class="bkw-err" id="bkwE2" data-str="step2.error">Выберите дату и время</div>
       </div>
 
       <div class="bkw-step" data-bkw="3">
@@ -1788,14 +1841,6 @@
         <div class="bkw-field">
           <label class="bkw-lbl" for="bkwPhone" data-str="step3.phoneLabel">Телефон</label>
           <input class="bkw-inp" id="bkwPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" data-str-ph="step3.phonePlaceholder">
-        </div>
-        <div class="bkw-field">
-          <label class="bkw-lbl" data-str="step3.guestsLabel">Гостей</label>
-          <div class="bkw-guests">
-            <button class="bkw-step-btn" type="button" id="bkwGminus" aria-label="Меньше гостей">−</button>
-            <b id="bkwGval">2</b>
-            <button class="bkw-step-btn" type="button" id="bkwGplus" aria-label="Больше гостей">+</button>
-          </div>
         </div>
         <div class="bkw-field">
           <label class="bkw-lbl" for="bkwComment" data-str="step3.commentLabelOptional">Комментарий · необязательно</label>
@@ -1816,13 +1861,14 @@
         <label class="bk-agree bkw-agree"><input type="checkbox" id="bkwAgree">
           <span data-str="step4.agree">Согласен с условиями брони и обработкой персональных данных</span></label>
         <div class="bkw-err" id="bkwE4" data-str="step4.error">Подтвердите согласие с условиями</div>
-        <p class="bkw-hint" data-str="wizard.payCancelHint">Оплата через Т-Банк · СБП или карта. Отмена за 6 часов: вернём депозит полностью.</p>
+        <div class="bkw-err" id="bkwErrBox"></div>
+        <p class="bkw-hint" data-str="wizard.cancelHint" data-vars="cancel" data-str-mode="first">Отмена заранее: вернём депозит полностью.</p>
       </div>
 
     </div>
     <div class="bkw-foot">
       <div class="bkw-foot-hint" id="bkwFootHint" hidden></div>
-      <button class="btn bkw-go" type="button" id="bkwGo" disabled data-str="wizard.go">Дальше</button>
+      <button class="btn bkw-go" type="button" id="bkwGo" data-str="wizard.go">Дальше</button>
     </div>
   </div>
 </section>
@@ -1937,7 +1983,7 @@
       <div class="sheet-no">ЛИСТ 08/14</div>
     </div>
     <div class="c-grid">
-      <article class="c-card io" data-spot="vip-1">
+      <article class="c-card io" data-spot="cab_cabinet">
         <div class="ph">
           <div class="c-tag">ДО 12 ГОСТЕЙ</div>
           <img src="assets/cab-cabinet.jpg" alt="Кабинет Cabinet">
@@ -1949,7 +1995,7 @@
           <a class="btn-ghost" href="#bron">Забронировать</a>
         </div>
       </article>
-      <article class="c-card io" data-spot="vip-2">
+      <article class="c-card io" data-spot="cab_copper">
         <div class="ph">
           <div class="c-tag">ДО 8 ГОСТЕЙ</div>
           <img src="assets/cab-copper.jpg" alt="Кабинет Copper">
@@ -1961,7 +2007,7 @@
           <a class="btn-ghost" href="#bron">Забронировать</a>
         </div>
       </article>
-      <article class="c-card io" data-spot="vip-3">
+      <article class="c-card io" data-spot="cab_luna">
         <div class="ph">
           <div class="c-tag">ДО 6 ГОСТЕЙ</div>
           <img src="assets/cab-luna.jpg" alt="Кабинет Luna">
@@ -2124,7 +2170,7 @@
     <div class="faq-list io">
       <div class="q">
         <button class="q-btn" aria-expanded="false"><i>В·01</i><b>Депозит вернут?</b><span class="pm">+</span></button>
-        <div class="q-a"><p>Да. Отмена за 24 часа до визита: 100 % на карту. Депозит целиком идёт в счёт заказа.</p></div>
+        <div class="q-a"><p data-str="faq.cancelAnswer" data-vars="cancel">Да. Отмена заранее до визита: 100 % на карту. Депозит целиком идёт в счёт заказа.</p></div>
       </div>
       <div class="q">
         <button class="q-btn" aria-expanded="false"><i>В·02</i><b>Дресс-код есть?</b><span class="pm">+</span></button>
@@ -2251,7 +2297,7 @@
     {
       "@type": "Question",
       "name": "Депозит вернут?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Да. Отмена за 24 часа до визита: 100 % на карту. Депозит целиком идёт в счёт заказа."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Да. Отмена заранее до визита: 100 % на карту. Депозит целиком идёт в счёт заказа."}
     },
     {
       "@type": "Question",
@@ -2607,30 +2653,7 @@ setTimeout(sweep, 900);
 const nav = document.getElementById('nav');
 addEventListener('scroll', ()=>{ nav.classList.toggle('scrolled', scrollY>40); }, {passive:true});
 
-/* ---------- схема зала: выбор места (мастер брони слушает .sel) ---------- */
-let selected = null;
-document.querySelectorAll('.plan .spot').forEach(spot=>{
-  const choose = ()=>{
-    if(spot.classList.contains('busy')) return;
-    if(selected === spot){ spot.classList.remove('sel'); selected = null; return; }
-    if(selected) selected.classList.remove('sel');
-    selected = spot; spot.classList.add('sel');
-  };
-  spot.addEventListener('click', choose);
-  spot.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();} });
-});
-/* живые счётчики из схемы */
-(function(){
-  const free = els => [...els].filter(s=>!s.classList.contains('busy')).length;
-  /* столы = обычные + большие + VIP (12 всего); бар считаем отдельно */
-  const tables = document.querySelectorAll('.plan .spot.table, .plan .spot.cab');
-  const cabs   = document.querySelectorAll('.plan .spot.cab');
-  const seats  = document.querySelectorAll('.plan .spot.seat');
-  const set = (id, a, b) => { const el = document.getElementById(id); if(el) el.textContent = a + ' из ' + b; };
-  set('cntTables', free(tables), tables.length);
-  set('cntCabs',   free(cabs),   cabs.length);
-  set('cntBar',    free(seats),  seats.length);
-})();
+/* ---------- схема зала: выбор места и счётчики — в assets/js/booking.js (PR2) ---------- */
 
 /* ---------- табы меню ---------- */
 document.querySelectorAll('.tab').forEach(tab=>{
@@ -2747,48 +2770,13 @@ document.getElementById('mapFacade').addEventListener('click', function(){
       </div>
     </div>
   </div>
-
-  <!-- результат оплаты -->
-  <div class="modal modal-result" id="payOk" role="alertdialog" aria-modal="true" hidden>
-    <div class="res-stamp"><em>✓</em>ПОДТВЕРЖДЕНО</div>
-    <h3 class="mo-title">Бронь оплачена</h3>
-    <p class="mo-sub" id="okText">Депозит получен, стол закреплён за вами.<br>
-      Подтверждение придёт в SMS и Telegram. Ждём вас!</p>
-    <p class="mo-sub" style="opacity:.75">При первой брони — комплимент от заведения.</p>
-    <div class="mo-actions" style="justify-content:center">
-      <button class="mo-btn" type="button" data-close>Отлично</button>
-    </div>
-  </div>
-
-  <div class="modal modal-result" id="payFail" role="alertdialog" aria-modal="true" hidden>
-    <div class="res-stamp fail"><em>✕</em>НЕ ПРОШЛО</div>
-    <h3 class="mo-title">Оплата не прошла</h3>
-    <p class="mo-sub">Банк отклонил операцию или окно оплаты было закрыто.<br>
-      Стол пока не закреплён — попробуйте ещё раз.</p>
-    <div class="mo-actions" style="justify-content:center">
-      <button class="mo-btn" type="button" id="retryPay">Повторить оплату</button>
-      <button class="mo-btn-ghost" type="button" data-close>Закрыть</button>
-    </div>
-  </div>
 </div>
 
 <script>
-/* ================= БРОНЬ: инлайн-мастер + оплата Т-Банк + iiko =================
-   По NN/g многошаговый процесс живёт на странице, а не в модалке. Модальными
-   остались только короткие уведомления: результат оплаты и заявка.
-   Демо: BOOKING_CFG.mode='demo'. Боевой режим и iiko — server/README-BOOKING.md */
-var BOOKING_CFG = {
-  mode: 'demo',
-  payInitUrl: '/api/pay/init',
-  deposits: { table: 2000, big: 4000, cab: 5000, seat: 1000 },
-  /* депозит конкретного места, если он отличается от типового (кабинеты) */
-  depositBySpot: { 'vip-1': 15000, 'vip-2': 10000, 'vip-3': 8000 },
-  durationMinutes: 180
-};
+/* ================= МОДАЛЬНЫЙ СЛОЙ: заявки (бронь — в assets/js/booking.js, PR2) ===== */
 (function(){
   var ovl = document.getElementById('ovl');
-  var modals = { req: document.getElementById('reqModal'),
-                 ok: document.getElementById('payOk'), fail: document.getElementById('payFail') };
+  var modals = { req: document.getElementById('reqModal') };
   var lastFocus = null;
   function openModal(which){
     lastFocus = document.activeElement;
@@ -2806,284 +2794,7 @@ var BOOKING_CFG = {
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !ovl.hidden) closeAll(); });
   ovl.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeAll); });
 
-  var B = { spot:null, spotLabel:'', spotKind:'table', cap:'', date:null, time:null,
-            name:'', phone:'', guests:2, comment:'' };
-  var wiz = document.getElementById('bkWizard');
-  if (!wiz) return;
-  var steps = wiz.querySelectorAll('.bk-step');
-  var maxReached = 1;
-
-  function dep(kind){
-    var byId = BOOKING_CFG.depositBySpot || {};
-    if (B.spot && byId[B.spot]) return byId[B.spot];
-    return BOOKING_CFG.deposits[kind] || BOOKING_CFG.deposits.table;
-  }
-  function money(v){ return v.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽'; }
-  function kindOf(el){
-    if (el.classList.contains('cab')) return 'cab';
-    if (el.classList.contains('big')) return 'big';
-    if (el.classList.contains('seat')) return 'seat';
-    return 'table';
-  }
-  function err(id, show){ var el = document.getElementById(id); if (el) el.classList.toggle('show', !!show); }
-
-  /* ---- депозит места до выбора (для карточек сетки) ---- */
-  function depFor(el){
-    var byId = BOOKING_CFG.depositBySpot || {};
-    if (byId[el.dataset.id]) return byId[el.dataset.id];
-    return BOOKING_CFG.deposits[kindOf(el)] || BOOKING_CFG.deposits.table;
-  }
-
-  /* ---- mobile: синхронизация выбора между схемой и витриной ---- */
-  function syncGridSel(id){
-    document.querySelectorAll('#bkMgrid .bk-mcard').forEach(function(c){
-      c.classList.toggle('sel', !!id && c.dataset.id === id);
-    });
-  }
-
-  /* ---- мобильная витрина мест: тап открывает полноэкранный мастер ---- */
-  (function buildMobileGrid(){
-    var grid = document.getElementById('bkMgrid');
-    if (!grid) return;
-    document.querySelectorAll('.plan .spot').forEach(function(el){
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'bk-mcard' + (el.classList.contains('busy') ? ' busy' : '');
-      card.dataset.id = el.dataset.id;
-      card.setAttribute('aria-label', el.getAttribute('aria-label') || '');
-      var status = el.classList.contains('busy') ? 'занято' : 'свободно';
-      card.innerHTML =
-        '<span class="bk-mstatus ' + (el.classList.contains('busy') ? 'busy' : 'free') + '">' + status + '</span>' +
-        '<img src="' + (el.dataset.photo || '') + '" alt="" loading="lazy" decoding="async">' +
-        '<span class="bk-mbody">' +
-          '<span class="bk-mttl">' + (el.dataset.title || el.dataset.label || '') + '</span>' +
-          '<span class="bk-mcap">' + (el.dataset.cap || '') + '</span>' +
-          '<span class="bk-mdep">депозит ' + money(depFor(el)) + '</span>' +
-        '</span>';
-      card.addEventListener('click', function(){
-        if (el.classList.contains('busy')) return;
-        if (window.matchMedia('(max-width: 900px)').matches) openWizard(el.dataset.id);
-        else el.dispatchEvent(new Event('click', {bubbles:true}));
-      });
-      grid.appendChild(card);
-    });
-  })();
-
-  function goto(n){
-    if (n > maxReached) return;
-    steps.forEach(function(s){
-      var k = Number(s.dataset.bk);
-      s.classList.toggle('on', k === n);
-      s.classList.toggle('done', k !== n && k <= maxReached);
-    });
-    /* активный шаг всегда на экране: мягко докручиваем, если он ушёл за край */
-    var cur = wiz.querySelector('.bk-step.on');
-    if (cur) cur.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'nearest'});
-  }
-  wiz.addEventListener('click', function(e){
-    var t = e.target.closest('[data-goto]');
-    if (t) goto(Number(t.dataset.goto));
-  });
-
-  /* ---- шаг 1: место со схемы ---- */
-  var pickBox = document.getElementById('bkPick');
-  function fillPick(el){
-    if (!pickBox) return;
-    var ph = el.dataset.photo || '';
-    var img = document.getElementById('bkPickPh');
-    if (ph){ img.src = ph; img.alt = el.dataset.title || B.spotLabel; img.hidden = false; }
-    else { img.removeAttribute('src'); img.hidden = true; }
-    document.getElementById('bkPickTtl').textContent  = el.dataset.title || B.spotLabel;
-    document.getElementById('bkPickCap').textContent  = B.cap;
-    document.getElementById('bkPickNote').textContent = el.dataset.note || '';
-    document.getElementById('bkPickDep').textContent  = 'депозит ' + money(dep(B.spotKind));
-    pickBox.hidden = false;
-    pickBox.classList.remove('is-empty');
-  }
-  function clearPick(){
-    if (pickBox){
-      pickBox.hidden = false;
-      pickBox.classList.add('is-empty');
-      var img = document.getElementById('bkPickPh');
-      if (img){ img.removeAttribute('src'); img.hidden = true; }
-    }
-    document.getElementById('bkV1').textContent = 'выберите на схеме →';
-    B.spot = null; maxReached = 1; goto(1);
-  }
-  /* ---- зум фото выбранного места: листаем только его снимки ---- */
-  var bkPickPh = document.getElementById('bkPickPh');
-  if (bkPickPh){
-    bkPickPh.addEventListener('click', function(){
-      if (!B.spot || bkPickPh.hidden) return;
-      var active = document.querySelector('.plan .spot.sel');
-      var cap = active ? (active.dataset.title || B.spotLabel) : B.spotLabel;
-      var fake = { dataset: { full: bkPickPh.currentSrc || bkPickPh.src, cap: cap } };
-      shots = [fake];
-      showShot(0);
-      lb.classList.add('open');
-    });
-  }
-  var pickX = document.getElementById('bkPickX');
-  if (pickX) pickX.addEventListener('click', function(){
-    var cur = document.querySelector('.plan .spot.sel');
-    if (cur) cur.classList.remove('sel');
-    clearPick();
-    syncGridSel(null);
-    var plan = document.querySelector('.plan-card');
-    if (plan && !window.matchMedia('(max-width: 900px)').matches) plan.scrollIntoView({behavior:'smooth', block:'center'});
-  });
-
-  function onSpot(el){
-    B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
-    B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
-    document.getElementById('bkV1').textContent = B.spotLabel + (B.cap ? ' · ' + B.cap : '');
-    fillPick(el);
-    syncGridSel(B.spot);
-    buildDates();
-    /* десктоп: сразу открываем шаг «Когда» (мобильный флоу живёт в wizard'е) */
-    if (maxReached < 2) { maxReached = 2; goto(2); }
-  }
-  var planObserver = document.querySelector('.plan');
-  if (planObserver){
-    planObserver.addEventListener('click', function(e){
-      var g = e.target.closest('.spot');
-      if (!g || g.classList.contains('busy')) return;
-      setTimeout(function(){ if (g.classList.contains('sel')) onSpot(g);
-        else { clearPick(); syncGridSel(null); } }, 10);
-    });
-    planObserver.addEventListener('keydown', function(e){
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      var g = e.target.closest('.spot');
-      if (g) setTimeout(function(){ if (g.classList.contains('sel')) onSpot(g); }, 10);
-    });
-  }
-
-  /* ---- шаг 2: дата и время ---- */
-  var MONTHS = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-  var DAYS = ['вс','пн','вт','ср','чт','пт','сб'];
-  /* локальный ISO (toISOString режет по UTC: ночью дата уезжала на вчера) */
-  function isoLocal(d){
-    var p = function(n){ return (n < 10 ? '0' : '') + n; };
-    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-  }
-  function buildDates(){
-    var box = document.getElementById('bkDates');
-    if (box.children.length) return;
-    for (var i = 0; i < 14; i++){
-      var d = new Date(); d.setDate(d.getDate() + i);
-      var label = i === 0 ? 'Сегодня' : i === 1 ? 'Завтра'
-        : DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'bk-chip'; b.textContent = label;
-      b.dataset.iso = isoLocal(d); b.dataset.human = label;
-      b.addEventListener('click', function(){
-        box.querySelectorAll('.bk-chip').forEach(function(c){ c.classList.remove('on'); });
-        this.classList.add('on');
-        B.date = { iso: this.dataset.iso, human: this.dataset.human };
-        buildTimes();
-      });
-      box.appendChild(b);
-    }
-  }
-  function buildTimes(){
-    var box = document.getElementById('bkTimes'); box.innerHTML = ''; B.time = null;
-    var isToday = B.date && B.date.iso === isoLocal(new Date());
-    var nowMin = new Date().getHours()*60 + new Date().getMinutes();
-    for (var m = 16*60; m <= 25*60+30; m += 30){
-      var hh = Math.floor(m/60) % 24, mm = m % 60;
-      var t = (hh < 10 ? '0' : '') + hh + ':' + (mm === 0 ? '00' : mm);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'bk-chip'; b.textContent = t; b.dataset.t = t;
-      if (isToday && m < nowMin + 60) b.disabled = true;
-      b.addEventListener('click', function(){
-        box.querySelectorAll('.bk-chip').forEach(function(c){ c.classList.remove('on'); });
-        this.classList.add('on'); B.time = this.dataset.t;
-      });
-      box.appendChild(b);
-    }
-  }
-  document.getElementById('bkTo3').addEventListener('click', function(){
-    if (!B.date || !B.time){ err('bkE2', 1); return; }
-    err('bkE2', 0);
-    document.getElementById('bkV2').textContent = B.date.human + ', ' + B.time;
-    maxReached = Math.max(maxReached, 3); goto(3);
-  });
-
-  /* ---- шаг 3: контакты ---- */
-  document.getElementById('bkTo4').addEventListener('click', function(){
-    B.name = document.getElementById('bkName').value.trim();
-    B.phone = document.getElementById('bkPhone').value.trim();
-    B.guests = Math.max(1, Math.min(12, Number(document.getElementById('bkGuests').value) || 1));
-    B.comment = document.getElementById('bkComment').value.trim();
-    var phoneOk = /^([+]?[0-9][\s\-()0-9]{9,16})$/.test(B.phone);
-    document.getElementById('bkName').classList.toggle('err', B.name.length < 2);
-    document.getElementById('bkPhone').classList.toggle('err', !phoneOk);
-    if (B.name.length < 2 || !phoneOk){ err('bkE3', 1); return; }
-    err('bkE3', 0);
-    document.getElementById('bkV3').textContent = B.name + ' · ' + B.phone;
-    document.getElementById('bkS1').textContent = B.spotLabel + ' (' + B.cap + ')';
-    document.getElementById('bkS2').textContent = B.date.human + ', ' + B.time;
-    document.getElementById('bkS3').textContent = B.name + ' · ' + B.phone;
-    document.getElementById('bkS4').textContent = B.guests;
-    document.getElementById('bkS5').textContent = money(dep(B.spotKind));
-    maxReached = Math.max(maxReached, 4); goto(4);
-  });
-
-  /* ---- шаг 4: оплата ---- */
-  function orderPayload(){
-    return {
-      orderId: '62-' + Date.now(),
-      amount: dep(B.spotKind) * 100,
-      description: 'Депозит: ' + B.spotLabel + ', ' + B.date.human + ' ' + B.time,
-      customer: { name: B.name, phone: B.phone },
-      booking: { spotId: B.spot, spotLabel: B.spotLabel, kind: B.spotKind,
-                 dateISO: B.date.iso, time: B.time,
-                 durationMinutes: BOOKING_CFG.durationMinutes,
-                 guests: B.guests, comment: B.comment },
-      successUrl: location.origin + location.pathname + '?payment=success',
-      failUrl: location.origin + location.pathname + '?payment=fail'
-    };
-  }
-  document.getElementById('bkPay').addEventListener('click', function(){
-    if (!document.getElementById('bkAgree').checked){ err('bkE4', 1); return; }
-    err('bkE4', 0);
-    var p = orderPayload();
-    try { localStorage.setItem('o62booking', JSON.stringify(p)); } catch(e){}
-    document.getElementById('bkWait').classList.add('show');
-    this.disabled = true;
-    if (BOOKING_CFG.mode === 'demo'){
-      setTimeout(function(){
-        document.getElementById('bkWait').classList.remove('show');
-        document.getElementById('bkPay').disabled = false;
-        openModal('ok');
-      }, 1500);
-      return;
-    }
-    fetch(BOOKING_CFG.payInitUrl, { method:'POST',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) })
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if (res && res.paymentUrl) location.href = res.paymentUrl;
-        else { document.getElementById('bkWait').classList.remove('show');
-               document.getElementById('bkPay').disabled = false; openModal('fail'); }
-      })
-      .catch(function(){ document.getElementById('bkWait').classList.remove('show');
-        document.getElementById('bkPay').disabled = false; openModal('fail'); });
-  });
-
-  /* ---- возврат с эквайринга ---- */
-  var pay = new URLSearchParams(location.search).get('payment');
-  if (pay === 'success' || pay === 'fail'){
-    openModal(pay === 'success' ? 'ok' : 'fail');
-    history.replaceState(null, '', location.pathname + location.hash);
-  }
-  document.getElementById('retryPay').addEventListener('click', function(){
-    closeAll();
-    document.getElementById('bron').scrollIntoView({ behavior:'smooth', block:'start' });
-    goto(4);
-  });
-
-  /* ---- заявки ---- */
+  /* заявки «Обсудить вечер», «Оставить отзыв» */
   document.querySelectorAll('[data-req]').forEach(function(b){
     b.addEventListener('click', function(){
       document.getElementById('reqTitle').textContent = b.dataset.req;
@@ -3097,8 +2808,8 @@ var BOOKING_CFG = {
     var c = document.getElementById('rPhone').value.trim();
     document.getElementById('rName').classList.toggle('err', n.length < 2);
     document.getElementById('rPhone').classList.toggle('err', c.length < 5);
-    if (n.length < 2 || c.length < 5){ err('errR', 1); return; }
-    err('errR', 0);
+    if (n.length < 2 || c.length < 5){ document.getElementById('errR').classList.add('show'); return; }
+    document.getElementById('errR').classList.remove('show');
     try {
       var reqs = JSON.parse(localStorage.getItem('o62requests') || '[]');
       reqs.push({ topic: document.getElementById('reqTitle').textContent, name:n, contact:c,
@@ -3107,298 +2818,6 @@ var BOOKING_CFG = {
     } catch(e){}
     modals.req.querySelector('[data-step="form"]').hidden = true;
     modals.req.querySelector('[data-step="done"]').hidden = false;
-  });
-
-  /* ================================================================
-     МОБИЛЬНЫЙ WIZARD БРОНИ (полный экран, флоу Restoplace)
-     шаги: место → когда → кто → подтверждение и оплата.
-     Состояние общее с десктопным аккордеоном (объект B).
-     ================================================================ */
-  var bkw = document.getElementById('bkw');
-  var wstep = 1;
-  var wLastFocus = null;
-  var WSTEP_META = {
-    1: { kicker: 'ШАГ 01/04 · МЕСТО',  title: 'Куда вас посадить',  go: 'Дальше' },
-    2: { kicker: 'ШАГ 02/04 · КОГДА',  title: 'Дата и время',       go: 'Дальше' },
-    3: { kicker: 'ШАГ 03/04 · ГОСТИ',  title: 'Кто придёт',         go: 'Дальше' },
-    4: { kicker: 'ШАГ 04/04 · ОПЛАТА', title: 'Проверьте и оплатите', go: '' }
-  };
-
-  function spotById(id){ return document.querySelector('.plan .spot[data-id="' + id + '"]'); }
-
-  /* ---- шаг 1: список мест ---- */
-  var bkwListBuilt = false;
-  function buildWizardList(filter){
-    var list = document.getElementById('bkwList');
-    list.innerHTML = '';
-    document.querySelectorAll('.plan .spot').forEach(function(el){
-      var kind = kindOf(el);
-      if (filter && filter !== 'all' && kind !== filter) return;
-      var busy = el.classList.contains('busy');
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'bkw-card' + (busy ? ' busy' : '') + (B.spot === el.dataset.id ? ' sel' : '');
-      card.dataset.id = el.dataset.id;
-      card.setAttribute('aria-label', el.getAttribute('aria-label') || '');
-      card.innerHTML =
-        '<img src="' + (el.dataset.photo || '') + '" alt="" loading="lazy" decoding="async">' +
-        '<span class="bkw-card-txt">' +
-          '<b>' + (el.dataset.title || el.dataset.label || '') + '</b>' +
-          '<span class="bkw-card-cap">' + (el.dataset.cap || '') + '</span>' +
-          '<span class="bkw-card-dep">депозит ' + money(depFor(el)) + '</span>' +
-        '</span>' +
-        '<span class="bkw-card-mark ' + (busy ? 'busy' : 'free') + '">' + (busy ? 'занято' : 'свободно') + '</span>';
-      card.addEventListener('click', function(){
-        if (busy) return;
-        selectWizardSpot(el.dataset.id);
-      });
-      list.appendChild(card);
-    });
-    updateWizardGo();
-  }
-  function selectWizardSpot(id){
-    var el = spotById(id);
-    if (!el) return;
-    B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
-    B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
-    buildDates(); /* даты десктопного мастера заодно */
-    document.querySelectorAll('#bkwList .bkw-card').forEach(function(c){
-      c.classList.toggle('sel', c.dataset.id === id);
-    });
-    syncGridSel(id);
-    /* лёгкая задержка, чтобы выбор был виден, и сразу следующий шаг */
-    setTimeout(function(){ gotoWizardStep(2); }, 220);
-  }
-  document.getElementById('bkwFilters').addEventListener('click', function(e){
-    var f = e.target.closest('.bkw-filter');
-    if (!f) return;
-    document.querySelectorAll('.bkw-filter').forEach(function(x){ x.classList.remove('on'); });
-    f.classList.add('on');
-    buildWizardList(f.dataset.f);
-  });
-
-  /* ---- шаг 2: дата и время ---- */
-  var bkwDatesBuilt = false;
-  function buildWizardDates(){
-    var box = document.getElementById('bkwDates');
-    box.innerHTML = '';
-    for (var i = 0; i < 14; i++){
-      var d = new Date(); d.setDate(d.getDate() + i);
-      var iso = isoLocal(d);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'bkw-date' + (B.date && B.date.iso === iso ? ' on' : '');
-      b.dataset.iso = iso;
-      if (i === 0){ b.dataset.human = 'Сегодня'; b.innerHTML = 'Сегодня<i>' + DAYS[d.getDay()] + '</i>'; }
-      else if (i === 1){ b.dataset.human = 'Завтра'; b.innerHTML = 'Завтра<i>' + DAYS[d.getDay()] + '</i>'; }
-      else {
-        b.dataset.human = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
-        b.innerHTML = d.getDate() + ' ' + MONTHS[d.getMonth()] + '<i>' + DAYS[d.getDay()] + '</i>';
-      }
-      b.addEventListener('click', function(){
-        box.querySelectorAll('.bkw-date').forEach(function(c){ c.classList.remove('on'); });
-        this.classList.add('on');
-        B.date = { iso: this.dataset.iso, human: this.dataset.human };
-        B.time = null;
-        buildWizardTimes();
-        updateWizardGo();
-      });
-      box.appendChild(b);
-    }
-    bkwDatesBuilt = true;
-  }
-  function buildWizardTimes(){
-    var box = document.getElementById('bkwTimes');
-    box.innerHTML = '';
-    if (!B.date){ box.innerHTML = '<span class="bkw-times-hint">Сначала выберите дату</span>'; return; }
-    var isToday = B.date.iso === isoLocal(new Date());
-    var nowMin = new Date().getHours()*60 + new Date().getMinutes();
-    for (var m = 16*60; m <= 25*60+30; m += 30){
-      var hh = Math.floor(m/60) % 24, mm = m % 60;
-      var t = (hh < 10 ? '0' : '') + hh + ':' + (mm === 0 ? '00' : mm);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'bkw-time' + (B.time === t ? ' on' : '');
-      b.textContent = t; b.dataset.t = t;
-      if (isToday && m < nowMin + 60) b.disabled = true;
-      b.addEventListener('click', function(){
-        box.querySelectorAll('.bkw-time').forEach(function(c){ c.classList.remove('on'); });
-        this.classList.add('on'); B.time = this.dataset.t;
-        updateWizardGo();
-      });
-      box.appendChild(b);
-    }
-  }
-
-  /* ---- чип выбранного места на шагах 2-3 ---- */
-  function fillSelchips(){
-    var el = B.spot ? spotById(B.spot) : null;
-    [['bkwSelchip','bkwSelPh','bkwSelTtl','bkwSelSub','bkwSelX'],
-     ['bkwSelchip3','bkwSelPh3','bkwSelTtl3','bkwSelSub3','bkwSelX3']].forEach(function(ids){
-      var chip = document.getElementById(ids[0]);
-      if (!chip) return;
-      if (!el){ chip.hidden = true; return; }
-      chip.hidden = false;
-      document.getElementById(ids[1]).src = el.dataset.photo || '';
-      document.getElementById(ids[2]).textContent = el.dataset.title || el.dataset.label || '';
-      document.getElementById(ids[3]).textContent = (el.dataset.cap || '') + ' · депозит ' + money(depFor(el));
-    });
-  }
-  ['bkwSelX','bkwSelX3'].forEach(function(id){
-    document.getElementById(id).addEventListener('click', function(){ gotoWizardStep(1); });
-  });
-
-  /* ---- гости: степпер ---- */
-  function renderGuests(){ document.getElementById('bkwGval').textContent = B.guests; }
-  document.getElementById('bkwGminus').addEventListener('click', function(){
-    if (B.guests > 1) B.guests--; renderGuests();
-  });
-  document.getElementById('bkwGplus').addEventListener('click', function(){
-    if (B.guests < 12) B.guests++; renderGuests();
-  });
-
-  /* ---- состояние кнопки «Дальше» + подсказки ---- */
-  function updateWizardGo(){
-    var go = document.getElementById('bkwGo');
-    var hint = document.getElementById('bkwFootHint');
-    var disabled = false, label = WSTEP_META[wstep].go, hintText = '';
-    if (wstep === 1){
-      disabled = !B.spot;
-      hintText = disabled ? 'выберите свободное место' : ('выбрано: ' + B.spotLabel);
-    } else if (wstep === 2){
-      disabled = !(B.date && B.time);
-      hintText = disabled ? 'выберите дату и время' : (B.date.human + ' · ' + B.time);
-    } else if (wstep === 3){
-      disabled = false;
-      hintText = 'имя и телефон нужны для подтверждения';
-    } else if (wstep === 4){
-      label = 'Оплатить депозит ' + money(dep(B.spotKind));
-      hintText = 'оплата через Т-Банк · СБП или карта';
-    }
-    go.disabled = disabled;
-    go.textContent = label;
-    hint.hidden = !hintText;
-    hint.textContent = hintText;
-  }
-
-  /* ---- переходы ---- */
-  function gotoWizardStep(n){
-    wstep = Math.max(1, Math.min(4, n));
-    document.querySelectorAll('#bkw .bkw-step').forEach(function(s){
-      s.classList.toggle('on', Number(s.dataset.bkw) === wstep);
-    });
-    document.querySelectorAll('#bkw .bkw-prog i').forEach(function(seg, i){
-      seg.classList.toggle('on', i < wstep);
-    });
-    document.getElementById('bkwKicker').textContent = WSTEP_META[wstep].kicker;
-    document.getElementById('bkwTitle').textContent = WSTEP_META[wstep].title;
-    if (wstep === 2){ if (!bkwDatesBuilt) buildWizardDates(); else buildWizardTimes(); fillSelchips(); }
-    if (wstep === 3){ fillSelchips(); renderGuests(); }
-    if (wstep === 4){ fillSummaryWizard(); }
-    document.getElementById('bkwBody').scrollTop = 0;
-    updateWizardGo();
-  }
-
-  function fillSummaryWizard(){
-    document.getElementById('bkwS1').textContent = B.spotLabel + (B.cap ? ' (' + B.cap + ')' : '');
-    document.getElementById('bkwS2').textContent = B.date ? B.date.human + ', ' + B.time : '';
-    document.getElementById('bkwS3').textContent = B.name + ' · ' + B.phone;
-    document.getElementById('bkwS4').textContent = B.guests;
-    document.getElementById('bkwS5').textContent = money(dep(B.spotKind));
-    document.getElementById('bkwS1').closest('.bkw-sum').scrollIntoView({block:'nearest'});
-  }
-
-  function validateWizardContacts(){
-    B.name = document.getElementById('bkwName').value.trim();
-    B.phone = document.getElementById('bkwPhone').value.trim();
-    B.comment = document.getElementById('bkwComment').value.trim();
-    var phoneOk = /^([+]?[0-9][\s\-()0-9]{9,16})$/.test(B.phone);
-    document.getElementById('bkwName').classList.toggle('err', B.name.length < 2);
-    document.getElementById('bkwPhone').classList.toggle('err', !phoneOk);
-    return B.name.length >= 2 && phoneOk;
-  }
-
-  document.getElementById('bkwGo').addEventListener('click', function(){
-    if (wstep === 1){ if (B.spot) gotoWizardStep(2); return; }
-    if (wstep === 2){
-      if (!B.date || !B.time){ err('bkwE2', 1); return; }
-      err('bkwE2', 0); gotoWizardStep(3); return;
-    }
-    if (wstep === 3){
-      if (!validateWizardContacts()){ err('bkwE3', 1); return; }
-      err('bkwE3', 0); gotoWizardStep(4); return;
-    }
-    if (wstep === 4){
-      if (!document.getElementById('bkwAgree').checked){ err('bkwE4', 1); return; }
-      err('bkwE4', 0);
-      var go = document.getElementById('bkwGo');
-      var p = orderPayload();
-      try { localStorage.setItem('o62booking', JSON.stringify(p)); } catch(e){}
-      go.disabled = true; go.textContent = 'Переходим к оплате…';
-      if (BOOKING_CFG.mode === 'demo'){
-        setTimeout(function(){
-          go.disabled = false; updateWizardGo();
-          openModal('ok');
-        }, 1500);
-        return;
-      }
-      fetch(BOOKING_CFG.payInitUrl, { method:'POST',
-        headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) })
-        .then(function(r){ return r.json(); })
-        .then(function(res){
-          if (res && res.paymentUrl) location.href = res.paymentUrl;
-          else { go.disabled = false; updateWizardGo(); openModal('fail'); }
-        })
-        .catch(function(){ go.disabled = false; updateWizardGo(); openModal('fail'); });
-    }
-  });
-
-  document.getElementById('bkwBack').addEventListener('click', function(){
-    if (wstep === 1) closeWizard(); else gotoWizardStep(wstep - 1);
-  });
-
-  function openWizard(preSpotId){
-    if (!bkw) return;
-    wLastFocus = document.activeElement;
-    bkw.hidden = false;
-    requestAnimationFrame(function(){ bkw.classList.add('open'); });
-    document.body.classList.add('bkw-open');
-    if (!bkwListBuilt){ buildWizardList('all'); bkwListBuilt = true; }
-    if (preSpotId && !spotById(preSpotId)?.classList.contains('busy')){
-      var el = spotById(preSpotId);
-      B.spot = el.dataset.id; B.spotLabel = el.dataset.title || el.dataset.label;
-      B.cap = el.dataset.cap || ''; B.spotKind = kindOf(el);
-      document.querySelectorAll('#bkwList .bkw-card').forEach(function(c){
-        c.classList.toggle('sel', c.dataset.id === B.spot);
-      });
-      gotoWizardStep(2);
-    } else if (!B.spot){
-      gotoWizardStep(1);
-    } else {
-      gotoWizardStep(wstep);
-    }
-  }
-  function closeWizard(){
-    if (!bkw || bkw.hidden) return;
-    bkw.classList.remove('open');
-    document.body.classList.remove('bkw-open');
-    setTimeout(function(){ bkw.hidden = true; }, 300);
-    if (wLastFocus && wLastFocus.focus) wLastFocus.focus();
-  }
-  document.getElementById('bkwX').addEventListener('click', closeWizard);
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && !bkw.hidden) closeWizard();
-  });
-  var bkOpenBtn = document.getElementById('bkOpen');
-  if (bkOpenBtn) bkOpenBtn.addEventListener('click', function(){ openWizard(); });
-
-  /* на мобильном любой якорь «бронь» открывает wizard вместо скролла;
-     внутри карточки кабинета — сразу с этим кабинетом выбранным */
-  document.querySelectorAll('a[href="#bron"]').forEach(function(a){
-    a.addEventListener('click', function(e){
-      if (!window.matchMedia('(max-width: 900px)').matches) return;
-      e.preventDefault();
-      var holder = a.closest('[data-spot]');
-      openWizard(holder ? holder.dataset.spot : (B.spot || null));
-    });
   });
 })();
 </script>
