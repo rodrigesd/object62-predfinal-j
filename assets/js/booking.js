@@ -285,13 +285,41 @@ async function start(section) {
     updateCounters();
     syncStepVals();
   }
+  // лёгкое обновление слот-бара: без пересоздания чипов (плавность ≤ 200 мс, ТЗ §11 G1)
+  function refreshSlotbar() {
+    if (!sb) return;
+    sb.querySelectorAll('#sbTimes .bk-chip').forEach(b => {
+      const on = Number(b.dataset.m) === B.slot;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const sum = $('#sbSum');
+    if (sum) sum.textContent = fmt(sget('slotbar.summary'), { date: dateHuman(B.bd), slot: minLabel(B.slot), guests: B.guests, guestsWord: guestsWord(B.guests) });
+  }
   function setSlot(m) {
     B.slot = m;
-    renderSlotbar();
+    refreshSlotbar();
     applyStatuses();
-    renderWizardList(wizFilter);
+    refreshWizardList();
     updateCounters();
     syncStepVals();
+  }
+  // статусы карточек мастера без пересоздания DOM
+  function refreshWizardList() {
+    $$('#bkwList .bkw-card').forEach(card => {
+      const t = byId[card.dataset.tableId];
+      if (!t) return;
+      const st = statusOf(t);
+      card.classList.toggle('busy', st === 'busy');
+      card.classList.toggle('dimmed', st === 'dimmed');
+      card.classList.toggle('sel', B.tableId === t.id && st !== 'busy');
+      const mark = card.querySelector('.bkw-card-mark');
+      if (mark) {
+        mark.className = 'bkw-card-mark ' + (st === 'busy' ? 'busy' : 'free');
+        mark.textContent = st === 'busy' ? sget('busy.word') : sget('free.word');
+      }
+    });
+    updateWizardGo();
   }
 
   /* ---------- счётчики: от выбранного слота (ТЗ §3.3) ---------- */

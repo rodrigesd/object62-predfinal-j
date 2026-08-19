@@ -25,12 +25,17 @@ function log(gate, ok, detail) {
     page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     page.on('request', r => reqs.push(r.url()));
 
-    const t0 = Date.now();
-    await page.goto(BASE + '/?nogate', { waitUntil: 'networkidle' });
+    await page.goto(BASE + '/?nogate', { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#sbTimes .bk-chip', { timeout: 10000 });
+    // ТЗ G1: слот-бар и живая схема видны без кликов; меряем от DOMContentLoaded
+    // до готовности слот-бара (сетевая загрузка тяжёлого hero-видео не в счёт)
+    const tReady = await page.evaluate(() => {
+      const nav = performance.getEntriesByType('navigation')[0];
+      const dcl = nav ? nav.domContentLoadedEventEnd : performance.timing.domContentLoadedEventEnd;
+      return Math.round(performance.now() - (dcl - (nav ? nav.startTime : 0)));
+    });
+    log('G1a', tReady <= 1000, 'слот-бар готов через ' + tReady + ' мс после DOMContentLoaded (лимит 1 с)');
     await page.waitForTimeout(900); // плавный скролл стартового шага успевает завершиться
-    const tReady = Date.now() - t0;
-    log('G1a', tReady <= 4000, 'слот-бар виден через ' + tReady + ' мс (лимит 1 с после загрузки; время включает сетевую загрузку документа)');
 
     // дефолтный слот, счётчики
     const sum = await page.textContent('#sbSum');
@@ -47,8 +52,7 @@ function log(gate, ok, detail) {
       await new Promise(r => setTimeout(r, 300)); // прогрев: первый клик ещё листает шаг
       const before = norm(document.querySelector('.b-count').innerText);
       const t0 = performance.now();
-      target.click();
-      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      target.click(); // перерисовка синхронная: статусы и счётчики сразу в DOM
       const t1 = performance.now();
       return { label: target.textContent, before, after: norm(document.querySelector('.b-count').innerText), ms: Math.round(t1 - t0) };
     });
