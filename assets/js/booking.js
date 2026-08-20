@@ -755,15 +755,6 @@ async function start(section) {
       const res = await createBooking(payload, B.idemKey);
       bookingId = res.bookingId;
       paymentUrl = res.paymentUrl || null;
-      if (res.status === 'table_taken' && res.nearestFreeAt) {
-        // бэк говорит «стол только что заняли» — предлагаем ближайшее время
-        setSubmitUI(false);
-        B.pendingSubmit = false;
-        const m = toBizMin(res.nearestFreeAt);
-        setSlot(m);
-        alertTableTaken(res.nearestFreeAt);
-        return;
-      }
     } catch (e) {
       setSubmitUI(false);
       B.pendingSubmit = false;
@@ -774,9 +765,10 @@ async function start(section) {
       }
       if (e.status === 429) { showError(sget('error.429')); return; }
       if (e.status === 422) { showError(sget('error.422')); goto(3); return; }
-      // TODO PR4: эндпоинт /api/v1/bookings появится в Фазе 0-бэка.
-      // До этого заявка фиксируется локально: демо-стенд, боевого трафика нет.
-      bookingId = 'b_' + uuid().replace(/-/g, '').slice(0, 6);
+      // прочие ошибки (сеть, 5xx): честно говорим об ошибке — заявку
+      // «принятой» не показываем, гость может повторить с тем же Idempotency-Key
+      showError(sget('error.generic'));
+      return;
     }
     if (paymentUrl) { location.href = paymentUrl; return; } // задел под оплату (ТЗ §3.7)
     const t = byId[B.tableId];
@@ -791,6 +783,7 @@ async function start(section) {
     };
     try { localStorage.setItem('o62booking', JSON.stringify(summary)); } catch (e) {}
     B.pendingSubmit = false;
+    setSubmitUI(false); // сброс кнопки/спиннера: после success-экрана форма должна быть живой
     showSuccess(summary);
   }
   function setSubmitUI(wait) {
