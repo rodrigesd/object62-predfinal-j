@@ -2,6 +2,8 @@
 // Слот-бар над схемой, бизнес-дата с ролловером 08:00, дефолтный слот по §3.4,
 // счётчик от слота, статусы free/busy/selected/dimmed, кликабельный занятый
 // стол (тултип/bottom-sheet), шаги 01 Когда → 02 Стол → 03 Кто → 04 Подтверждение.
+// PR3 (ТЗ §8): hit-подложки мест на схеме, клавиатурный доступ к шагам,
+// слот-бар рисуется до загрузки занятости (ноль лишних сдвигов).
 // Единственная точка данных — api.js (ТЗ §6.1): внешних вызовов с фронта нет.
 import { getConfig, getAvailability, createBooking } from './api.js';
 
@@ -344,7 +346,51 @@ async function start(section) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.innerHTML = '<circle class="sel-mark-bg" r="11"/><text class="sel-mark" y="4.5" text-anchor="middle">✓</text>';
     g.style.display = 'none';
+    g.style.pointerEvents = 'none'; // галка не должна перехватывать тапы (ТЗ §8)
     return g;
+  }
+  // PR3 · ТЗ §8: тап-таргеты мест ≥ 44px. Мелкие места (места у бара, столики)
+  // получают прозрачную hit-подложку в SVG-единицах — визуал не меняется.
+  // Точный минимум считается от реального масштаба рендера (юниты = 44 CSS px),
+  // но не больше, чем позволяет соседство мест (места у бара идут через 74u,
+  // обычные столики в колонках по вертикали через 96u) — без наложений.
+  function addHitAreas() {
+    const svg = document.querySelector('svg.plan');
+    if (!svg) return;
+    const wpx = svg.getBoundingClientRect().width;
+    if (!wpx) return;
+    const perPx = 1000 / wpx;                       // SVG-юнитов в 1 CSS px
+    const minUnit = 44 * perPx;                     // 44px в юнитах
+    const minGap = Math.max(2, 4 * perPx);          // зазор между соседями ~4px
+    $$('.plan .spot').forEach(g => {
+      const shape = g.querySelector('.shape');
+      if (!shape) return;
+      g.querySelector('.hit')?.remove();
+      const bb = shape.getBBox();
+      const cx = bb.x + bb.width / 2, cy = bb.y + bb.height / 2;
+      let hit;
+      if (g.classList.contains('seat')) {
+        hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        hit.setAttribute('cx', String(cx));
+        hit.setAttribute('cy', String(cy));
+        hit.setAttribute('r', String(Math.min(Math.max(bb.width / 2 + 7, minUnit / 2), (74 - minGap) / 2)));
+      } else {
+        const isCab = g.classList.contains('cab'), isBig = g.classList.contains('big');
+        // соседние столики в колонке идут с шагом 96u: ограничиваем высоту подложки
+        const maxH = isCab || isBig ? Infinity : 96 - minGap;
+        const w = Math.max(bb.width, Math.min(minUnit, 96 - minGap));
+        const h = Math.max(bb.height, Math.min(minUnit, maxH));
+        hit = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        hit.setAttribute('x', String(cx - w / 2));
+        hit.setAttribute('y', String(cy - h / 2));
+        hit.setAttribute('width', String(w));
+        hit.setAttribute('height', String(h));
+        hit.setAttribute('rx', '4');
+      }
+      hit.setAttribute('class', 'hit');
+      hit.setAttribute('aria-hidden', 'true');
+      g.insertBefore(hit, g.firstChild);
+    });
   }
   function applyStatuses() {
     const sel = B.tableId ? TABLES.find(t => t.id === B.tableId) : null;
@@ -568,6 +614,9 @@ async function start(section) {
       const k = Number(s.dataset.bk);
       s.classList.toggle('on', k === n);
       s.classList.toggle('done', k !== n && k <= maxReached);
+      // PR3 (ТЗ §8): пройденные шаги доступны с клавиатуры
+      const h = s.querySelector('.bk-head');
+      if (h) h.tabIndex = (k !== n && k <= maxReached) ? 0 : -1;
     });
     const cur = wiz.querySelector('.bk-step.on');
     if (cur) cur.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'nearest' });
@@ -575,6 +624,14 @@ async function start(section) {
   wiz?.addEventListener('click', e => {
     const t = e.target.closest('[data-goto]');
     if (t) goto(Number(t.dataset.goto));
+  });
+  // Enter/Space на заголовке пройденного шага — возврат к нему (ТЗ §8)
+  wiz?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const h = e.target.closest('[data-goto]');
+    if (!h) return;
+    e.preventDefault();
+    goto(Number(h.dataset.goto));
   });
   function syncStepVals() {
     const v1 = $('#bkV1');
@@ -972,12 +1029,18 @@ async function start(section) {
   const def = defaultSlot(BD0);
   B.bd = def.bd;
   B.slot = def.slot;
-  await loadAvailability(B.bd);
+  // слот-бар не зависит от занятости: рисуем до её загрузки — меньше сдвигов (ТЗ §8, G1)
   renderSlotbar();
+  syncStepVals();
+  await loadAvailability(B.bd);
   applyStatuses();
   updateCounters();
   syncStepVals();
   renderPending();
+  addHitAreas();
+  // пересчёт hit-подложек при смене масштаба схемы (ресайз/поворот, ТЗ §8)
+  let hitT;
+  addEventListener('resize', () => { clearTimeout(hitT); hitT = setTimeout(addHitAreas, 180); }, { passive: true });
   if (wiz) goto(1);
   window.B62.api = { getConfig, getAvailability, createBooking };
 }

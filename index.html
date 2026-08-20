@@ -35,12 +35,15 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   html{scroll-padding-top:100px}  /* фикс-шапка не перекрывает якоря */
-  html{overflow-x:hidden}
+  /* PR3: overflow-x:hidden делает body скролл-контейнером и ломает position:sticky
+     внутри (слот-бар брони, ТЗ §8). clip обрезает так же, но sticky работает.
+     hidden оставлен как фолбэк для старых браузеров. */
+  html{overflow-x:hidden;overflow-x:clip}
   body{
     background:var(--ink);
     color:var(--bone);
     font-family:var(--sans);
-    overflow-x:hidden;
+    overflow-x:hidden;overflow-x:clip;
     max-width:100vw;
   }
   body.locked{overflow:hidden}
@@ -748,7 +751,7 @@
     .plan-card svg.plan{max-height:none}
     .bk-act .btn{width:100%;justify-content:center}
     .bk-act .bk-pay{width:100%;justify-content:center;text-align:center}
-    .bk-act .bk-edit{margin-left:0}
+    .bk-act .bk-edit{margin-left:0;min-height:44px;display:inline-flex;align-items:center}  /* PR3: тап-таргет на планшете */
     .booking{padding:56px 0 50px}
     .m-photo img{height:420px}
     .k-photo img{height:440px}
@@ -800,7 +803,7 @@
     .bk-agree span{font-size:12.5px}
     .bk-agree input{margin-top:3px;transform:scale(1.35);transform-origin:top left}  /* тап-зона больше */
     .bk-act .btn{width:100%;justify-content:center}      /* кнопка оплаты full-width */
-    .g-item{min-height:auto;aspect-ratio:4/3}
+    .g-item{min-height:auto;aspect-ratio:4/3;max-width:100%}  /* PR3: aspect-ratio + min-height:300px раздувал карточку до 400px и давал горизонтальное переполнение на 360 */
     .g-1,.g-2,.g-3,.g-4,.g-5,.g-6{min-height:auto}
     .sec-head h2{font-size:30px}
     .hero-sub{font-size:15px}
@@ -915,7 +918,7 @@
   /* ===== инлайн-мастер брони (шаги в секции, не в модалке) ===== */
   .bk{margin-top:16px}
   .bk-foot{font-family:var(--mono);font-size:10px;letter-spacing:.08em;line-height:1.9;
-    color:rgba(205,191,164,.5);border-left:2px solid rgba(140,47,35,.8);
+    color:rgba(205,191,164,.65);border-left:2px solid rgba(140,47,35,.8);
     padding:8px 0 8px 14px;margin:14px 0 0}
   .booking .sec-head{margin-bottom:14px}
   .booking .b-count{margin-top:12px}
@@ -926,7 +929,7 @@
   .bk-head{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:default}
   .bk-step.done .bk-head{cursor:pointer}
   .bk-no{font-family:'District','JetBrains Mono',monospace;font-size:13px;letter-spacing:.14em;
-    color:rgba(205,191,164,.5);min-width:26px}
+    color:rgba(205,191,164,.65);min-width:26px}
   .bk-step.on .bk-no{color:var(--copper-hot)}
   .bk-step.done .bk-no{color:var(--copper)}
   .bk-ttl{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
@@ -934,14 +937,14 @@
   .bk-step.on .bk-ttl{color:var(--bone)}
   .bk-val{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.08em;
     color:var(--copper);text-align:right}
-  .bk-edit{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:rgba(205,191,164,.5);
+  .bk-edit{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:rgba(205,191,164,.65);
     border:1px solid rgba(205,191,164,.25);border-radius:2px;padding:5px 9px;background:none;
     cursor:pointer;margin-left:12px}
   .bk-edit:hover{border-color:var(--copper);color:var(--copper-hot)}
   .bk-body{display:none;padding:0 18px 16px}
   .bk-step.on .bk-body{display:block}
   .bk-lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
-    text-transform:uppercase;color:rgba(205,191,164,.55);margin:10px 0 6px}
+    text-transform:uppercase;color:rgba(205,191,164,.65);margin:10px 0 6px}
   .bk-chips{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 8px;
     scroll-snap-type:x proximity;scrollbar-width:thin;
     scrollbar-color:rgba(200,125,74,.5) transparent;
@@ -967,7 +970,7 @@
     padding:13px 14px;outline:none;transition:border .15s}
   .bk-inp:focus{border-color:var(--copper)}
   .bk-inp.err{border-color:var(--wax);background:rgba(140,47,35,.12)}
-  .bk-inp::placeholder{color:rgba(205,191,164,.35)}
+  .bk-inp::placeholder{color:rgba(205,191,164,.62)}
   .bk-err{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#e8836f;
     margin-top:10px;display:none}
   .bk-err.show{display:block}
@@ -977,13 +980,13 @@
     border-bottom:1px dashed rgba(205,191,164,.13);font-size:14.5px;color:var(--bone)}
   .bk-srow:last-child{border-bottom:none}
   .bk-srow span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
-    text-transform:uppercase;color:rgba(205,191,164,.55)}
+    text-transform:uppercase;color:rgba(205,191,164,.65)}
   .bk-dep b{font-family:'District','JetBrains Mono',monospace;font-size:19px;color:var(--copper-hot)}
   .bk-agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--paper-dim);
     margin-top:12px;line-height:1.5}
   .bk-agree input{margin-top:4px;accent-color:var(--copper)}
   .bk-pay{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;
-    letter-spacing:.12em;color:rgba(205,191,164,.6);border:1px solid rgba(205,191,164,.2);
+    letter-spacing:.12em;color:rgba(205,191,164,.65);border:1px solid rgba(205,191,164,.2);
     border-radius:2px;padding:9px 12px}
   .bk-pay i{width:17px;height:17px;border-radius:3px;background:#ffdd2d;color:#2b2b2b;
     font-style:normal;font-weight:700;font-size:12px;line-height:17px;text-align:center;flex:none}
@@ -994,7 +997,7 @@
     border-radius:50%;animation:bkspin .9s linear infinite;flex:none}
   @keyframes bkspin{to{transform:rotate(360deg)}}
   .bk-hint{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
-    color:rgba(205,191,164,.55);line-height:1.65;margin:9px 0 0}
+    color:rgba(205,191,164,.65);line-height:1.65;margin:9px 0 0}
 
   /* якорный скролл не должен уводить блок под фиксированную шапку */
   #bron{scroll-margin-top:76px}
@@ -1025,7 +1028,7 @@
   .bk-pick-dep{font-family:'District','JetBrains Mono',monospace;font-size:12px;
     letter-spacing:.1em;color:rgba(205,191,164,.72);margin-top:1px}
   .bk-pick-x{grid-column:2;justify-self:start;font-family:var(--mono);font-size:9.5px;
-    letter-spacing:.14em;text-transform:uppercase;color:rgba(205,191,164,.55);
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(205,191,164,.65);
     background:none;border:none;border-bottom:1px solid rgba(205,191,164,.28);
     padding:0 0 2px;cursor:pointer;transition:color .2s,border-color .2s}
   .bk-pick-x:hover{color:var(--copper-hot);border-color:var(--copper)}
@@ -1035,7 +1038,7 @@
      на десктопе выбор идёт по схеме зала ---- */
   .bk-mgrid{display:none}
   .bk-mgrid-hint{display:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
-    color:rgba(205,191,164,.5);margin:2px 0 10px}
+    color:rgba(205,191,164,.65);margin:2px 0 10px}
   @media (max-width:900px){
     .plan-card{display:none}
     .bk-mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
@@ -1111,14 +1114,15 @@
   .bkw-step.on{display:block;animation:bkwIn .3s ease both}
   @keyframes bkwIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   .bkw-note{font-family:var(--mono);font-size:10px;letter-spacing:.06em;line-height:1.7;
-    color:rgba(205,191,164,.55);margin:0 0 14px}
+    color:rgba(205,191,164,.65);margin:0 0 14px}
   /* фильтры мест */
   .bkw-filters{display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;padding-bottom:10px;margin-bottom:12px;
     scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .bkw-filters::-webkit-scrollbar{display:none}
   .bkw-filter{flex:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--paper-dim);background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);
-    border-radius:2px;padding:10px 13px;cursor:pointer;transition:all .15s;white-space:nowrap}
+    border-radius:2px;padding:10px 13px;min-height:44px;display:inline-flex;align-items:center;
+    cursor:pointer;transition:all .15s;white-space:nowrap}
   .bkw-filter.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
   /* карточка места в списке */
   .bkw-list{display:flex;flex-direction:column;gap:10px}
@@ -1151,25 +1155,27 @@
   .bkw-selchip-txt span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:rgba(205,191,164,.72)}
   .bkw-selchip-x{flex:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--copper-hot);background:none;border:1px solid rgba(200,125,74,.45);border-radius:2px;
+    min-height:44px;display:inline-flex;align-items:center;
     padding:9px 11px;cursor:pointer}
   /* дата и время */
   .bkw-lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
-    text-transform:uppercase;color:rgba(205,191,164,.55);margin:4px 0 8px}
+    text-transform:uppercase;color:rgba(205,191,164,.65);margin:4px 0 8px}
   .bkw-dates{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;
     scroll-snap-type:x proximity;scrollbar-width:thin;
     scrollbar-color:rgba(200,125,74,.5) transparent;-webkit-overflow-scrolling:touch}
   .bkw-dates::-webkit-scrollbar{height:5px}
   .bkw-dates::-webkit-scrollbar-thumb{background:rgba(200,125,74,.55);border-radius:3px}
   .bkw-date{flex:none;scroll-snap-align:start;min-width:74px;display:flex;flex-direction:column;gap:3px;
-    align-items:center;padding:10px 12px;cursor:pointer;
+    align-items:center;justify-content:center;min-height:44px;padding:10px 12px;cursor:pointer;
     font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--paper);
     background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);border-radius:2px;transition:all .15s}
-  .bkw-date i{font-style:normal;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(205,191,164,.6)}
+  .bkw-date i{font-style:normal;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(205,191,164,.65)}
   .bkw-date.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
   .bkw-date.on i{color:rgba(26,16,8,.7)}
   .bkw-times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-  .bkw-time{font-family:var(--mono);font-size:13px;color:var(--paper);text-align:center;
+  .bkw-time{font-family:var(--mono);font-size:13px;color:var(--paper);
     background:rgba(233,220,195,.05);border:1px solid rgba(205,191,164,.22);border-radius:2px;
+    min-height:46px;display:flex;align-items:center;justify-content:center;
     padding:13px 0;cursor:pointer;transition:all .15s}
   .bkw-time.on{background:var(--copper);border-color:var(--copper);color:#1a1008;font-weight:500}
   .bkw-time:disabled{opacity:.3;cursor:not-allowed;text-decoration:line-through}
@@ -1200,20 +1206,20 @@
     border-bottom:1px dashed rgba(205,191,164,.13);font-size:15px;color:var(--bone)}
   .bkw-srow:last-child{border-bottom:none}
   .bkw-srow span{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
-    text-transform:uppercase;color:rgba(205,191,164,.55);flex:none}
+    text-transform:uppercase;color:rgba(205,191,164,.65);flex:none}
   .bkw-srow b{font-weight:500;text-align:right}
   .bkw-srow.dep b{font-family:'District','JetBrains Mono',monospace;font-size:20px;color:var(--copper-hot)}
   .bkw-agree{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;
     color:var(--paper-dim);margin-top:14px;min-height:44px;padding:8px 2px}
   .bkw-agree input{margin-top:3px;transform:scale(1.4);transform-origin:top left;accent-color:var(--copper)}
   .bkw-hint{font-family:var(--mono);font-size:10px;letter-spacing:.04em;line-height:1.7;
-    color:rgba(205,191,164,.55);margin-top:12px}
+    color:rgba(205,191,164,.65);margin-top:12px}
   /* нижняя панель действия */
   .bkw-foot{flex:none;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
     background:linear-gradient(180deg, rgba(11,8,5,0) 0%, rgba(11,8,5,.94) 40%);
     display:flex;flex-direction:column;gap:9px}
   .bkw-foot-hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-align:center;
-    color:rgba(205,191,164,.5)}
+    color:rgba(205,191,164,.65)}
   .bkw-go{width:100%;padding:19px 20px;font-size:15px;letter-spacing:.04em}
   .bkw-go:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
   .bkw-go:disabled::before{display:none}
