@@ -183,6 +183,15 @@
     "cta.note": "бронь оформляется здесь же · депозит целиком идёт в счёт заказа",
     "slotbar.label": "Выбор даты, времени и числа гостей",
     "slotbar.summary": "{date} · {slot} · {guests} {guestsWord}",
+    "slotbar.fallback": "Работаем по заявке: администратор подтвердит",
+    "console.change": "Изменить",
+    "console.statusFree": "мест свободно",
+    "console.statusVip": "VIP",
+    "console.statusBar": "бар",
+    "slotline.changeTime": "Изменить время",
+    "guests.range": "от 1 до 12",
+    "dates.group": "Дата визита",
+    "times.group": "Время визита",
     "day.today": "Сегодня",
     "day.tomorrow": "Завтра",
     "day.sun": "вс",
@@ -212,7 +221,6 @@
     "cancel.unit.one": "час",
     "cancel.unit.few": "часа",
     "cancel.unit.many": "часов",
-    "step1.title": "Когда",
     "step2.title": "Стол",
     "step2.valueEmpty": "выберите на схеме →",
     "pick.emptyTitle": "Стол ещё не выбран",
@@ -292,11 +300,9 @@
     "pending.exists": "У вас есть заявка",
     "pending.line": "{spot} · {date} · {time}",
     "pending.reset": "сбросить",
-    "availability.fallback": "Работаем по заявке — администратор подтвердит",
     "faq.cancelAnswer": "Да. Отмена за {n} {unit} до визита: 100 % на карту. Депозит целиком идёт в счёт заказа.",
     "error.429": "Слишком много заявок, позвоните нам",
     "error.422": "Проверьте имя и телефон",
-    "error.generic": "Не получилось отправить — попробуйте ещё раз или позвоните нам",
-    "step1.note": "Дата и время выбираются в слот-баре над схемой. Занятость мест считается от выбранных даты и времени."
+    "error.generic": "Не получилось отправить — попробуйте ещё раз или позвоните нам"
   }
 }

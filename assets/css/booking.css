@@ -2,28 +2,19 @@
    статус dimmed, плашка «У вас есть заявка». Визуальный язык блока брони:
    те же чипы .bk-chip, медь/пергамент, моношрифт. */
 
-/* ---------- слот-бар ---------- */
-.slotbar{
-  border:1px solid rgba(205,191,164,.18);border-radius:3px;
-  background:rgba(233,220,195,.035);
-  padding:14px 16px 12px;margin:0 0 18px;
-}
-.slotbar-row{margin-top:10px}
-.slotbar-row:first-child{margin-top:0}
-.slotbar-lbl{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
-  text-transform:uppercase;color:rgba(205,191,164,.65);margin-bottom:6px; /* PR3: контраст ≥4.5:1 (ТЗ §8) */
-}
-.slotbar-summary{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
-  text-transform:none;color:var(--copper-hot);
-}
-.slotbar .bk-chips{padding-bottom:6px}
-/* степпер гостей */
-.slotbar-guests{display:flex;align-items:center;gap:14px}
-.slotbar-guests .bk-lbl{margin:0}
-.slotbar-step{display:flex;align-items:center;gap:6px;margin-left:auto}
+/* ---------- B · «Пульт»: слот в одну строку ---------- */
+.console{border:1px solid rgba(205,191,164,.18);border-radius:3px;
+  background:rgba(233,220,195,.035);padding:13px 16px;margin:0 0 20px}
+.cs-row{display:flex;align-items:center;gap:16px;min-width:0}
+.cs-guests{display:flex;align-items:center;gap:10px;flex:none}
+.cs-guests .bk-lbl{margin:0}
+.cs-sep{width:1px;align-self:stretch;background:rgba(205,191,164,.14);flex:none}
+.cs-tape{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:5px}
+.cs-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(205,191,164,.6)}
+
+/* степпер гостей: база перенесена из старого слот-бара без изменений */
+.slotbar-step{display:flex;align-items:center;gap:6px}
 .slotbar-step button{
   width:34px;height:34px;flex:none;display:grid;place-items:center;
   background:none;border:1px solid rgba(205,191,164,.3);border-radius:2px;
@@ -37,6 +28,48 @@
   min-width:26px;text-align:center;font-family:var(--serif);
   font-weight:400;font-size:17px;color:var(--bone);
 }
+/* степпер пульта: плотнее старого */
+.console .slotbar-step button{width:38px;height:38px}
+.console .slotbar-step b{min-width:30px;font-size:18px}
+
+/* дисплей: сколько мест свободно под текущую компанию */
+.cs-status{flex:none;display:flex;align-items:center;gap:13px;padding-left:18px;
+  border-left:1px solid rgba(205,191,164,.14)}
+.cs-status>b{font-family:'District',var(--serif);font-weight:400;font-size:36px;
+  line-height:.9;color:var(--copper-hot)}
+.cs-status .cs-st-txt{display:flex;flex-direction:column;gap:4px}
+.cs-status .l1{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone)}
+.cs-status .l2{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  color:rgba(205,191,164,.6)}
+.cs-status .l2 b{font-family:var(--mono);font-size:9.5px;color:var(--copper-hot);font-weight:400}
+
+/* свёрнутая строка пульта (только мобайл) */
+.cs-toggle{display:none;width:100%;background:none;border:none;cursor:pointer;
+  align-items:center;justify-content:space-between;gap:12px;padding:2px 0;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--bone)}
+.cs-toggle i{font-style:normal;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(205,191,164,.65);border-bottom:1px solid rgba(205,191,164,.3);padding-bottom:2px}
+.cs-toggle:hover i{color:var(--copper-hot);border-color:var(--copper)}
+.cs-collapse{width:100%}
+
+/* время: разделитель вечера и ночи, метка ближайшего доступного */
+.console .bk-chip.night{margin-left:17px;position:relative}
+.console .bk-chip.night::before{content:'';position:absolute;left:-9px;top:22%;bottom:22%;
+  width:1px;background:rgba(205,191,164,.18)}
+.console .bk-chip.near{border-color:rgba(200,125,74,.55);color:var(--bone);
+  background:rgba(200,125,74,.07)}
+
+/* строка слота в шаге «Стол» */
+.bk-slotline{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;border:1px solid rgba(200,125,74,.35);border-radius:2px;
+  background:rgba(200,125,74,.06);padding:10px 14px;margin-bottom:12px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--bone)}
+.cs-link{background:none;border:none;cursor:pointer;padding:0 0 2px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(205,191,164,.65);border-bottom:1px solid rgba(205,191,164,.3)}
+.cs-link:hover{color:var(--copper-hot);border-color:var(--copper)}
+
 /* фолбэк-заметка (availability недоступен) */
 .bk-fallback{
   display:none;margin-top:8px;font-family:var(--mono);font-size:10px;
@@ -44,13 +77,25 @@
 }
 .bk-fallback.show{display:block}
 
-/* мобильный: слот-бар липнет к верху секции (ТЗ §8) */
+/* мобильный: пульт липнет к верху и сворачивается в одну строку */
 @media (max-width:900px){
-  .slotbar{position:sticky;top:66px;z-index:30;
-    background:rgba(18,13,8,.92);backdrop-filter:blur(8px);
+  .console{position:sticky;top:66px;z-index:30; /* 66px — высота шапки сайта */
+    background:rgba(18,13,8,.94);backdrop-filter:blur(8px);
     box-shadow:0 10px 24px -14px rgba(0,0,0,.7)}
-  .slotbar-step button{width:44px;height:44px}
-  .slotbar .bk-chip{padding:11px 13px}
+  .cs-toggle{display:flex}
+  .cs-collapse{display:none}
+  .console.open .cs-collapse{display:block}
+  .cs-collapse .cs-row{flex-wrap:wrap;gap:12px}
+  .cs-sep{display:none}
+  .cs-tape{flex:1 1 100%}
+  .cs-guests{flex:1 1 auto}
+  .console .slotbar-step button{width:44px;height:44px}
+  .console .bk-chip{padding:11px 13px}
+  .cs-status{width:100%;border-left:none;
+    border-top:1px dashed rgba(205,191,164,.16);padding:12px 0 2px}
+}
+@media (prefers-reduced-motion: reduce){
+  .console{position:static;backdrop-filter:none}
 }
 
 /* ---------- статусы схемы: dimmed (мало мест) ---------- */
@@ -118,10 +163,6 @@
 }
 .bk-pending button:hover{color:var(--copper-hot);border-color:var(--copper)}
 
-/* шаг 01desktop: контент — сводка слота */
-.bk-step .bk-when-sum{
-  font-family:var(--serif);font-size:17px;color:var(--bone);line-height:1.4;
-}
 @media (prefers-reduced-motion: reduce){
   .plan .spot .shape{transition:none}
 }
@@ -145,14 +186,14 @@
 
 /* CLS = 0 от подгрузки availability (ТЗ §8): резервируем высоту лент чипов,
    пока конфиг/слоты не отрендерились (44px чип + паддинги ленты) */
-.slotbar .bk-chips:empty{min-height:44px}
+.console .bk-chips:empty{min-height:44px}
 @media (max-width:900px){
-  .slotbar .bk-chips:empty{min-height:54px}
+  .console .bk-chips:empty{min-height:54px}
 }
 
 /* тап-таргеты ≥ 44×44 (ТЗ §8, гейт G5) */
 @media (max-width:900px){
-  .slotbar .bk-chip{min-height:44px;display:inline-flex;align-items:center}
+  .console .bk-chip{min-height:44px;display:inline-flex;align-items:center}
   .bk-tip .bk-tip-x{
     width:44px;height:44px;top:0;right:0;padding:0;
     display:grid;place-items:center;font-size:18px;

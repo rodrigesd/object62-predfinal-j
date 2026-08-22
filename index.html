@@ -323,14 +323,6 @@
   @media (max-width:1100px){ .booking{scroll-margin-top:96px} }
   .b-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.04fr);gap:40px;align-items:start}
   .b-grid>*{min-width:0}
-  .b-count{
-    display:inline-flex;flex-wrap:wrap;gap:8px;margin-top:20px;
-    font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:rgba(239,230,210,.6);
-  }
-  .b-count b{color:var(--copper-hot);font-weight:400}
-  @media (max-width:640px){
-    .b-count{flex-direction:column;gap:4px}   /* мобила: счётчики столбиком, без висячих хвостов */
-  }
   .trust{
     margin-top:34px;padding:20px 22px;border-left:2px solid var(--wax);
     background:linear-gradient(90deg, rgba(140,47,35,.12), transparent 80%);
@@ -921,7 +913,6 @@
     color:rgba(205,191,164,.65);border-left:2px solid rgba(140,47,35,.8);
     padding:8px 0 8px 14px;margin:14px 0 0}
   .booking .sec-head{margin-bottom:14px}
-  .booking .b-count{margin-top:12px}
   .bk-step{border:1px solid rgba(205,191,164,.16);border-radius:3px;margin-bottom:9px;
     background:rgba(233,220,195,.028);transition:border-color .25s,background .25s}
   .bk-step.on{border-color:rgba(200,125,74,.5);background:rgba(200,125,74,.05)}
@@ -1517,40 +1508,51 @@
 
 <section class="booking" id="bron">
   <div class="wrap">
-    <!-- PR2 · слот-бар: дата, время, гости. Живая схема считается от этих значений (§3.2) -->
-    <div class="slotbar io" id="slotbar" role="group" aria-label="Выбор даты, времени и числа гостей" data-str-aria="slotbar.label">
-      <div class="slotbar-row slotbar-guests">
-        <label class="bk-lbl" data-str="step3.guestsLabel">Гостей</label>
-        <div class="slotbar-step">
-          <button type="button" id="sbGminus" aria-label="Меньше гостей" data-str-aria="guests.minus">−</button>
-          <b id="sbGval">2</b>
-          <button type="button" id="sbGplus" aria-label="Больше гостей" data-str-aria="guests.plus">+</button>
+    <div class="sec-head io">
+      <div>
+        <div class="kicker">// бронь</div>
+        <h2>Место и время</h2>
+      </div>
+    </div>
+    <!-- вариант B · «Пульт»: гости, дата, время в одну строку + живой дисплей
+         свободных мест. Занятость пересчитывается на каждый клик, без кнопок поиска -->
+    <div class="console io" id="slotbar" role="group" aria-label="Выбор даты, времени и числа гостей" data-str-aria="slotbar.label">
+      <button class="cs-toggle" id="csToggle" type="button" aria-expanded="false">
+        <span data-sum aria-live="polite"></span><i data-str="console.change">Изменить</i>
+      </button>
+      <div class="cs-collapse">
+        <div class="cs-row">
+          <div class="cs-guests">
+            <label class="bk-lbl" id="lblG" data-str="step3.guestsLabel">Гостей</label>
+            <div class="slotbar-step" role="group" aria-labelledby="lblG" title="от 1 до 12" data-str-title="guests.range">
+              <button type="button" id="sbGminus" aria-label="Меньше гостей" data-str-aria="guests.minus">−</button>
+              <b id="sbGval">2</b>
+              <button type="button" id="sbGplus" aria-label="Больше гостей" data-str-aria="guests.plus">+</button>
+            </div>
+          </div>
+          <div class="cs-sep"></div>
+          <div class="cs-tape">
+            <span class="cs-lbl" data-str="step2.dateLabel">Дата</span>
+            <div class="bk-lane"><div class="bk-chips" id="sbDates" role="group" aria-label="Дата визита" data-str-aria="dates.group"></div></div>
+          </div>
+          <div class="cs-sep"></div>
+          <div class="cs-tape">
+            <span class="cs-lbl" data-str="step2.timeLabel">Время</span>
+            <div class="bk-lane"><div class="bk-chips" id="sbTimes" role="group" aria-label="Время визита" data-str-aria="times.group"></div></div>
+          </div>
+          <div class="cs-status" role="status" aria-live="polite">
+            <b data-fit-num>–</b>
+            <div class="cs-st-txt">
+              <span class="l1" data-str="console.statusFree">мест свободно</span>
+              <span class="l2"><span data-str="console.statusVip">VIP</span> <b id="cntCabs"></b> · <span data-str="console.statusBar">бар</span> <b id="cntBar"></b></span>
+            </div>
+          </div>
         </div>
-        <div class="slotbar-summary" id="sbSum" aria-live="polite"></div>
+        <div class="bk-fallback" id="sbFallback" data-str="slotbar.fallback">Работаем по заявке: администратор подтвердит</div>
       </div>
-      <div class="slotbar-row">
-        <label class="bk-lbl" data-str="step2.dateLabel">Дата</label>
-        <div class="bk-lane"><div class="bk-chips" id="sbDates"></div></div>
-      </div>
-      <div class="slotbar-row">
-        <label class="bk-lbl" data-str="step2.timeLabel">Время</label>
-        <div class="bk-lane"><div class="bk-chips" id="sbTimes"></div></div>
-      </div>
-      <div class="bk-fallback" id="sbFallback">Работаем по заявке — администратор подтвердит</div>
     </div>
     <div class="b-grid">
       <div class="booking-flow">
-        <div class="sec-head io" style="margin-bottom:0">
-          <div>
-            <div class="kicker">// бронь</div>
-            <h2>Место и время</h2>
-          </div>
-        </div>
-        <div class="b-count io" title="считается от выбранных даты и времени">
-          <span><span id="cntAt">сейчас свободно</span> <b id="cntTables">10 из 12</b> столов</span>
-          <span>VIP: <b id="cntCabs">2 из 3</b></span>
-          <span>бар: <b id="cntBar">4 из 5</b></span>
-        </div>
         <!-- плашка «У вас есть заявка»: повторный заход после success-экрана (ТЗ §3.7) -->
         <div class="bk-pending" id="bkPending" hidden role="status">
           <b id="bkPendingLabel"></b>
@@ -1566,24 +1568,18 @@
         </div>
         <div class="bk io" id="bkWizard">
 
+          <!-- вариант B: три шага 01 Стол → 02 Кто → 03 Подтверждение;
+               «Когда» живёт в пульте, в шаге «Стол» — строка слота -->
           <div class="bk-step on" data-bk="1">
             <div class="bk-head" data-goto="1">
-              <span class="bk-no">01</span><span class="bk-ttl" data-str="step1.title">Когда</span>
-              <span class="bk-val" id="bkV1"></span>
+              <span class="bk-no">01</span><span class="bk-ttl" data-str="step2.title">Стол</span>
+              <span class="bk-val" id="bkV1" data-str="step2.valueEmpty">выберите на схеме →</span>
             </div>
             <div class="bk-body">
-              <div class="bk-when-sum" id="bkWhenSum"></div>
-              <p class="bk-hint" data-str="step1.note" data-str-mode="first">Дата и время выбираются в слот-баре над схемой — занятость мест считается от выбранных значений.</p>
-              <div class="bk-act"><button class="btn" type="button" id="bkTo2" data-str="nav.next">Дальше →</button></div>
-            </div>
-          </div>
-
-          <div class="bk-step" data-bk="2">
-            <div class="bk-head" data-goto="2">
-              <span class="bk-no">02</span><span class="bk-ttl" data-str="step2.title">Стол</span>
-              <span class="bk-val" id="bkV2" data-str="step2.valueEmpty">выберите на схеме →</span>
-            </div>
-            <div class="bk-body">
+              <div class="bk-slotline">
+                <span data-sum></span>
+                <button type="button" class="cs-link" data-focus-slot data-str="slotline.changeTime">Изменить время</button>
+              </div>
               <!-- карточка выбранного места: фото появляется после выбора на схеме -->
               <div class="bk-pick is-empty" id="bkPick">
                 <div class="bk-pick-empty" id="bkPickEmpty" role="status">
@@ -1599,14 +1595,14 @@
                 </div>
                 <button class="bk-pick-x" type="button" id="bkPickX" aria-label="Сбросить выбор места" data-str="pick.other">Выбрать другое</button>
               </div>
-              <div class="bk-act"><button class="btn" type="button" id="bkTo3" data-str="nav.next">Дальше →</button></div>
+              <div class="bk-act"><button class="btn" type="button" id="bkTo2" data-str="nav.next">Дальше →</button></div>
             </div>
           </div>
 
-          <div class="bk-step" data-bk="3">
-            <div class="bk-head" data-goto="3">
-              <span class="bk-no">03</span><span class="bk-ttl" data-str="step3.title">Кто</span>
-              <span class="bk-val" id="bkV3"></span>
+          <div class="bk-step" data-bk="2">
+            <div class="bk-head" data-goto="2">
+              <span class="bk-no">02</span><span class="bk-ttl" data-str="step3.title">Кто</span>
+              <span class="bk-val" id="bkV2"></span>
             </div>
             <div class="bk-body">
               <div class="bk-grid2">
@@ -1616,20 +1612,19 @@
                   <input class="bk-inp" id="bkPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" data-str-ph="step3.phonePlaceholder"></div>
               </div>
               <div class="bk-grid2">
-                <div><label class="bk-lbl" for="bkGuests" data-str="step3.guestsLabel">Гостей</label>
-                  <input class="bk-inp" id="bkGuests" type="number" min="1" max="12" value="2"></div>
                 <div><label class="bk-lbl" for="bkComment" data-str="step3.commentLabel">Комментарий</label>
                   <input class="bk-inp" id="bkComment" type="text" placeholder="Повод, пожелания — необязательно" data-str-ph="step3.commentPlaceholder"></div>
+                <div></div>
               </div>
               <div class="bk-err" id="bkE3" data-str="step3.error">Проверьте имя и телефон</div>
-              <div class="bk-act"><button class="btn" type="button" id="bkTo4" data-str="nav.next">Дальше →</button>
-                <button class="bk-edit" type="button" data-goto="2" data-str="nav.back">← Назад</button></div>
+              <div class="bk-act"><button class="btn" type="button" id="bkTo3" data-str="nav.next">Дальше →</button>
+                <button class="bk-edit" type="button" data-goto="1" data-str="nav.back">← Назад</button></div>
             </div>
           </div>
 
-          <div class="bk-step" data-bk="4">
-            <div class="bk-head" data-goto="4">
-              <span class="bk-no">04</span><span class="bk-ttl" data-str="step4.title">Подтверждение</span>
+          <div class="bk-step" data-bk="3">
+            <div class="bk-head" data-goto="3">
+              <span class="bk-no">03</span><span class="bk-ttl" data-str="step4.title">Подтверждение</span>
             </div>
             <div class="bk-body">
               <div class="bk-sum">
@@ -1647,7 +1642,7 @@
               <div class="bk-act">
                 <button class="btn" type="button" id="bkSubmit" data-str="phase0.submit">Отправить заявку</button>
                 <span class="mono-note" data-str="phase0.note" style="font-size:10px">Администратор подтвердит бронь по телефону</span>
-                <button class="bk-edit" type="button" data-goto="3" data-str="nav.back">← Назад</button>
+                <button class="bk-edit" type="button" data-goto="2" data-str="nav.back">← Назад</button>
               </div>
               <div class="bk-wait" id="bkWait"><span class="bk-spin"></span><span data-str="step4.wait">Отправляем заявку…</span></div>
             </div>

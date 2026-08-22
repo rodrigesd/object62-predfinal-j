@@ -212,6 +212,11 @@ async function start(section) {
     const tpl = S[el.dataset.strAria];
     if (tpl != null) el.setAttribute('aria-label', tpl);
   });
+  // title-атрибуты (подсказка степпера гостей) — из того же конфига
+  document.querySelectorAll('[data-str-title]').forEach(el => {
+    const tpl = S[el.dataset.strTitle];
+    if (tpl != null) el.setAttribute('title', tpl);
+  });
 
   /* ---------- слот-бар (ТЗ §3.2) ---------- */
   const sb = $('#slotbar');
@@ -235,26 +240,36 @@ async function start(section) {
     box.innerHTML = '';
     const isToday = B.bd.getTime() === BD0.getTime();
     const nowMin = Math.round((NOW - BD0.getTime()) / 60000);
+    let firstFreeMarked = false; // ближайший доступный слот (вариант B)
     for (const m of slotsOf(B.bd)) {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = chipCls + (m === B.slot ? ' on' : '');
+      const night = m >= 1440; // бизнес-минуты следующих суток — отделяем визуально
+      const past = isToday && m < nowMin + C.lead;
+      b.className = chipCls + (m === B.slot ? ' on' : '') + (night ? ' night' : '');
+      if (!past && !firstFreeMarked && m !== B.slot) { b.classList.add('near'); firstFreeMarked = true; }
+      if (!past && !firstFreeMarked && m === B.slot) firstFreeMarked = true;
       b.textContent = minLabel(m);
       b.dataset.m = String(m);
       b.setAttribute('aria-pressed', m === B.slot ? 'true' : 'false');
       // минимальное плечо до визита действует только для сегодняшней бизнес-даты
-      if (isToday && m < nowMin + C.lead) b.disabled = true;
+      b.disabled = past;
       b.addEventListener('click', () => setSlot(Number(b.dataset.m)));
       box.appendChild(b);
     }
+  }
+  // текст выбранного слота — один факт во всех местах сразу ([data-sum] в пульте и в шаге «Стол»)
+  function renderSummaryEls() {
+    const text = fmt(sget('slotbar.summary'), { date: dateHuman(B.bd), slot: minLabel(B.slot), guests: B.guests, guestsWord: guestsWord(B.guests) });
+    document.querySelectorAll('[data-sum]').forEach(el => { el.textContent = text; });
   }
   function renderSlotbar() {
     if (!sb) return;
     renderDates($('#sbDates'), 'bk-chip');
     renderTimes($('#sbTimes'), 'bk-chip');
     renderGuestUI();
-    const sum = $('#sbSum');
-    if (sum) sum.textContent = fmt(sget('slotbar.summary'), { date: dateHuman(B.bd), slot: minLabel(B.slot), guests: B.guests, guestsWord: guestsWord(B.guests) });
+    renderSummaryEls();
+    refreshLanes();
   }
   function renderGuestUI() {
     [['#sbGval', '#sbGminus', '#sbGplus'], ['#bkwGval', '#bkwGminus', '#bkwGplus']].forEach(([v, mi, pl]) => {
@@ -262,7 +277,6 @@ async function start(section) {
       const minus = $(mi); if (minus) minus.disabled = B.guests <= 1;
       const plus = $(pl); if (plus) plus.disabled = B.guests >= 12;
     });
-    const inp = $('#bkGuests'); if (inp) inp.value = String(B.guests);
   }
   function setGuests(n) {
     B.guests = Math.max(1, Math.min(12, n));
@@ -295,8 +309,8 @@ async function start(section) {
       b.classList.toggle('on', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    const sum = $('#sbSum');
-    if (sum) sum.textContent = fmt(sget('slotbar.summary'), { date: dateHuman(B.bd), slot: minLabel(B.slot), guests: B.guests, guestsWord: guestsWord(B.guests) });
+    renderSummaryEls();
+    refreshLanes();
   }
   function setSlot(m) {
     B.slot = m;
@@ -306,6 +320,48 @@ async function start(section) {
     updateCounters();
     syncStepVals();
   }
+
+  /* ---------- пульт: свёртка на мобиле и «Изменить время» из шага «Стол» ---------- */
+  const csToggle = $('#csToggle');
+  if (csToggle && sb) csToggle.addEventListener('click', () => {
+    const open = sb.classList.toggle('open');
+    csToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  // проскроллить к пульту и сфокусировать активный чип
+  $$('[data-focus-slot]').forEach(btn => btn.addEventListener('click', () => {
+    if (!sb) return;
+    sb.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
+    const on = sb.querySelector('.bk-chip.on') || sb.querySelector('.bk-chip:not(:disabled)');
+    if (on) on.focus();
+  }));
+
+  /* ---------- клавиатура в лентах чипов: roving tabindex + стрелки ---------- */
+  function laneKeys(lane) {
+    if (lane.dataset.keys) return;
+    lane.dataset.keys = '1';
+    lane.addEventListener('keydown', e => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      const chips = [...lane.querySelectorAll('.bk-chip:not(:disabled)')];
+      if (!chips.length) return;
+      const idx = chips.indexOf(document.activeElement);
+      let ni = 0;
+      if (e.key === 'ArrowLeft') ni = idx > 0 ? idx - 1 : chips.length - 1;
+      else if (e.key === 'ArrowRight') ni = idx < chips.length - 1 ? idx + 1 : 0;
+      else if (e.key === 'Home') ni = 0;
+      else ni = chips.length - 1;
+      chips.forEach(c => c.setAttribute('tabindex', c === chips[ni] ? '0' : '-1'));
+      chips[ni].focus();
+      e.preventDefault();
+    });
+  }
+  function initLane(lane) {
+    laneKeys(lane);
+    const chips = [...lane.querySelectorAll('.bk-chip')];
+    if (!chips.length) return;
+    const on = lane.querySelector('.bk-chip.on') || lane.querySelector('.bk-chip:not(:disabled)');
+    chips.forEach(c => c.setAttribute('tabindex', c === on ? '0' : '-1'));
+  }
+  function refreshLanes() { $$('.bk-chips').forEach(initLane); }
   // статусы карточек мастера без пересоздания DOM
   function refreshWizardList() {
     $$('#bkwList .bkw-card').forEach(card => {
@@ -338,6 +394,17 @@ async function start(section) {
     set('cntTables', freeAt(tables, B.slot), tables.length);
     set('cntCabs', freeAt(cabs, B.slot), cabs.length);
     set('cntBar', freeAt(bar, B.slot), bar.length);
+  }
+
+  // дисплей пульта (вариант B): сколько мест свободно и вмещают текущую компанию
+  function fitCount() {
+    let n = 0;
+    for (const t of TABLES) {
+      if (busyIntervalAt(t.id, B.slot)) continue; // занят на текущий слот
+      if ((t.capacityMax || 1) < B.guests) continue; // не вмещает компанию
+      n++;
+    }
+    return n;
   }
 
   /* ---------- статусы столов: схема, витрина, список мастера (ТЗ §5) ---------- */
@@ -429,6 +496,8 @@ async function start(section) {
         mark.textContent = st === 'busy' ? sget('busy.word') : sget('free.word');
       }
     });
+    // дисплей пульта: крупное число подходящих свободных мест
+    $$('[data-fit-num]').forEach(el => { el.textContent = String(fitCount()); });
   }
 
   /* ---------- тултип занятого/неподходящего стола (ТЗ §3.6) ---------- */
@@ -520,7 +589,7 @@ async function start(section) {
         applyStatuses(); renderWizardList(wizFilter); syncGridSel(null); syncStepVals();
         return;
       }
-      selectTable(t.id, () => { maxReached = Math.max(maxReached, 2); if (wiz) goto(2); });
+      selectTable(t.id, () => { if (wiz) goto(1); });
     });
     plan.addEventListener('keydown', e => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -559,7 +628,7 @@ async function start(section) {
   $('#bkPickX')?.addEventListener('click', () => {
     B.tableId = null;
     applyStatuses(); renderWizardList(wizFilter); syncGridSel(null); syncStepVals();
-    maxReached = 2; goto(2);
+    maxReached = 1; goto(1);
     if (!matchMedia('(max-width: 900px)').matches)
       $('.plan-card')?.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
   });
@@ -598,7 +667,7 @@ async function start(section) {
         const st = statusOf(t);
         if (st === 'busy' || st === 'dimmed') { openTip(card, t); return; }
         if (matchMedia('(max-width: 900px)').matches) openWizard(t.id);
-        else selectTable(t.id, () => { maxReached = Math.max(maxReached, 3); goto(3); });
+        else selectTable(t.id, () => { maxReached = Math.max(maxReached, 2); goto(2); });
       });
       grid.appendChild(card);
     });
@@ -606,7 +675,7 @@ async function start(section) {
 
   /* ---------- десктопный аккордеон: шаги ---------- */
   const wiz = $('#bkWizard');
-  let maxReached = 2;
+  let maxReached = 1; // вариант B: сразу доступен только шаг 01 «Стол» (слот всегда выбран в пульте)
   let steps = wiz ? [...wiz.querySelectorAll('.bk-step')] : [];
   function goto(n) {
     if (!wiz || n > maxReached) return;
@@ -634,30 +703,27 @@ async function start(section) {
     goto(Number(h.dataset.goto));
   });
   function syncStepVals() {
+    // вариант B: bkV1 — выбранное место (шаг 01 «Стол»), bkV2 — гость (шаг 02 «Кто»)
     const v1 = $('#bkV1');
-    if (v1) v1.textContent = dateHuman(B.bd) + ' · ' + minLabel(B.slot) + ' · ' + B.guests + ' ' + guestsWord(B.guests);
-    const v2 = $('#bkV2');
-    if (v2) {
+    if (v1) {
       const t = B.tableId ? byId[B.tableId] : null;
       const el = t ? $('.plan .spot[data-table-id="' + t.id + '"]') : null;
-      v2.textContent = t ? (el ? (el.dataset.title || t.label) : t.label) : sget('step2.valueEmpty');
+      v1.textContent = t ? (el ? (el.dataset.title || t.label) : t.label) : sget('step2.valueEmpty');
     }
-    const whenSum = $('#bkWhenSum');
-    if (whenSum) whenSum.textContent = dateHuman(B.bd) + ', ' + minLabel(B.slot) + ' · ' + B.guests + ' ' + guestsWord(B.guests);
-    const v3 = $('#bkV3');
-    if (v3 && B.name) v3.textContent = B.name + ' · ' + B.phone;
+    const v2 = $('#bkV2');
+    if (v2 && B.name) v2.textContent = B.name + ' · ' + B.phone;
   }
-  $('#bkTo2')?.addEventListener('click', () => { maxReached = Math.max(maxReached, 2); goto(2); });
-  $('#bkTo3')?.addEventListener('click', () => {
-    if (!B.tableId) return;
-    maxReached = Math.max(maxReached, 3); goto(3);
+  // вариант B: три шага 01 Стол → 02 Кто → 03 Подтверждение («Когда» живёт в пульте)
+  $('#bkTo2')?.addEventListener('click', () => {
+    if (!B.tableId) return; // без выбранного места дальше не идём
+    maxReached = Math.max(maxReached, 2); goto(2);
   });
-  $('#bkTo4')?.addEventListener('click', () => {
+  $('#bkTo3')?.addEventListener('click', () => {
     if (!validateWho()) return;
-    maxReached = Math.max(maxReached, 4);
+    maxReached = Math.max(maxReached, 3);
     fillSummary();
     if (!B.idemKey) B.idemKey = uuid();
-    goto(4);
+    goto(3);
   });
 
   /* ---------- шаг 03: контакты (маска +7, 10 цифр — ТЗ §3.7) ---------- */
@@ -695,8 +761,6 @@ async function start(section) {
     const phone = $('#bkwPhone')?.value.trim() || $('#bkPhone')?.value.trim() || '';
     const comment = $('#bkwComment')?.value.trim() || $('#bkComment')?.value.trim() || '';
     B.name = name; B.phone = phone; B.comment = comment;
-    const g = $('#bkGuests');
-    if (g && document.activeElement === g) setGuests(Number(g.value) || B.guests);
   }
   // синхронизация полей между десктопным аккордеоном и мобильным мастером
   [['bkName', 'bkwName'], ['bkPhone', 'bkwPhone'], ['bkComment', 'bkwComment']].forEach(([a, b]) => {
@@ -705,7 +769,6 @@ async function start(section) {
     ea.addEventListener('input', () => { if (eb.value !== ea.value) eb.value = ea.value; });
     eb.addEventListener('input', () => { if (ea.value !== eb.value) ea.value = eb.value; });
   });
-  $('#bkGuests')?.addEventListener('change', () => setGuests(Number($('#bkGuests').value) || B.guests));
 
   /* ---------- шаг 04: подтверждение, заявка (Фаза 0 — без оплаты) ---------- */
   function fillSummary() {
@@ -764,7 +827,7 @@ async function start(section) {
         return;
       }
       if (e.status === 429) { showError(sget('error.429')); return; }
-      if (e.status === 422) { showError(sget('error.422')); goto(3); return; }
+      if (e.status === 422) { showError(sget('error.422')); goto(2); return; }
       // прочие ошибки (сеть, 5xx): честно говорим об ошибке — заявку
       // «принятой» не показываем, гость может повторить с тем же Idempotency-Key
       showError(sget('error.generic'));
