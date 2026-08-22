@@ -130,6 +130,8 @@
 .bk-tip-x:hover{color:var(--copper-hot)}
 .bk-tip[hidden]{display:none!important}
 .bk-tip .btn{padding:11px 14px;font-size:12px;width:100%;justify-content:center}
+/* [hidden] слабее .btn{display:inline-flex} из основного CSS — прячем явно */
+.bk-tip .btn[hidden]{display:none!important}
 /* мобильный bottom-sheet */
 @media (max-width:900px){
   .bk-tip{

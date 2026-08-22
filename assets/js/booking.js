@@ -138,14 +138,14 @@ async function start(section) {
     }
     return hit;
   }
-  // предложенное время брони: to + буфер уборки (ТЗ §3.6: до 21:30 → с 21:45);
-  // если сразу за ним следующая занятость — сдвигаемся дальше
+  // предложенное время брони: конец занятости + буфер уборки, вверх к сетке слотов
+  // (ТЗ §3.6: округление к шагу 30); если сразу за ним следующая занятость — дальше
   function nextOffer(tableId, iv) {
-    let t = toBizMin(iv.to) + C.buffer;
+    let t = roundUp(toBizMin(iv.to) + C.buffer, C.step);
     for (let i = 0; i < 48; i++) {
       const nx = busyIntervalAt(tableId, t);
       if (!nx) break;
-      t = toBizMin(nx.to) + C.buffer;
+      t = roundUp(toBizMin(nx.to) + C.buffer, C.step);
     }
     return t;
   }
@@ -281,8 +281,11 @@ async function start(section) {
   function setGuests(n) {
     B.guests = Math.max(1, Math.min(12, n));
     renderGuestUI();
+    renderSummaryEls();       // саммери слота обновляется сразу, без лишнего клика
     applyStatuses();          // dimmed зависит от числа гостей
     renderWizardList(wizFilter);
+    updateCounters();
+    syncStepVals();
   }
   async function setDate(bd, keepSlot) {
     B.bd = bd;
@@ -498,6 +501,21 @@ async function start(section) {
     });
     // дисплей пульта: крупное число подходящих свободных мест
     $$('[data-fit-num]').forEach(el => { el.textContent = String(fitCount()); });
+    // выбранное место перестало подходить (занято после смены слота/даты или мало мест
+    // после смены гостей) — выбор сбрасывается, дальше по шагам с ним идти нельзя
+    if (B.tableId) {
+      const selT = byId[B.tableId];
+      if (selT && statusOf(selT) !== 'free') {
+        B.tableId = null;
+        clearPick();
+        syncGridSel(null);
+        renderWizardList(wizFilter);
+        syncStepVals();
+        // если гость уже ушёл дальше по шагам — возвращаем к выбору места
+        const cur = wiz && wiz.querySelector('.bk-step.on');
+        if (cur && Number(cur.dataset.bk) > 1) { maxReached = 1; goto(1); }
+      }
+    }
   }
 
   /* ---------- тултип занятого/неподходящего стола (ТЗ §3.6) ---------- */
