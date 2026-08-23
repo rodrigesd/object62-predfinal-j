@@ -66,13 +66,9 @@
 .console .bk-chip.near{border-color:rgba(200,125,74,.55);color:var(--bone);
   background:rgba(200,125,74,.07)}
 
-/* компактность пульта на десктопе: меньше низ у лент чипов, скроллбар скрыт
-   (навигация по ленте: стрелки клавиатуры, колесо с Shift, тап-скролл) */
+/* компактность пульта на десктопе: меньше низ у лент чипов. Скроллбар оставлен
+   видимым: без него ленты недоступны с мыши; колесо крутит ленту через booking.js */
 .console .bk-chips{padding-bottom:4px}
-@media (min-width:901px){
-  .console .bk-chips{scrollbar-width:none}
-  .console .bk-chips::-webkit-scrollbar{display:none}
-}
 
 /* строка слота в шаге «Стол» */
 .bk-slotline{display:flex;align-items:center;justify-content:space-between;gap:12px;

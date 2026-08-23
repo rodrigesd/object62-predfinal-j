@@ -365,6 +365,23 @@ async function start(section) {
     chips.forEach(c => c.setAttribute('tabindex', c === on ? '0' : '-1'));
   }
   function refreshLanes() { $$('.bk-chips').forEach(initLane); }
+  // колесо мыши над лентой чипов крутит её горизонтально (десктоп);
+  // на краю ленты событие уходит странице, вертикальный скролл не ломается
+  function initWheel() {
+    $$('.bk-chips').forEach(lane => {
+      if (lane.dataset.wheel) return;
+      lane.dataset.wheel = '1';
+      lane.addEventListener('wheel', e => {
+        if (!e.deltaY) return;
+        const canL = lane.scrollLeft > 0;
+        const canR = lane.scrollLeft + lane.clientWidth < lane.scrollWidth - 1;
+        if ((e.deltaY < 0 && canL) || (e.deltaY > 0 && canR)) {
+          lane.scrollLeft += e.deltaY;
+          e.preventDefault();
+        }
+      }, { passive: false });
+    });
+  }
   // статусы карточек мастера без пересоздания DOM
   function refreshWizardList() {
     $$('#bkwList .bkw-card').forEach(card => {
@@ -1106,6 +1123,7 @@ async function start(section) {
   B.slot = def.slot;
   // слот-бар не зависит от занятости: рисуем до её загрузки, меньше сдвигов (ТЗ §8, G1)
   renderSlotbar();
+  initWheel();
   syncStepVals();
   await loadAvailability(B.bd);
   applyStatuses();
