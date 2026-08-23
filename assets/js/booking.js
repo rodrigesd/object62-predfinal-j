@@ -4,7 +4,7 @@
 // стол (тултип/bottom-sheet), шаги 01 Когда → 02 Стол → 03 Кто → 04 Подтверждение.
 // PR3 (ТЗ §8): hit-подложки мест на схеме, клавиатурный доступ к шагам,
 // слот-бар рисуется до загрузки занятости (ноль лишних сдвигов).
-// Единственная точка данных — api.js (ТЗ §6.1): внешних вызовов с фронта нет.
+// Единственная точка данных: api.js (ТЗ §6.1), внешних вызовов с фронта нет.
 import { getConfig, getAvailability, createBooking } from './api.js';
 
 const $ = sel => document.querySelector(sel);
@@ -44,7 +44,7 @@ async function start(section) {
   const byId = {}; TABLES.forEach(t => byId[t.id] = t);
   const inv = countByZone(TABLES);
   const RO = config.businessDayRolloverHour || 8;
-  // «HH:MM» → минуты от полуночи бизнес-даты; часы до ролловера — уже «завтра»
+  // «HH:MM» → минуты от полуночи бизнес-даты; часы до ролловера считаем «завтра»
   const toBizMin = hhmm => {
     const [h, m] = String(hhmm).split(':').map(Number);
     const v = h * 60 + m;
@@ -62,7 +62,7 @@ async function start(section) {
   };
 
   // «сейчас»: может быть подменено параметром ?debug_now=ISO (ТЗ §6.3, гейт G4).
-  // В проде флаг отключается в конфиге (config.debug); до этого стенд — дев.
+  // В проде флаг отключается в конфиге (config.debug); до этого стенд считаем девом.
   let NOW = new Date();
   const dbg = new URLSearchParams(location.search).get('debug_now');
   if (dbg && config.debug) {
@@ -139,7 +139,7 @@ async function start(section) {
     return hit;
   }
   // предложенное время брони: конец занятости + буфер уборки, вверх к сетке слотов
-  // (ТЗ §3.6: округление к шагу 30); если сразу за ним следующая занятость — дальше
+  // (ТЗ §3.6: округление к шагу 30); если сразу за ним следующая занятость, идём дальше
   function nextOffer(tableId, iv) {
     let t = roundUp(toBizMin(iv.to) + C.buffer, C.step);
     for (let i = 0; i < 48; i++) {
@@ -172,7 +172,7 @@ async function start(section) {
     if (bd.getTime() === addDays(BD0, 1).getTime()) return sget('day.tomorrow');
     return sget('day.' + dayKey[bd.getDay()]) + ' ' + bd.getDate() + ' ' + sget('month.' + monthKey[bd.getMonth()]);
   }
-  // «пт 21.08» — формат success-экрана и сводок
+  // «пт 21.08»: формат success-экрана и сводок
   const dateShort = bd => sget('day.' + dayKey[bd.getDay()]) + ' ' + pad(bd.getDate()) + '.' + pad(bd.getMonth() + 1);
 
   function countByZone(tables) {
@@ -194,7 +194,7 @@ async function start(section) {
   }
 
   /* ---------- гидратация статических текстов из config.strings (ТЗ §0.4) ---------- */
-  // берём весь документ: строки брони в #bron, строка FAQ — снаружи секции
+  // берём весь документ: строки брони в #bron, строка FAQ снаружи секции
   document.querySelectorAll('[data-str]').forEach(el => {
     const tpl = S[el.dataset.str];
     if (tpl == null) { console.warn('[b62] в config.strings нет ключа:', el.dataset.str); return; }
@@ -212,7 +212,7 @@ async function start(section) {
     const tpl = S[el.dataset.strAria];
     if (tpl != null) el.setAttribute('aria-label', tpl);
   });
-  // title-атрибуты (подсказка степпера гостей) — из того же конфига
+  // title-атрибуты (подсказка степпера гостей): из того же конфига
   document.querySelectorAll('[data-str-title]').forEach(el => {
     const tpl = S[el.dataset.strTitle];
     if (tpl != null) el.setAttribute('title', tpl);
@@ -244,7 +244,7 @@ async function start(section) {
     for (const m of slotsOf(B.bd)) {
       const b = document.createElement('button');
       b.type = 'button';
-      const night = m >= 1440; // бизнес-минуты следующих суток — отделяем визуально
+      const night = m >= 1440; // бизнес-минуты следующих суток: отделяем визуально
       const past = isToday && m < nowMin + C.lead;
       b.className = chipCls + (m === B.slot ? ' on' : '') + (night ? ' night' : '');
       if (!past && !firstFreeMarked && m !== B.slot) { b.classList.add('near'); firstFreeMarked = true; }
@@ -258,7 +258,7 @@ async function start(section) {
       box.appendChild(b);
     }
   }
-  // текст выбранного слота — один факт во всех местах сразу ([data-sum] в пульте и в шаге «Стол»)
+  // текст выбранного слота: один факт во всех местах сразу ([data-sum] в пульте и в шаге «Стол»)
   function renderSummaryEls() {
     const text = fmt(sget('slotbar.summary'), { date: dateHuman(B.bd), slot: minLabel(B.slot), guests: B.guests, guestsWord: guestsWord(B.guests) });
     document.querySelectorAll('[data-sum]').forEach(el => { el.textContent = text; });
@@ -420,10 +420,10 @@ async function start(section) {
     return g;
   }
   // PR3 · ТЗ §8: тап-таргеты мест ≥ 44px. Мелкие места (места у бара, столики)
-  // получают прозрачную hit-подложку в SVG-единицах — визуал не меняется.
+  // получают прозрачную hit-подложку в SVG-единицах: визуал не меняется.
   // Точный минимум считается от реального масштаба рендера (юниты = 44 CSS px),
   // но не больше, чем позволяет соседство мест (места у бара идут через 74u,
-  // обычные столики в колонках по вертикали через 96u) — без наложений.
+  // обычные столики в колонках по вертикали через 96u), без наложений.
   function addHitAreas() {
     const svg = document.querySelector('svg.plan');
     if (!svg) return;
@@ -502,7 +502,7 @@ async function start(section) {
     // дисплей пульта: крупное число подходящих свободных мест
     $$('[data-fit-num]').forEach(el => { el.textContent = String(fitCount()); });
     // выбранное место перестало подходить (занято после смены слота/даты или мало мест
-    // после смены гостей) — выбор сбрасывается, дальше по шагам с ним идти нельзя
+    // после смены гостей): выбор сбрасывается, дальше по шагам с ним идти нельзя
     if (B.tableId) {
       const selT = byId[B.tableId];
       if (selT && statusOf(selT) !== 'free') {
@@ -511,7 +511,7 @@ async function start(section) {
         syncGridSel(null);
         renderWizardList(wizFilter);
         syncStepVals();
-        // если гость уже ушёл дальше по шагам — возвращаем к выбору места
+        // если гость уже ушёл дальше по шагам, возвращаем к выбору места
         const cur = wiz && wiz.querySelector('.bk-step.on');
         if (cur && Number(cur.dataset.bk) > 1) { maxReached = 1; goto(1); }
       }
@@ -602,7 +602,7 @@ async function start(section) {
       if (!t) return;
       const st = statusOf(t);
       if (st === 'busy' || st === 'dimmed') { openTip(g, t); return; }
-      if (B.tableId === t.id) { // повторный клик — снять выбор
+      if (B.tableId === t.id) { // повторный клик: снять выбор
         B.tableId = null;
         applyStatuses(); renderWizardList(wizFilter); syncGridSel(null); syncStepVals();
         return;
@@ -712,7 +712,7 @@ async function start(section) {
     const t = e.target.closest('[data-goto]');
     if (t) goto(Number(t.dataset.goto));
   });
-  // Enter/Space на заголовке пройденного шага — возврат к нему (ТЗ §8)
+  // Enter/Space на заголовке пройденного шага: возврат к нему (ТЗ §8)
   wiz?.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const h = e.target.closest('[data-goto]');
@@ -721,7 +721,7 @@ async function start(section) {
     goto(Number(h.dataset.goto));
   });
   function syncStepVals() {
-    // вариант B: bkV1 — выбранное место (шаг 01 «Стол»), bkV2 — гость (шаг 02 «Кто»)
+    // вариант B: bkV1: выбранное место (шаг 01 «Стол»), bkV2: гость (шаг 02 «Кто»)
     const v1 = $('#bkV1');
     if (v1) {
       const t = B.tableId ? byId[B.tableId] : null;
@@ -737,14 +737,15 @@ async function start(section) {
     maxReached = Math.max(maxReached, 2); goto(2);
   });
   $('#bkTo3')?.addEventListener('click', () => {
-    if (!validateWho()) return;
+    if (!validateWho()) { $('#bkE3')?.classList.add('show'); return; }
+    $('#bkE3')?.classList.remove('show');
     maxReached = Math.max(maxReached, 3);
     fillSummary();
     if (!B.idemKey) B.idemKey = uuid();
     goto(3);
   });
 
-  /* ---------- шаг 03: контакты (маска +7, 10 цифр — ТЗ §3.7) ---------- */
+  /* ---------- шаг 03: контакты (маска +7, 10 цифр, ТЗ §3.7) ---------- */
   function phoneMask(inp) {
     inp.addEventListener('input', () => {
       let d = inp.value.replace(/\D/g, '');
@@ -788,11 +789,11 @@ async function start(section) {
     eb.addEventListener('input', () => { if (ea.value !== eb.value) ea.value = eb.value; });
   });
 
-  /* ---------- шаг 04: подтверждение, заявка (Фаза 0 — без оплаты) ---------- */
+  /* ---------- шаг 04: подтверждение, заявка (Фаза 0, без оплаты) ---------- */
   function fillSummary() {
     const t = B.tableId ? byId[B.tableId] : null;
     const el = t ? $('.plan .spot[data-table-id="' + t.id + '"]') : null;
-    const spotLabel = t ? (el ? (el.dataset.title || t.label) : t.label) : '—';
+    const spotLabel = t ? (el ? (el.dataset.title || t.label) : t.label) : sget('summary.noSpot');
     const rows = {
       1: spotLabel + (el && el.dataset.cap ? ' (' + el.dataset.cap + ')' : ''),
       2: dateShort(B.bd) + ', ' + minLabel(B.slot),
@@ -846,7 +847,7 @@ async function start(section) {
       }
       if (e.status === 429) { showError(sget('error.429')); return; }
       if (e.status === 422) { showError(sget('error.422')); goto(2); return; }
-      // прочие ошибки (сеть, 5xx): честно говорим об ошибке — заявку
+      // прочие ошибки (сеть, 5xx): честно говорим об ошибке, заявку
       // «принятой» не показываем, гость может повторить с тем же Idempotency-Key
       showError(sget('error.generic'));
       return;
@@ -1103,7 +1104,7 @@ async function start(section) {
   const def = defaultSlot(BD0);
   B.bd = def.bd;
   B.slot = def.slot;
-  // слот-бар не зависит от занятости: рисуем до её загрузки — меньше сдвигов (ТЗ §8, G1)
+  // слот-бар не зависит от занятости: рисуем до её загрузки, меньше сдвигов (ТЗ §8, G1)
   renderSlotbar();
   syncStepVals();
   await loadAvailability(B.bd);

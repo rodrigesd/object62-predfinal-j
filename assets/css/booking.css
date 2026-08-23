@@ -4,14 +4,14 @@
 
 /* ---------- B · «Пульт»: слот в одну строку ---------- */
 .console{border:1px solid rgba(205,191,164,.18);border-radius:3px;
-  background:rgba(233,220,195,.035);padding:13px 16px;margin:0 0 20px}
+  background:rgba(233,220,195,.035);padding:9px 16px;margin:0 0 20px}
 .cs-row{display:flex;align-items:center;gap:16px;min-width:0}
 .cs-guests{display:flex;align-items:center;gap:10px;flex:none}
 .cs-guests .bk-lbl{margin:0}
 .cs-sep{width:1px;align-self:stretch;background:rgba(205,191,164,.14);flex:none}
 .cs-tape{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:5px}
 .cs-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.2em;
-  text-transform:uppercase;color:rgba(205,191,164,.6)}
+  text-transform:uppercase;color:rgba(205,191,164,.65)}
 
 /* степпер гостей: база перенесена из старого слот-бара без изменений */
 .slotbar-step{display:flex;align-items:center;gap:6px}
@@ -41,7 +41,7 @@
 .cs-status .l1{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--bone)}
 .cs-status .l2{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
-  color:rgba(205,191,164,.6)}
+  color:rgba(205,191,164,.65)}
 .cs-status .l2 b{font-family:var(--mono);font-size:9.5px;color:var(--copper-hot);font-weight:400}
 
 /* свёрнутая строка пульта (только мобайл) */
@@ -49,9 +49,15 @@
   align-items:center;justify-content:space-between;gap:12px;padding:2px 0;
   font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--bone)}
 .cs-toggle i{font-style:normal;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(205,191,164,.65);border-bottom:1px solid rgba(205,191,164,.3);padding-bottom:2px}
+  color:rgba(205,191,164,.65);border-bottom:1px solid rgba(205,191,164,.3);padding-bottom:2px;
+  flex:none}
 .cs-toggle:hover i{color:var(--copper-hot);border-color:var(--copper)}
 .cs-collapse{width:100%}
+/* саммери в свёрнутой строке не переносится: на узких экранах уходит в троеточие */
+.cs-toggle [data-sum]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@media (max-width:360px){
+  .cs-toggle{font-size:10.5px;letter-spacing:.04em}
+}
 
 /* время: разделитель вечера и ночи, метка ближайшего доступного */
 .console .bk-chip.night{margin-left:17px;position:relative}
@@ -59,6 +65,14 @@
   width:1px;background:rgba(205,191,164,.18)}
 .console .bk-chip.near{border-color:rgba(200,125,74,.55);color:var(--bone);
   background:rgba(200,125,74,.07)}
+
+/* компактность пульта на десктопе: меньше низ у лент чипов, скроллбар скрыт
+   (навигация по ленте: стрелки клавиатуры, колесо с Shift, тап-скролл) */
+.console .bk-chips{padding-bottom:4px}
+@media (min-width:901px){
+  .console .bk-chips{scrollbar-width:none}
+  .console .bk-chips::-webkit-scrollbar{display:none}
+}
 
 /* строка слота в шаге «Стол» */
 .bk-slotline{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -79,10 +93,12 @@
 
 /* мобильный: пульт липнет к верху и сворачивается в одну строку */
 @media (max-width:900px){
-  .console{position:sticky;top:66px;z-index:30; /* 66px — высота шапки сайта */
+  .console{position:sticky;top:69px;z-index:30; /* 69px: высота шапки сайта */
+    padding:11px 16px;
     background:rgba(18,13,8,.94);backdrop-filter:blur(8px);
     box-shadow:0 10px 24px -14px rgba(0,0,0,.7)}
-  .cs-toggle{display:flex}
+  /* главная тап-зона блока в свёрнутом виде: от 44px (WCAG 2.5.5) */
+  .cs-toggle{display:flex;min-height:48px;align-items:center;padding:10px 2px}
   .cs-collapse{display:none}
   .console.open .cs-collapse{display:block}
   .cs-collapse .cs-row{flex-wrap:wrap;gap:12px}
@@ -130,7 +146,7 @@
 .bk-tip-x:hover{color:var(--copper-hot)}
 .bk-tip[hidden]{display:none!important}
 .bk-tip .btn{padding:11px 14px;font-size:12px;width:100%;justify-content:center}
-/* [hidden] слабее .btn{display:inline-flex} из основного CSS — прячем явно */
+/* [hidden] слабее .btn{display:inline-flex} из основного CSS: прячем явно */
 .bk-tip .btn[hidden]{display:none!important}
 /* мобильный bottom-sheet */
 @media (max-width:900px){
@@ -182,9 +198,8 @@
 
 /* ================= PR3 · адаптив и доступность (ТЗ §8) ================= */
 
-/* контраст мелких подписей ≥ 4.5:1: .mono-note — общий класс страницы,
-   ярче только внутри блока брони и мастера */
-.booking .mono-note, .bkw .mono-note{color:rgba(239,230,210,.65)}
+/* контраст мелких подписей ≥ 4.5:1. .mono-note: общий класс страницы,
+   ярче только внутри блока брони и мастера */.booking .mono-note, .bkw .mono-note{color:rgba(239,230,210,.65)}
 
 /* CLS = 0 от подгрузки availability (ТЗ §8): резервируем высоту лент чипов,
    пока конфиг/слоты не отрендерились (44px чип + паддинги ленты) */
@@ -203,7 +218,7 @@
   .bk-pending button{min-height:44px;display:inline-flex;align-items:center;padding:0}
 }
 
-/* фокус с клавиатуры — медное кольцо на всех интерактивных элементах блока
+/* фокус с клавиатуры: медное кольцо на всех интерактивных элементах блока
    (места на SVG-схеме имеют свой фокус: обводка .shape воском) */
 #bron button:focus-visible,
 #bron a[href]:focus-visible,
