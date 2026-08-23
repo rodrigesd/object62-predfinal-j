@@ -626,7 +626,9 @@ async function start(section) {
       if (st === 'busy' || st === 'dimmed') { openTip(g, t); return; }
       if (B.tableId === t.id) { // повторный клик: снять выбор
         B.tableId = null;
+        clearPick();
         applyStatuses(); renderWizardList(wizFilter); syncGridSel(null); syncStepVals();
+        maxReached = 1; goto(1); // выбора нет: дальше шага 01 идти нельзя
         return;
       }
       selectTable(t.id, () => { if (wiz) goto(1); });
@@ -667,6 +669,7 @@ async function start(section) {
   }
   $('#bkPickX')?.addEventListener('click', () => {
     B.tableId = null;
+    clearPick();
     applyStatuses(); renderWizardList(wizFilter); syncGridSel(null); syncStepVals();
     maxReached = 1; goto(1);
     if (!matchMedia('(max-width: 900px)').matches)
