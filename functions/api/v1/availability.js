@@ -1,11 +1,11 @@
-// PR2/Ф4 · GET /api/v1/availability?date=YYYY-MM-DD — занятость столов (ТЗ §6.2, §7).
-// Фаза 0 — генератор: BOOKING_SOURCE=demo → все столы свободны, плюс интервалы
-// из env DEMO_BUSY (JSON) для теста занятости. source в ответе — честный.
-//
-// DEMO_BUSY принимает два вида JSON:
-//   массив:    [{"tableId":"s3","from":"19:30","to":"21:30","kind":"reserve"}]
-//   по столам: {"s3":[{"from":"19:30","to":"21:30"}]}
-// Времена — «HH:MM» в координатах бизнес-даты (ночные — «02:30»).
+// PR2/Ф4 · GET /api/v1/availability?date=YYYY-MM-DD: занятость столов (ТЗ §6.2, §7).
+// Фаза 0, BOOKING_SOURCE=demo: занятость генерирует functions/lib/demo-busy.js,
+// детерминированно от даты (прайм 30-50% мест, день 10-20%, ночь 1-3 интервала),
+// плюс интервалы из env DEMO_BUSY поверх. Тот же модуль считает 409-конфликт
+// в /api/v1/bookings: показанное занятым и отклоняемое бэком совпадает.
+// source в ответе: честный.
+import { getDemoBusy } from '../../lib/demo-busy.js';
+
 export async function onRequestGet(context) {
   const { request, env } = context;
   const json = (status, obj) => new Response(JSON.stringify(obj), {
@@ -20,31 +20,23 @@ export async function onRequestGet(context) {
   const date = new URL(request.url).searchParams.get('date') || '';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(400, { error: 'bad_date' });
 
-  const tables = {};
-  const source = env.BOOKING_SOURCE || 'demo';
-  if (source === 'demo' && env.DEMO_BUSY) {
-    try {
-      const demo = JSON.parse(env.DEMO_BUSY);
-      const add = (id, iv) => {
-        (tables[id] = tables[id] || { busy: [] }).busy.push({
-          from: iv.from,
-          to: iv.to,
-          kind: iv.kind || 'reserve'
-        });
-      };
-      if (Array.isArray(demo)) {
-        demo.forEach(iv => iv && iv.tableId && add(iv.tableId, iv));
-      } else if (demo && typeof demo === 'object') {
-        Object.keys(demo).forEach(id => (demo[id] || []).forEach(iv => add(id, iv)));
-      }
-    } catch (e) {
-      // битый DEMO_BUSY не роняет эндпоинт: просто отдаём пустую занятость
-      console.warn('[b62] DEMO_BUSY не распарсился:', e.message);
-    }
+  // инвентарь столов генератор берёт из статики Pages (тот же приём, что в bookings)
+  let cfg = null;
+  try {
+    const assetUrl = new URL('/config.json', request.url);
+    const res = await env.ASSETS.fetch(new Request(assetUrl.toString()));
+    if (res.ok) cfg = await res.json();
+  } catch (e) {
+    console.warn('[b62] availability: config.json не загружен:', e.message);
   }
+  if (!cfg) console.warn('[b62] availability: config.json HTTP-ошибка, занятость пустая');
+
+  const busyByTable = cfg ? getDemoBusy(env, cfg, date) : {};
+  const tables = {};
+  Object.keys(busyByTable).forEach(id => { tables[id] = { busy: busyByTable[id] }; });
 
   return json(200, {
-    source,
+    source: env.BOOKING_SOURCE || 'demo',
     businessDate: date,
     generatedAt: new Date().toISOString(),
     tables

@@ -15,6 +15,9 @@
 //
 // CORS наружу не открываем: заголовки Access-Control-* не добавляются (§6.5).
 
+// Фаза 0: занятость считает тот же демо-генератор, что и /api/v1/availability
+import { getDemoBusy } from '../../lib/demo-busy.js';
+
 const RATE_LIMIT_PER_HOUR = 10; // ≥10 заявок/час с IP → 429 (§6.5, гейт G9: 11-я блокируется)
 const IDEM_TTL_SEC = 48 * 3600; // TTL идемпотентности — 48 ч (§6.2)
 const RL_TTL_SEC = 2 * 3600;    // счётчик rate-limit живёт 2 ч (окно — 1 ч)
@@ -209,7 +212,9 @@ function slotInGrid(cfg, businessDate, slot) {
   return s >= openMin && s <= lastMin && (s - openMin) % (cfg.slotStepMin || 30) === 0;
 }
 
-/* ---------- занятость (Фаза 0): конфликты только из DEMO_BUSY (§7) ---------- */
+/* ---------- занятость (Фаза 0): демо-генератор от даты + DEMO_BUSY поверх (§7) ---------- */
+// Тот же модуль, что в /api/v1/availability: конфликт 409 возможен только для
+// интервала, который фронт показывает занятым, и наоборот.
 // Формула §5: стол занят для слота T ⇔ [T, T+defaultDurationMin) пересекается
 // с [from, to+bufferMin) — всё в минутах бизнес-даты.
 function findConflict(env, cfg, value) {
@@ -218,19 +223,7 @@ function findConflict(env, cfg, value) {
   const buffer = cfg.bufferMin || 15;
   const step = cfg.slotStepMin || 30;
 
-  let busyByTable = {};
-  if ((env.BOOKING_SOURCE || 'demo') === 'demo' && env.DEMO_BUSY) {
-    try {
-      const demo = JSON.parse(env.DEMO_BUSY);
-      if (Array.isArray(demo)) {
-        demo.forEach(iv => iv && iv.tableId && (busyByTable[iv.tableId] = busyByTable[iv.tableId] || []).push(iv));
-      } else if (demo && typeof demo === 'object') {
-        Object.keys(demo).forEach(id => (demo[id] || []).forEach(iv => (busyByTable[id] = busyByTable[id] || []).push(iv)));
-      }
-    } catch (e) {
-      console.warn('[b62] DEMO_BUSY не распарсился:', e.message);
-    }
-  }
+  const busyByTable = getDemoBusy(env, cfg, value.businessDate);
 
   const slotMin = bizMin(value.slot, roll);
   const isBusy = (tableId) => (busyByTable[tableId] || []).some(iv => {
