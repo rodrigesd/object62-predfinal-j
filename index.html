@@ -2691,6 +2691,9 @@ function closeLb(){
   /* зум фото брони подменяет shots одним снимком — галерею надо вернуть */
   shots = galleryShots.slice();
 }
+/* зум фото вне галереи (карточка брони): подменяем ленту снимков, при закрытии вернём галерею.
+   booking.js — модуль, до лексического shots отсюда не достучаться, поэтому явный мостик */
+window.openShots = function(list, i){ shots = list; showShot(i || 0); lb.classList.add('open'); };
 shots.forEach((el,i)=> el.addEventListener('click', ()=>{ showShot(i); lb.classList.add('open'); }));
 lb.querySelector('.lb-x').addEventListener('click', closeLb);
 lb.querySelector('.lb-prev').addEventListener('click', e=>{e.stopPropagation();showShot(cur-1)});

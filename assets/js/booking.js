@@ -667,14 +667,14 @@ async function start(section) {
     if (!matchMedia('(max-width: 900px)').matches)
       $('.plan-card')?.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
   });
-  // зум фото выбранного места (общий лайтбокс страницы)
+  // зум фото выбранного места (общий лайтбокс страницы).
+  // Лента лайтбокса подменяется только через window.openShots: «shots» в inline-скрипте
+  // лексический, присваивание в window.shots его не трогает и лайтбокс показывал бы галерею.
   $('#bkPickPh')?.addEventListener('click', function () {
-    if (!B.tableId || this.hidden) return;
+    if (!B.tableId || this.hidden || !window.openShots) return;
     const t = byId[B.tableId];
     const el = $('.plan .spot[data-table-id="' + B.tableId + '"]');
-    window.shots = [{ dataset: { full: this.currentSrc || this.src, cap: el ? (el.dataset.title || t.label) : t.label } }];
-    window.showShot(0);
-    document.getElementById('lightbox')?.classList.add('open');
+    window.openShots([{ dataset: { full: this.currentSrc || this.src, cap: el ? (el.dataset.title || t.label) : t.label } }], 0);
   });
 
   /* ---------- витрина мест на мобильном (карточки из схемы) ---------- */
