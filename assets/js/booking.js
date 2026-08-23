@@ -165,6 +165,8 @@ async function start(section) {
   };
   const sget = k => S[k] != null ? S[k] : k;
   const guestsWord = n => plural(n, sget('guests.word1'), sget('guests.word2'), sget('guests.word5'));
+  // родительный падеж для «до N …»; с фолбэком, если в закэшированном конфиге строк нет
+  const guestsGen = n => plural(n, S['guests.gen1'] || 'гостя', S['guests.gen2'] || 'гостей', S['guests.gen5'] || 'гостей');
   const cancelText = tpl => fmt(tpl, { n: C.cancelHours, unit: plural(C.cancelHours, sget('cancel.unit.one'), sget('cancel.unit.few'), sget('cancel.unit.many')) });
   const money = v => v.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
   function dateHuman(bd) {
@@ -491,7 +493,7 @@ async function start(section) {
       el.setAttribute('tabindex', '0');
       el.setAttribute('aria-label',
         (el.dataset.title || t.label) + ', ' + (el.dataset.cap || '') + ', ' +
-        (st === 'busy' ? sget('busy.word') : st === 'dimmed' ? fmt(sget('dimmed.tip'), { n: t.capacityMax }) : sget('free.word')));
+        (st === 'busy' ? sget('busy.word') : st === 'dimmed' ? fmt(sget('dimmed.tip'), { n: t.capacityMax, word: guestsGen(t.capacityMax) }) : sget('free.word')));
     });
     // галка выбранного места рисуется один раз после обхода (иначе перетирается)
     if (!selMark) { selMark = makeSelMark(); $('svg.plan').appendChild(selMark); }
@@ -545,7 +547,10 @@ async function start(section) {
     const st = statusOf(t);
     const txt = tip.querySelector('.bk-tip-txt');
     const act = tip.querySelector('.btn');
-    if (st === 'busy') {
+    // место не вмещает компанию: бронь этого места не предлагаем в принципе,
+    // даже если оно просто занято на текущий слот
+    const fits = (t.capacityMax || 1) >= B.guests;
+    if (st === 'busy' && fits) {
       const iv = busyIntervalAt(t.id, B.slot);
       const offer = nextOffer(t.id, iv);
       txt.textContent = fmt(sget('busy.tip'), { until: minLabel(toBizMin(iv.to)), from: minLabel(offer) });
@@ -553,8 +558,8 @@ async function start(section) {
       act.textContent = fmt(sget('busy.action'), { time: minLabel(offer) });
       act.dataset.m = String(offer);
       act.dataset.table = t.id;
-    } else if (st === 'dimmed') {
-      txt.textContent = fmt(sget('dimmed.tip'), { n: t.capacityMax });
+    } else if (!fits) {
+      txt.textContent = fmt(sget('dimmed.tip'), { n: t.capacityMax, word: guestsGen(t.capacityMax) });
       act.hidden = true;
     } else {
       closeTip();
