@@ -1,5 +1,6 @@
 // PR4 · POST /api/v1/bookings — приём заявки на бронь (ТЗ §6.2, §6.4, §6.5; контракт §7).
-// Цепочка: rate-limit по IP → валидация полей → проверка занятости (DEMO_BUSY) →
+// Цепочка: rate-limit по IP (считаются только валидные попытки, QA №2) →
+// валидация полей → проверка занятости (DEMO_BUSY) →
 // идемпотентность (KV, ключ = Idempotency-Key, TTL 48 ч; повтор отдаёт тот же ответ
 // без дубля заявки и без второго сообщения в Telegram) → запись заявки в KV →
 // сообщение администратору в Telegram → 201.
@@ -51,9 +52,12 @@ async function handleBooking(context) {
     return json(503, { error: 'storage_unavailable' });
   }
 
-  // --- rate-limit: не более RATE_LIMIT_PER_HOUR заявок в час с одного IP (§6.5) ---
+  // --- rate-limit: не более RATE_LIMIT_PER_HOUR валидных заявок в час с одного IP (§6.5) ---
+  // Только проверка: счётчик поднимается после валидации, невалидные попытки
+  // квоту не жгут (QA №2 — иначе гость, застрявший на форме, ловил 429).
   const ip = request.headers.get('cf-connecting-ip');
-  if (ip && await isRateLimited(kv, ip)) {
+  const rl = ip ? await rateHits(kv, ip) : null;
+  if (rl && rl.count >= RATE_LIMIT_PER_HOUR) {
     return json(429, { error: 'rate_limited' });
   }
 
@@ -72,10 +76,14 @@ async function handleBooking(context) {
   }
 
   // --- идемпотентность: повтор с тем же ключом → тот же ответ, без дубля (§6.2) ---
+  // Replay квоту rate-limit не жжёт: это не новая попытка.
   const idemHit = await kv.get('idem:' + idemKey, 'json');
   if (idemHit && idemHit.body) {
     return json(idemHit.status || 201, idemHit.body, { 'x-idempotent-replay': 'true' });
   }
+
+  // попытка валидна и не replay — вот её считаем (QA №2)
+  if (rl) await kv.put(rl.key, String(rl.count + 1), { expirationTtl: RL_TTL_SEC });
 
   // --- занятость: конфликт с DEMO_BUSY → 409 по контракту §7 ---
   const conflict = findConflict(env, cfg, value);
@@ -89,7 +97,9 @@ async function handleBooking(context) {
 
   // --- запись заявки в KV (Фаза 0: KV — журнал заявок; TTL не ставим,
   //     срок хранения и выгрузка — вопрос к заказчику, §13) ---
-  const bookingId = 'b_' + randomHex(6);
+  // bookingId детерминирован от Idempotency-Key (QA №2): повтор после сбоя
+  // Telegram перезаписывает ту же запись, «сироты» в журнале не плодятся.
+  const bookingId = 'b_' + await shaHex('b62:' + idemKey, 6);
   const record = Object.assign({}, value, {
     id: bookingId,
     status: 'request', // Фаза 0: всегда request (§7); hold/paymentUrl — позже
@@ -102,7 +112,7 @@ async function handleBooking(context) {
   if (tg.error) {
     // Администратор не уведомлен — честная 502, заявка остаётся в KV.
     // Идемпотентный ответ ещё не записан: повтор с тем же Idempotency-Key
-    // пройдёт цепочку заново и дождётся Telegram.
+    // пройдёт цепочку заново (та же запись в KV) и дождётся Telegram.
     console.error('[b62] telegram недоступен:', tg.error);
     return json(502, { error: 'notify_failed' });
   }
@@ -113,12 +123,13 @@ async function handleBooking(context) {
 }
 
 /* ---------- rate-limit (§6.5): счётчик в KV по IP за текущий час ---------- */
-async function isRateLimited(kv, ip) {
+// Только чтение счётчика; инкремент — после успешной валидации (QA №2).
+// 10 валидных попыток в час с IP проходят, 11-я → 429 (гейт G9).
+async function rateHits(kv, ip) {
   const hourBucket = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH (UTC)
   const key = 'rl:' + ip + ':' + hourBucket;
-  const current = parseInt(await kv.get(key) || '0', 10) + 1;
-  await kv.put(key, String(current), { expirationTtl: RL_TTL_SEC });
-  return current > RATE_LIMIT_PER_HOUR;
+  const count = parseInt(await kv.get(key) || '0', 10);
+  return { key, count };
 }
 
 /* ---------- конфиг из статики Pages (тот же приём, что в /api/v1/config) ---------- */
@@ -134,10 +145,13 @@ function validatePayload(body, cfg) {
   const fields = {};
   const b = (body && typeof body === 'object') ? body : {};
 
-  // businessDate: YYYY-MM-DD, реальная дата
+  // businessDate: YYYY-MM-DD, реальная дата, не в прошлом (QA №2: сравнение по
+  // бизнес-дате площадки — ночные часы до ролловера относятся ко «вчера»)
   const businessDate = typeof b.businessDate === 'string' ? b.businessDate : '';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(businessDate) || isNaN(Date.parse(businessDate + 'T00:00:00Z'))) {
     fields.businessDate = 'bad_date';
+  } else if (businessDate < currentBusinessDate(cfg)) {
+    fields.businessDate = 'past_date';
   }
 
   // slot: HH:MM из сетки слотов этой бизнес-даты (ночные — «02:30», §3.5)
@@ -183,6 +197,23 @@ function validatePayload(body, cfg) {
   return { value: { businessDate, slot, tableId: table.id, guests, name, phone, comment, source } };
 }
 
+/* ---------- текущая бизнес-дата площадки (QA №2) ---------- */
+// «Сейчас» в часовом поясе площадки; до ролловера (08:00) идёт предыдущая
+// бизнес-дата — как на фронте (ТЗ §3.5). hourCycle h23: без сюрприза «24:00».
+function currentBusinessDate(cfg) {
+  const tz = (cfg && cfg.timezone) || 'Europe/Moscow';
+  const roll = (cfg && cfg.businessDayRolloverHour) || 8;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', hourCycle: 'h23'
+  }).formatToParts(new Date());
+  const p = {};
+  parts.forEach(x => { p[x.type] = x.value; });
+  const d = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
+  if (+p.hour < roll) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 // управляющие символы из пользовательского ввода убираем (§6.4)
 const stripCtl = s => s.replace(/[\u0000-\u001F\u007F]+/g, ' ');
 
@@ -224,24 +255,33 @@ function findConflict(env, cfg, value) {
   const step = cfg.slotStepMin || 30;
 
   const busyByTable = getDemoBusy(env, cfg, value.businessDate);
+  const intervalsOf = id => busyByTable[id] || [];
+  const isBusy = (tableId, slotMin) => intervalsOf(tableId).some(iv => {
+    const from = bizMin(iv.from, roll), to = bizMin(iv.to, roll);
+    return slotMin < to + buffer && slotMin + dur > from;
+  });
 
   const slotMin = bizMin(value.slot, roll);
-  const isBusy = (tableId) => (busyByTable[tableId] || []).some(iv => {
-    const from = bizMin(iv.from, roll), to = bizMin(iv.to, roll);
-    return slotMin < to + buffer && slotMin + dur > from;
-  });
+  if (!isBusy(value.tableId, slotMin)) return null;
 
-  if (!isBusy(value.tableId)) return null;
-
-  // ближайшее свободное: конец занятости + буфер, вверх к шагу сетки (§3.6)
-  const iv = (busyByTable[value.tableId] || []).find(iv => {
-    const from = bizMin(iv.from, roll), to = bizMin(iv.to, roll);
-    return slotMin < to + buffer && slotMin + dur > from;
-  });
-  const freeFrom = bizMin(iv.to, roll) + buffer;
-  const nearestFreeAt = bizLabel(Math.ceil(freeFrom / step) * step);
+  // ближайшее свободное: конец занятости + буфер, вверх к шагу сетки (§3.6);
+  // если сразу за ним следующая занятость, идём дальше (как nextOffer на фронте)
+  let freeMin = slotMin;
+  for (let i = 0; i < 48; i++) {
+    const iv = intervalsOf(value.tableId).find(iv => {
+      const from = bizMin(iv.from, roll), to = bizMin(iv.to, roll);
+      return freeMin < to + buffer && freeMin + dur > from;
+    });
+    if (!iv) break;
+    freeMin = Math.ceil((bizMin(iv.to, roll) + buffer) / step) * step;
+  }
+  // QA №2: позже последнего слота бизнес-даты слота нет — честный null,
+  // а не несуществующее «02:30», на котором гость застревал в цикле 422
+  const [, close] = businessHours(cfg, value.businessDate);
+  const lastMin = bizMin(close, roll) - (cfg.lastSlotOffsetMin || 30);
+  const nearestFreeAt = freeMin <= lastMin ? bizLabel(freeMin) : null;
   const alternatives = (cfg.tables || [])
-    .filter(t => t.id !== value.tableId && t.capacityMax >= value.guests && !isBusy(t.id))
+    .filter(t => t.id !== value.tableId && t.capacityMax >= value.guests && !isBusy(t.id, slotMin))
     .slice(0, 3)
     .map(t => t.id);
   return { nearestFreeAt, alternatives };
@@ -295,8 +335,9 @@ async function sendTelegram(env, text) {
 }
 
 /* ---------- misc ---------- */
-function randomHex(bytes) {
-  const buf = new Uint8Array(bytes);
-  crypto.getRandomValues(buf);
-  return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+// короткий детерминированный hex из строки (bookingId от Idempotency-Key)
+async function shaHex(str, bytes) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(digest)).slice(0, bytes)
+    .map(b => b.toString(16).padStart(2, '0')).join('');
 }
