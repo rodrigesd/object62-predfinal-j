@@ -80,14 +80,16 @@ async function start(section) {
   const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   // минуты бизнес-даты → подпись «HH:MM» (ночные часы возвращаются в 00–08)
   const minLabel = m => pad(Math.floor((m % 1440) / 60)) + ':' + pad(m % 60);
-  // день недели бизнес-даты определяет часы закрытия (ТЗ §3.5)
-  function closeMin(bd) {
+  // день недели бизнес-даты определяет пару часов работы (ТЗ §3.5)
+  function hoursPair(bd) {
     const dow = bd.getDay(); // 5..0 → пт-вс
-    const pair = dow >= 5 || dow === 0 ? config.hours['fri-sun'] : config.hours['mon-thu'];
-    return toBizMin(pair[1]);
+    return dow >= 5 || dow === 0 ? config.hours['fri-sun'] : config.hours['mon-thu'];
   }
+  // открытие/закрытие из конфига, не хардкод (QA №2: во фронте стояло 16:00)
+  function openMin(bd) { return toBizMin(hoursPair(bd)[0]); }
+  function closeMin(bd) { return toBizMin(hoursPair(bd)[1]); }
   function slotsOf(bd) {
-    const open = 16 * 60, last = closeMin(bd) - C.lastOffset, out = [];
+    const open = openMin(bd), last = closeMin(bd) - C.lastOffset, out = [];
     for (let m = open; m <= last; m += C.step) out.push(m);
     return out;
   }
@@ -114,7 +116,7 @@ async function start(section) {
     const slots = slotsOf(bd);
     const last = slots[slots.length - 1];
     const cand = roundUp(nowMin + C.lead, C.step);
-    if (cand < 16 * 60 || cand > last) return { bd: addDays(bd, 1), slot: C.prime };
+    if (cand < openMin(bd) || cand > last) return { bd: addDays(bd, 1), slot: C.prime };
     return { bd, slot: Math.max(cand, C.prime) };
   }
   const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
@@ -139,10 +141,15 @@ async function start(section) {
     return hit;
   }
   // предложенное время брони: конец занятости + буфер уборки, вверх к сетке слотов
-  // (ТЗ §3.6: округление к шагу 30); если сразу за ним следующая занятость, идём дальше
+  // (ТЗ §3.6: округление к шагу 30); если сразу за ним следующая занятость, идём дальше.
+  // QA №2: позже последнего слота дня предлагать нечего — честный null,
+  // иначе гость получал несуществующий слот («02:30») и тупик с 422.
   function nextOffer(tableId, iv) {
+    const slots = slotsOf(B.bd);
+    const last = slots[slots.length - 1];
     let t = roundUp(toBizMin(iv.to) + C.buffer, C.step);
     for (let i = 0; i < 48; i++) {
+      if (t > last) return null;
       const nx = busyIntervalAt(tableId, t);
       if (!nx) break;
       t = roundUp(toBizMin(nx.to) + C.buffer, C.step);
@@ -553,11 +560,17 @@ async function start(section) {
     if (st === 'busy' && fits) {
       const iv = busyIntervalAt(t.id, B.slot);
       const offer = nextOffer(t.id, iv);
-      txt.textContent = fmt(sget('busy.tip'), { until: minLabel(toBizMin(iv.to)), from: minLabel(offer) });
-      act.hidden = false;
-      act.textContent = fmt(sget('busy.action'), { time: minLabel(offer) });
-      act.dataset.m = String(offer);
-      act.dataset.table = t.id;
+      if (offer === null) {
+        // занят до закрытия: бронь в этот день не предлагаем (QA №2)
+        txt.textContent = sget('busy.tillClose');
+        act.hidden = true;
+      } else {
+        txt.textContent = fmt(sget('busy.tip'), { until: minLabel(toBizMin(iv.to)), from: minLabel(offer) });
+        act.hidden = false;
+        act.textContent = fmt(sget('busy.action'), { time: minLabel(offer) });
+        act.dataset.m = String(offer);
+        act.dataset.table = t.id;
+      }
     } else if (!fits) {
       txt.textContent = fmt(sget('dimmed.tip'), { n: t.capacityMax, word: guestsGen(t.capacityMax) });
       act.hidden = true;
@@ -865,11 +878,7 @@ async function start(section) {
     } catch (e) {
       setSubmitUI(false);
       B.pendingSubmit = false;
-      if (e.status === 409) {
-        if (e.body && e.body.nearestFreeAt) setSlot(toBizMin(e.body.nearestFreeAt));
-        alertTableTaken(e.body && e.body.nearestFreeAt);
-        return;
-      }
+      if (e.status === 409) { handleTaken(e.body || {}); return; }
       if (e.status === 429) { showError(sget('error.429')); return; }
       if (e.status === 422) { showError(sget('error.422')); goto(2); return; }
       // прочие ошибки (сеть, 5xx): честно говорим об ошибке, заявку
@@ -910,6 +919,32 @@ async function start(section) {
   function hideErrors() {
     $('#bkErrBox')?.classList.remove('show');
     $('#bkwErrBox')?.classList.remove('show');
+  }
+  // 409 table_taken (QA №2). Бэк присылает alternatives — свободные столы
+  // на тот же слот: подставляем замену, это готовый выход из тупика.
+  // nearestFreeAt может быть null (стол занят до закрытия) или устареть
+  // к моменту клика — слот вне сетки дня не применяем.
+  function handleTaken(body) {
+    const alt = (body.alternatives || [])
+      .map(id => byId[id])
+      .find(t => t && t.id !== B.tableId && statusOf(t) === 'free');
+    if (alt) {
+      const old = byId[B.tableId];
+      const oldEl = old ? $('.plan .spot[data-table-id="' + old.id + '"]') : null;
+      const altEl = $('.plan .spot[data-table-id="' + alt.id + '"]');
+      selectTable(alt.id);
+      fillSummary(); // сводка шага 03 уже заполнена старым столом — пересобираем
+      showError(fmt(sget('taken.alt'), {
+        from: old ? (oldEl ? (oldEl.dataset.title || old.label) : old.label) : '',
+        to: altEl ? (altEl.dataset.title || alt.label) : alt.label
+      }));
+      return;
+    }
+    const nf = body.nearestFreeAt;
+    const m = nf ? toBizMin(nf) : null;
+    const ok = m !== null && slotsOf(B.bd).includes(m);
+    if (ok) setSlot(m);
+    alertTableTaken(ok ? nf : null);
   }
   function alertTableTaken(nearestFreeAt) {
     showError(sget('tableTaken') + (nearestFreeAt ? ' · ' + fmt(sget('busy.action'), { time: nearestFreeAt }) : ''));

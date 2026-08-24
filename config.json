@@ -18,6 +18,7 @@
   "bufferMin": 15,
   "cancelFreeHours": 24,
   "businessDayRolloverHour": 8,
+  "timezone": "Europe/Moscow",
   "tables": [
     {
       "id": "s1",
@@ -290,11 +291,13 @@
     "deposit.free": "без депозита",
     "busy.tip": "Занят до {until} · свободен с {from}",
     "busy.action": "Забронировать на {time}",
+    "busy.tillClose": "Занят до закрытия. Выберите другой стол или день",
     "busy.word": "занято",
     "busy.close": "Закрыть",
     "free.word": "свободно",
     "dimmed.tip": "до {n} {word}",
     "tableTaken": "Стол только что заняли",
+    "taken.alt": "{from} только что заняли. Вместо него свободен: {to}. Проверьте и отправьте ещё раз",
     "summary.noSpot": "место не выбрано",
     "phase0.submit": "Отправить заявку",
     "phase0.note": "Администратор подтвердит бронь по телефону",
