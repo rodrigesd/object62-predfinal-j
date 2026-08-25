@@ -4,7 +4,13 @@
 // плюс интервалы из env DEMO_BUSY поверх. Тот же модуль считает 409-конфликт
 // в /api/v1/bookings: показанное занятым и отклоняемое бэком совпадает.
 // source в ответе: честный.
+// PR1 (WP-порт): CORS для поддомена WordPress (functions/lib/cors.js).
 import { getDemoBusy } from '../../lib/demo-busy.js';
+import { corsHeaders, corsPreflight } from '../../lib/cors.js';
+
+export async function onRequestOptions(context) {
+  return corsPreflight(context.request);
+}
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -13,7 +19,8 @@ export async function onRequestGet(context) {
     headers: {
       'content-type': 'application/json; charset=utf-8',
       // занятость меняется часто: кэш короткий
-      'cache-control': 'no-cache'
+      'cache-control': 'no-cache',
+      ...corsHeaders(request)
     }
   });
 

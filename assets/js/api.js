@@ -2,7 +2,9 @@
 // никаких fetch в обход. Внешние API (iiko, Telegram, банк) с фронта
 // не вызываются никогда — только свой origin.
 const API_BASE = window.B62_API_BASE || '/api/v1'; // при переезде на WP: /wp-json/b62/v1
-const CONFIG_STATIC = '/config.json'; // статический фолбэк для локального превью без Pages Functions
+// Статический фолбэк config: на WP-поддомене указывает на копию в корне сайта
+// (window.B62_CONFIG_STATIC), по умолчанию поведение прежнее.
+const CONFIG_STATIC = window.B62_CONFIG_STATIC || '/config.json';
 
 async function request(path, options) {
   const res = await fetch(API_BASE + path, options);

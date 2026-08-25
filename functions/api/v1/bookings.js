@@ -14,10 +14,12 @@
 // TELEGRAM_API_BASE — опциональный оверрайд api.telegram.org для локальных
 // тестов (mock-сервер); в проде не ставится.
 //
-// CORS наружу не открываем: заголовки Access-Control-* не добавляются (§6.5).
+// CORS: открыт только поддомену WP 6and2.skalkindmitriy.ru (PR1 WP-порта,
+// functions/lib/cors.js). Остальные origin заголовка ACAO не получают.
 
 // Фаза 0: занятость считает тот же демо-генератор, что и /api/v1/availability
 import { getDemoBusy } from '../../lib/demo-busy.js';
+import { corsPreflight, withCors } from '../../lib/cors.js';
 
 const RATE_LIMIT_PER_HOUR = 10; // ≥10 заявок/час с IP → 429 (§6.5, гейт G9: 11-я блокируется)
 const IDEM_TTL_SEC = 48 * 3600; // TTL идемпотентности — 48 ч (§6.2)
@@ -32,16 +34,22 @@ const json = (status, obj, extraHeaders) => new Response(JSON.stringify(obj), {
 });
 
 export async function onRequest(context) {
+  if (context.request.method === 'OPTIONS') {
+    return corsPreflight(context.request);
+  }
+  let res;
   if (context.request.method !== 'POST') {
-    return json(405, { error: 'method_not_allowed' }, { allow: 'POST' });
+    res = json(405, { error: 'method_not_allowed' }, { allow: 'POST' });
+  } else {
+    try {
+      res = await handleBooking(context);
+    } catch (e) {
+      // неожиданное — не раскрываем внутренности наружу
+      console.error('[b62] bookings: необработанная ошибка:', e && e.message);
+      res = json(500, { error: 'internal' });
+    }
   }
-  try {
-    return await handleBooking(context);
-  } catch (e) {
-    // неожиданное — не раскрываем внутренности наружу
-    console.error('[b62] bookings: необработанная ошибка:', e && e.message);
-    return json(500, { error: 'internal' });
-  }
+  return withCors(context.request, res);
 }
 
 async function handleBooking(context) {
